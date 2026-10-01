@@ -9,4 +9,9 @@ export default defineConfig({
   resolve: {
     alias: { '@foci/shared': fromHere('../../packages/shared/src/index.ts') },
   },
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.APP_VERSION ?? 'dev'),
+    __GIT_SHA__: JSON.stringify(process.env.GIT_SHA ?? 'local'),
+    __BUILD_DATE__: JSON.stringify(process.env.BUILD_DATE ?? 'unknown'),
+  },
 });

@@ -86,3 +86,17 @@ test('tasks persist across a reload', async ({ page }) => {
   await page.reload();
   await expect(page.getByRole('button', { name: title })).toBeVisible();
 });
+
+test('the developer portal renders the docs with diagrams', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Developer' }).click();
+  await expect(page.getByRole('heading', { name: 'Developer portal' })).toBeVisible();
+  // Scoped to the portal nav: the rendered README also links to "concurrency" inline.
+  await page
+    .getByRole('navigation', { name: 'Documentation' })
+    .getByRole('link', { name: 'Concurrency' })
+    .click();
+  await expect(page.getByRole('img', { name: 'Diagram' }).first()).toBeVisible();
+  await page.getByRole('link', { name: '← Back to app' }).click();
+  await expect(page.getByRole('heading', { name: 'FociToDo' })).toBeVisible();
+});
