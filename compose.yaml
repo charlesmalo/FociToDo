@@ -1,8 +1,8 @@
 name: foci-todo
 
 x-postgres-env: &postgres-env
-  POSTGRES_USER: todo
-  POSTGRES_PASSWORD: todo
+  POSTGRES_USER: ${POSTGRES_USER:-todo}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-todo}
   POSTGRES_INITDB_ARGS: --locale-provider=builtin --builtin-locale=C.UTF-8
 
 services:
@@ -14,7 +14,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U todo -d todo']
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d todo']
       interval: 2s
       timeout: 3s
       retries: 30
@@ -24,7 +24,7 @@ services:
       context: .
       target: migrate
     environment:
-      DATABASE_URL: postgres://todo:todo@db:5432/todo
+      DATABASE_URL: postgres://${POSTGRES_USER:-todo}:${POSTGRES_PASSWORD:-todo}@db:5432/todo
     depends_on:
       db:
         condition: service_healthy
@@ -34,7 +34,7 @@ services:
       context: .
       target: api
     environment:
-      DATABASE_URL: postgres://todo:todo@db:5432/todo
+      DATABASE_URL: postgres://${POSTGRES_USER:-todo}:${POSTGRES_PASSWORD:-todo}@db:5432/todo
       PORT: '3000'
       LOG_LEVEL: info
     depends_on:
@@ -50,8 +50,9 @@ services:
       context: .
       target: web
       args:
+        APP_VERSION: ${APP_VERSION:-1.0.0}
         GIT_SHA: ${GIT_SHA:-local}
-        BUILD_DATE: ${BUILD_DATE:-unknown}
+        BUILD_DATE: ${BUILD_DATE:-}
     ports:
       - '${WEB_PORT:-8080}:8080'
     depends_on:
@@ -72,7 +73,7 @@ services:
     tmpfs:
       - /var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U todo -d todo_test']
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d todo_test']
       interval: 1s
       timeout: 3s
       retries: 30
@@ -84,7 +85,7 @@ services:
       target: test
     profiles: [test]
     environment:
-      DATABASE_URL: postgres://todo:todo@db-test:5432/todo_test
+      DATABASE_URL: postgres://${POSTGRES_USER:-todo}:${POSTGRES_PASSWORD:-todo}@db-test:5432/todo_test
     depends_on:
       db-test:
         condition: service_healthy
@@ -99,7 +100,7 @@ services:
     profiles: [dev]
     working_dir: /repo
     environment:
-      DATABASE_URL: postgres://todo:todo@db-test:5432/todo_test
+      DATABASE_URL: postgres://${POSTGRES_USER:-todo}:${POSTGRES_PASSWORD:-todo}@db-test:5432/todo_test
     depends_on:
       db-test:
         condition: service_healthy

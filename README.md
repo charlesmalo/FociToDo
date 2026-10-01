@@ -34,6 +34,8 @@ docker compose --profile test run --rm --build test
 
 Runs the format check, lint (including architecture-boundary rules), type checks, and every unit, integration, concurrency and component test against a throwaway RAM-backed Postgres, failing below **100% coverage**. Report: `reports/coverage/index.html`.
 
+On Linux, files under `reports/` are created by the container user (root); remove them with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` or `sudo`.
+
 End-to-end (real browser against the full stack, isolated from your demo data):
 
 ```bash
@@ -79,7 +81,7 @@ Tests mirror source paths (`src/a/B.ts` → `tests/a/B.test.ts`). See [docs/test
 
 1. Single user; no authentication.
 2. "Overdue" means incomplete with a due date before **today in UTC**; near midnight this can differ from the local date.
-3. Past due dates are allowed (e.g. logging a late task).
+3. Past due dates are allowed (e.g. logging a late task), back to year 0001.
 4. Updates are partial (`PATCH`); `null` clears the description or due date; the title cannot be cleared.
 5. Complete/incomplete are idempotent and do not require `If-Match`.
 6. Delete is permanent.

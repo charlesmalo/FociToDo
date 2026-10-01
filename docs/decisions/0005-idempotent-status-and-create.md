@@ -12,8 +12,8 @@ Complete/incomplete set a target state and bump the version only when it changes
 
 ## Consequences
 
-- Retries are always safe; concurrent duplicates serialise on the key's primary key.
-  − An extra table and a replay-snapshot semantic to document.
+- **Positive:** Retries are always safe; concurrent duplicates serialise on the key's primary key.
+- **Negative:** An extra table and a replay-snapshot semantic to document.
 
 ## Alternatives considered
 

@@ -12,8 +12,8 @@ One page (filters + list) with a Radix Dialog for create/view/edit/delete; serve
 
 ## Consequences
 
-- Accessible modal behaviour (focus trap, Escape, focus return) from a well-tested headless library; no hand-written fetch/effect race handling.
-  − Two UI dependencies.
+- **Positive:** Accessible modal behaviour (focus trap, Escape, focus return) from a well-tested headless library; no hand-written fetch/effect race handling.
+- **Negative:** Two UI dependencies.
 
 ## Alternatives considered
 

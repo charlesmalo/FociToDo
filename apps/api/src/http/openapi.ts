@@ -135,6 +135,7 @@ export function buildOpenApiDocument(): OpenApiDocument {
             404: problem('Todo not found'),
             412: problem('Version conflict: the todo changed since your ETag'),
             413: problem('Body larger than 16 kB'),
+            415: problem('Unsupported body charset'),
             428: problem('If-Match header missing'),
           },
         },

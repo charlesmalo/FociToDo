@@ -251,6 +251,16 @@
               }
             }
           },
+          "415": {
+            "description": "Unsupported body charset",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
           "428": {
             "description": "If-Match header missing",
             "content": {

@@ -29,7 +29,7 @@ sequenceDiagram
   API-->>B: 412 version-conflict
 ```
 
-The web app reacts to a 412 by showing a notice, reloading the todo and keeping the user's edits so they can save again.
+The web app sends the version the user started from — the one the edit form opened on, or the one on screen when Delete was clicked — so a background refetch can never turn a stale edit into a silent overwrite. It reacts to a 412 by showing a notice, reloading the todo and keeping the user's edits; saving again then targets the reloaded version.
 
 ## Double submit, absorbed
 

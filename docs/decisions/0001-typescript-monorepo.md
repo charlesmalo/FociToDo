@@ -12,8 +12,8 @@ One repository with three workspaces: `@foci/shared` (Zod schemas and types), `@
 
 ## Consequences
 
-- One contract, enforced by the compiler on both sides; one install, one test command.
-  − Workspace-aware Docker builds and a little TypeScript configuration (`@foci/source` export condition).
+- **Positive:** One contract, enforced by the compiler on both sides; one install, one test command.
+- **Negative:** Workspace-aware Docker builds and a little TypeScript configuration (`@foci/source` export condition).
 
 ## Alternatives considered
 

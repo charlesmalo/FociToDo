@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { CreateTodoPanel } from './CreateTodoPanel';
 import { TodoDetailsPanel } from './TodoDetailsPanel';
 import styles from './TodoDialog.module.css';
@@ -15,6 +15,8 @@ const TITLES = { create: 'New task', view: 'Task details', edit: 'Edit task' } a
 interface TodoDialogProps {
   state: DialogState;
   onChange: (state: DialogState) => void;
+  /** Receives focus on close when the opener is gone (e.g. the row of a task just deleted). */
+  fallbackFocusRef: RefObject<HTMLElement | null>;
 }
 
 /**
@@ -24,9 +26,10 @@ interface TodoDialogProps {
  * This dialog is opened from arbitrary buttons elsewhere in the tree (there's no `Dialog.Trigger`
  * wrapping them), so Radix has no trigger element of its own to return focus to on close — its
  * built-in fallback silently does nothing in that case. We capture whatever was focused right
- * before the dialog opened and restore it ourselves via `onCloseAutoFocus`.
+ * before the dialog opened and restore it ourselves via `onCloseAutoFocus` — or, if that element
+ * has left the page meanwhile, focus `fallbackFocusRef` so focus never drops to `<body>`.
  */
-export function TodoDialog({ state, onChange }: TodoDialogProps) {
+export function TodoDialog({ state, onChange, fallbackFocusRef }: TodoDialogProps) {
   const wasOpenRef = useRef(false);
   const openerRef = useRef<HTMLElement | null>(null);
 
@@ -58,7 +61,8 @@ export function TodoDialog({ state, onChange }: TodoDialogProps) {
           aria-describedby={undefined}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            openerRef.current?.focus();
+            const opener = openerRef.current;
+            (opener?.isConnected ? opener : fallbackFocusRef.current)?.focus();
           }}
         >
           <Dialog.Title>{TITLES[state.mode]}</Dialog.Title>

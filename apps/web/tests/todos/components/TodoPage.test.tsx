@@ -31,4 +31,21 @@ describe('TodoPage', () => {
     expect(await screen.findByRole('button', { name: 'Brand new' })).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('moves focus to "+ New task" when the row that opened the dialog is deleted', async () => {
+    const todo = makeView({ title: 'Delete me' });
+    const list = vi.fn().mockResolvedValueOnce([todo]).mockResolvedValue([]);
+    const remove = vi.fn(async () => undefined);
+    renderWithProviders(<TodoPage />, fakeClient({ list, get: vi.fn(async () => todo), remove }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete me' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, delete' }));
+    await vi.waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await vi.waitFor(() =>
+      expect(screen.queryByRole('button', { name: 'Delete me' })).not.toBeInTheDocument(),
+    );
+    await vi.waitFor(() =>
+      expect(screen.getByRole('button', { name: '+ New task' })).toHaveFocus(),
+    );
+  });
 });

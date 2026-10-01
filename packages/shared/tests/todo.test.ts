@@ -101,6 +101,26 @@ describe('CreateTodoSchema', () => {
     ]);
   });
 
+  it('rejects a NUL character in the title', () => {
+    const result = CreateTodoSchema.safeParse({ title: 'a\u0000b' });
+    expect(issues(result)).toEqual([
+      expect.objectContaining({
+        path: ['title'],
+        message: 'Title must not contain control character U+0000',
+      }),
+    ]);
+  });
+
+  it('rejects a NUL character in the description', () => {
+    const result = CreateTodoSchema.safeParse({ title: 'x', description: 'a\u0000b' });
+    expect(issues(result)).toEqual([
+      expect.objectContaining({
+        path: ['description'],
+        message: 'Description must not contain control character U+0000',
+      }),
+    ]);
+  });
+
   it('rejects a non-string description', () => {
     const result = CreateTodoSchema.safeParse({ title: 'x', description: 3 });
     expect(issues(result)).toEqual([
@@ -108,22 +128,30 @@ describe('CreateTodoSchema', () => {
     ]);
   });
 
-  it.each(['2000-01-01', '2028-02-29', '2026-12-31'])('accepts the real date %s', (dueDate) => {
-    expect(CreateTodoSchema.parse({ title: 'x', dueDate }).dueDate).toBe(dueDate);
-  });
-
-  it.each(['2026-02-29', '2026-13-01', '2026-1-01', '2026-10-01T00:00:00Z', 'tomorrow'])(
-    'rejects the invalid date %s',
+  it.each(['0001-01-01', '2000-01-01', '2028-02-29', '2026-12-31'])(
+    'accepts the real date %s',
     (dueDate) => {
-      const result = CreateTodoSchema.safeParse({ title: 'x', dueDate });
-      expect(issues(result)).toEqual([
-        expect.objectContaining({
-          path: ['dueDate'],
-          message: 'Due date must be a real date in YYYY-MM-DD format',
-        }),
-      ]);
+      expect(CreateTodoSchema.parse({ title: 'x', dueDate }).dueDate).toBe(dueDate);
     },
   );
+
+  it.each([
+    '2026-02-29',
+    '2026-13-01',
+    '2026-1-01',
+    '2026-10-01T00:00:00Z',
+    'tomorrow',
+    '0000-01-01',
+    '0000-02-29',
+  ])('rejects the invalid date %s', (dueDate) => {
+    const result = CreateTodoSchema.safeParse({ title: 'x', dueDate });
+    expect(issues(result)).toEqual([
+      expect.objectContaining({
+        path: ['dueDate'],
+        message: 'Due date must be a real date in YYYY-MM-DD format',
+      }),
+    ]);
+  });
 
   it.each(['id', 'isCompleted', 'createdAt', 'version', 'isOverdue', 'dueDat'])(
     'rejects the client-supplied or unknown field %s',

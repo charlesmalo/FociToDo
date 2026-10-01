@@ -13,10 +13,16 @@ docker compose --profile test run --rm --build test        # full gate: format, 
 docker compose up --build -d                               # run the app on http://localhost:8080
 ```
 
-## Architecture rules (enforced by ESLint)
+## Architecture rules
+
+Enforced by ESLint (import boundaries):
 
 - API layers: `http → service → domain`; `service` depends on repository **ports** only.
 - `domain/` imports nothing from `service/`, `repository/`, `http/`, `pg`, `express`.
+- Web: the todo feature and the `/dev` portal never import each other; nothing in `apps/web` imports `apps/api`.
+
+Conventions (kept by review, not by lint):
+
 - Only `repository/postgres/` touches SQL; only `apps/web/src/api/todoClient.ts` calls `fetch`.
 - `app.ts` is the only composition root; wire dependencies by hand through constructors.
 - `@foci/shared` Zod schemas are the single source of truth for validation and the OpenAPI document.

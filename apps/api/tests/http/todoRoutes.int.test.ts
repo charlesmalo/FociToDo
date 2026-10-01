@@ -59,6 +59,19 @@ describe('POST /api/todos', () => {
     });
   });
 
+  it.each([
+    [{ title: 'a\u0000b' }, 'title', 'Title must not contain control character U+0000'],
+    [
+      { title: 'x', dueDate: '0000-01-01' },
+      'dueDate',
+      'Due date must be a real date in YYYY-MM-DD format',
+    ],
+  ])('returns 400, not 500, for %j (Postgres would reject it)', async (body, field, message) => {
+    const response = await createTodo(body);
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toEqual([{ field, message }]);
+  });
+
   it('rejects malformed JSON', async () => {
     const response = await api()
       .post('/api/todos')
@@ -238,6 +251,16 @@ describe('PATCH /api/todos/:id', () => {
     expect((await patch({}, undefined)).status).toBe(400);
     expect((await patch({ title: 'x' }, undefined, todoId(999))).status).toBe(428);
     expect((await patch({ title: 'x' }, '"5"', todoId(999))).status).toBe(404);
+  });
+
+  it('returns 415 for an unsupported charset', async () => {
+    const response = await api()
+      .patch(`/api/todos/${id}`)
+      .set('If-Match', '"1"')
+      .set('Content-Type', 'application/json; charset=latin1')
+      .send('{"title":"x"}');
+    expect(response.status).toBe(415);
+    expect(response.body.type).toBe('/problems/bad-request');
   });
 
   it('requires at least one field', async () => {

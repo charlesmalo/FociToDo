@@ -1,25 +1,32 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { createRef, useRef, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { TodoDialog, type DialogState } from '../../../src/todos/components/TodoDialog';
 import { fakeClient, makeView, renderWithProviders } from '../../support/fixtures';
 
 function Harness({ next }: { next: DialogState }) {
   const [state, setState] = useState<DialogState>({ mode: 'closed' });
+  const fallbackRef = useRef<HTMLButtonElement>(null);
   return (
     <>
       <button type="button" onClick={() => setState(next)}>
         Open
       </button>
-      <TodoDialog state={state} onChange={setState} />
+      <button ref={fallbackRef} type="button">
+        Fallback
+      </button>
+      <TodoDialog state={state} onChange={setState} fallbackFocusRef={fallbackRef} />
     </>
   );
 }
 
 describe('TodoDialog', () => {
   it('renders nothing while closed', () => {
-    renderWithProviders(<TodoDialog state={{ mode: 'closed' }} onChange={vi.fn()} />, fakeClient());
+    renderWithProviders(
+      <TodoDialog state={{ mode: 'closed' }} onChange={vi.fn()} fallbackFocusRef={createRef()} />,
+      fakeClient(),
+    );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 

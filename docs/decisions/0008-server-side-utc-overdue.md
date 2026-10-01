@@ -12,8 +12,8 @@ The API computes `isOverdue = !isCompleted && dueDate < today` with "today" take
 
 ## Consequences
 
-- The filter and the badge always agree; deterministic tests via a fixed clock.
-  − Near midnight the UTC date can differ from the user's local date (documented assumption).
+- **Positive:** The filter and the badge always agree; deterministic tests via a fixed clock.
+- **Negative:** Near midnight the UTC date can differ from the user's local date (documented assumption).
 
 ## Alternatives considered
 

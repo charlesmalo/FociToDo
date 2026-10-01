@@ -12,8 +12,8 @@ Plain `.sql` migrations applied by `node-pg-migrate` (advisory-locked) from a de
 
 ## Consequences
 
-- Migrations run exactly once; a failed migration stops startup cleanly; the API needs no DDL rights at runtime.
-  − One more service in Compose.
+- **Positive:** Migrations run exactly once; a failed migration stops startup cleanly; the API needs no DDL rights at runtime.
+- **Negative:** One more service in Compose.
 
 ## Alternatives considered
 

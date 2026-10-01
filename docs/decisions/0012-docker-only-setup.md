@@ -12,8 +12,8 @@ One root Dockerfile (one cached `npm ci`; targets `test`, `api`, `migrate`, `web
 
 ## Consequences
 
-- Identical commands locally and in CI; tests use a throwaway RAM-backed Postgres; e2e never touches demo data.
-  − Long-ish Compose commands (documented verbatim).
+- **Positive:** Identical commands locally and in CI; tests use a throwaway RAM-backed Postgres; e2e never touches demo data.
+- **Negative:** Long-ish Compose commands (documented verbatim).
 
 ## Alternatives considered
 

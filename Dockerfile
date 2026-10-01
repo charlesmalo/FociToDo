@@ -2,6 +2,8 @@
 
 FROM node:24.21-alpine AS base
 WORKDIR /repo
+# Opt out of install-time telemetry from @scarf/scarf (pulled in by swagger-ui-dist).
+ENV SCARF_ANALYTICS=false
 
 # Every workspace manifest + the lockfile: the cache key for dependency installs.
 FROM base AS manifests
@@ -28,9 +30,10 @@ RUN npm run build -w @foci/shared -w @foci/api
 FROM source AS build-web
 ARG APP_VERSION=1.0.0
 ARG GIT_SHA=local
-ARG BUILD_DATE=unknown
-ENV APP_VERSION=$APP_VERSION GIT_SHA=$GIT_SHA BUILD_DATE=$BUILD_DATE
-RUN npm run build -w @foci/web
+# Empty (the default) means "today": the date the image is built, in UTC.
+ARG BUILD_DATE=
+ENV APP_VERSION=$APP_VERSION GIT_SHA=$GIT_SHA
+RUN BUILD_DATE="${BUILD_DATE:-$(date -u +%Y-%m-%d)}" npm run build -w @foci/web
 
 # Production dependencies of the API (and the shared package it links to) only.
 FROM manifests AS api-prod-deps
