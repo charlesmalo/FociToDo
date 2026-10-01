@@ -25,6 +25,15 @@ export default defineConfig({
           include: ['packages/shared/tests/**/*.test.ts'],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'api-unit',
+          environment: 'node',
+          include: ['apps/api/tests/**/*.test.ts'],
+          exclude: ['apps/api/tests/**/*.int.test.ts', 'apps/api/tests/**/*.concurrency.test.ts'],
+        },
+      },
     ],
   },
 });
