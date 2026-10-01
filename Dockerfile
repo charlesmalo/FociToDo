@@ -25,6 +25,9 @@ CMD ["npm", "run", "test:ci"]
 FROM source AS build-api
 RUN npm run build -w @foci/shared -w @foci/api
 
+FROM source AS build-web
+RUN npm run build -w @foci/web
+
 # Production dependencies of the API (and the shared package it links to) only.
 FROM manifests AS api-prod-deps
 RUN --mount=type=cache,target=/root/.npm \
@@ -50,3 +53,11 @@ CMD ["node", "apps/api/dist/server.js"]
 FROM api AS migrate
 HEALTHCHECK NONE
 CMD ["node_modules/.bin/node-pg-migrate", "up", "-m", "apps/api/migrations"]
+
+# Static SPA behind unprivileged nginx (no Node in the final image).
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS web
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build-web /repo/apps/web/dist /usr/share/nginx/html
+EXPOSE 8080
+HEALTHCHECK --interval=5s --timeout=3s --retries=10 \
+  CMD wget -qO- http://127.0.0.1:8080/ >/dev/null || exit 1
