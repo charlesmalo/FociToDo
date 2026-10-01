@@ -23,7 +23,14 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
   const update = useUpdateTodo();
   const remove = useDeleteTodo();
   const [notice, setNotice] = useState<string | null>(null);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  /** Version the open form was started from; `null` while not editing. */
+  const [editBase, setEditBase] = useState<number | null>(null);
+  /** Set by a 412 on Save: adopt the reloaded version as the new base once the refetch is done. */
+  const [rebasePending, setRebasePending] = useState(false);
+  /** Version on screen when Delete was clicked; `null` while not confirming. */
+  const [deleteBase, setDeleteBase] = useState<number | null>(null);
+
+  if (!editing && editBase !== null) setEditBase(null);
 
   if (todo.isPending) return <p role="status">Loading…</p>;
   if (todo.isError) {
@@ -39,29 +46,42 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
   const current = todo.data;
 
   /**
+   * Save and Delete send the version the user started from, never one a background refetch
+   * (e.g. on window focus) slipped in underneath them — otherwise another tab's change would be
+   * overwritten without a 412. After a 412 the reloaded version becomes the new base, so saving
+   * again (having seen the notice) is a deliberate overwrite of the fresh version.
+   */
+  if (editing && (editBase === null || (rebasePending && !todo.isFetching))) {
+    setEditBase(current.version);
+    setRebasePending(false);
+  }
+  const baseVersion = editBase ?? current.version;
+
+  /**
    * Both mutations invalidate every todo query (incl. this detail query) once they settle,
    * success or failure — see `useInvalidateTodos` in `useTodos.ts` — so a 404/412 here always
    * ends with a fresh refetch of `current`, with no separate reload call needed.
    */
   const save = async (input: CreateTodoInput) => {
     try {
-      await update.mutateAsync({ id: current.id, version: current.version, patch: input });
+      await update.mutateAsync({ id: current.id, version: baseVersion, patch: input });
       setNotice(null);
       onEditingChange(false);
     } catch (error) {
       if (!isStatus(error, 412)) throw error;
+      setRebasePending(true);
       setNotice(
         'This task was changed elsewhere and has been reloaded. Your edits are kept — review and save again.',
       );
     }
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = async (version: number) => {
     try {
-      await remove.mutateAsync({ id: current.id, version: current.version });
+      await remove.mutateAsync({ id: current.id, version });
       onClose();
     } catch (error) {
-      setConfirmingDelete(false);
+      setDeleteBase(null);
       if (isStatus(error, 404)) {
         // The refetch triggered by the mutation's onSettled will surface the 404 via todo.isError.
       } else if (isStatus(error, 412)) {
@@ -104,17 +124,17 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
             <dt>Created</dt>
             <dd>{formatTimestamp(current.createdAt)}</dd>
           </dl>
-          {confirmingDelete ? (
+          {deleteBase !== null ? (
             <div role="group" aria-label="Confirm delete" className={styles.buttons}>
               <span>Delete this task?</span>
               <button
                 type="button"
                 disabled={remove.isPending}
-                onClick={() => void confirmDelete()}
+                onClick={() => void confirmDelete(deleteBase)}
               >
                 Yes, delete
               </button>
-              <button type="button" onClick={() => setConfirmingDelete(false)}>
+              <button type="button" onClick={() => setDeleteBase(null)}>
                 Cancel
               </button>
             </div>
@@ -123,7 +143,7 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
               <button type="button" onClick={() => onEditingChange(true)}>
                 Edit
               </button>
-              <button type="button" onClick={() => setConfirmingDelete(true)}>
+              <button type="button" onClick={() => setDeleteBase(current.version)}>
                 Delete
               </button>
             </div>

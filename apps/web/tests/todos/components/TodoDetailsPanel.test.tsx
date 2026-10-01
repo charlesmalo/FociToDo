@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../../../src/api/ApiError';
@@ -96,6 +96,29 @@ describe('TodoDetailsPanel — editing', () => {
     expect(update.mock.calls.map((call) => call[1])).toEqual([1, 2]);
   });
 
+  it('saves against the version editing started from, even after a background refetch', async () => {
+    const original = makeView({ title: 'Old', version: 1 });
+    const changedElsewhere = makeView({ ...original, title: 'Changed elsewhere', version: 2 });
+    const get = vi.fn().mockResolvedValueOnce(original).mockResolvedValue(changedElsewhere);
+    const update = vi
+      .fn()
+      .mockRejectedValueOnce(problem(412))
+      .mockResolvedValueOnce(makeView({ ...changedElsewhere, title: 'Mine', version: 3 }));
+    const { onEditingChange, queryClient } = setup({ get, update }, true);
+    const title = await screen.findByLabelText('Title');
+    await userEvent.clear(title);
+    await userEvent.type(title, 'Mine');
+    // e.g. a refetch on window focus brings in another tab's change while the form is open.
+    await act(() => queryClient.invalidateQueries());
+    expect(get).toHaveBeenCalledTimes(2);
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('changed elsewhere');
+    expect(screen.getByLabelText('Title')).toHaveValue('Mine');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(onEditingChange).toHaveBeenCalledWith(false));
+    expect(update.mock.calls.map((call) => call[1])).toEqual([1, 2]);
+  });
+
   it('lets the form show other save errors', async () => {
     const update = vi.fn(async () => Promise.reject(problem(500, 'Server exploded')));
     setup({ get: vi.fn(async () => makeView()), update }, true);
@@ -129,6 +152,22 @@ describe('TodoDetailsPanel — deleting', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Yes, delete' }));
     await vi.waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(remove).toHaveBeenCalledWith(todo.id, 5);
+  });
+
+  it('deletes with the version shown when Delete was clicked, even after a background refetch', async () => {
+    const original = makeView({ version: 1 });
+    const get = vi
+      .fn()
+      .mockResolvedValueOnce(original)
+      .mockResolvedValue(makeView({ ...original, version: 2 }));
+    const remove = vi.fn(async () => Promise.reject(problem(412)));
+    const { queryClient } = setup({ get, remove });
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    await act(() => queryClient.invalidateQueries());
+    expect(get).toHaveBeenCalledTimes(2);
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, delete' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Check it before deleting');
+    expect(remove).toHaveBeenCalledWith(original.id, 1);
   });
 
   it('reloads after a 404 so the panel explains the task is gone', async () => {
