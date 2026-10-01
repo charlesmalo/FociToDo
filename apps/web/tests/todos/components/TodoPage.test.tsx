@@ -11,6 +11,7 @@ describe('TodoPage', () => {
     const list = vi.fn(async () => [todo]);
     const get = vi.fn(async () => todo);
     renderWithProviders(<TodoPage />, fakeClient({ list, get }));
+    expect(screen.getByRole('link', { name: 'Developer' })).toHaveAttribute('href', '/dev');
     await userEvent.selectOptions(screen.getByLabelText('Show'), 'Completed');
     await vi.waitFor(() =>
       expect(list).toHaveBeenLastCalledWith({ ...DEFAULT_LIST_QUERY, status: 'completed' }),

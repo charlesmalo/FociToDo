@@ -17,10 +17,11 @@ cd FociToDo
 docker compose up --build -d
 ```
 
-| URL                            | What                               |
-| ------------------------------ | ---------------------------------- |
-| http://localhost:8080          | The app                            |
-| http://localhost:8080/api/docs | Interactive API explorer (OpenAPI) |
+| URL                            | What                                                           |
+| ------------------------------ | -------------------------------------------------------------- |
+| http://localhost:8080          | The app                                                        |
+| http://localhost:8080/api/docs | Interactive API explorer (OpenAPI)                             |
+| http://localhost:8080/dev      | Developer portal: rendered docs, diagrams and decision records |
 
 Port 8080 busy? Copy `.env.example` to `.env` and set `WEB_PORT`.
 Stop with `docker compose down` (keeps data) or `docker compose down -v` (deletes data).

@@ -26,6 +26,10 @@ FROM source AS build-api
 RUN npm run build -w @foci/shared -w @foci/api
 
 FROM source AS build-web
+ARG APP_VERSION=1.0.0
+ARG GIT_SHA=local
+ARG BUILD_DATE=unknown
+ENV APP_VERSION=$APP_VERSION GIT_SHA=$GIT_SHA BUILD_DATE=$BUILD_DATE
 RUN npm run build -w @foci/web
 
 # Production dependencies of the API (and the shared package it links to) only.
