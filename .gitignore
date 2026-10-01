@@ -1,0 +1,10 @@
+node_modules/
+dist/
+reports/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.env
+.DS_Store
+.superpowers/

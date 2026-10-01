@@ -1,0 +1,55 @@
+name: foci-todo
+
+x-postgres-env: &postgres-env
+  POSTGRES_USER: todo
+  POSTGRES_PASSWORD: todo
+  POSTGRES_INITDB_ARGS: --locale-provider=builtin --builtin-locale=C.UTF-8
+
+services:
+  # Throwaway database for integration and concurrency tests (RAM-backed, fresh every run).
+  db-test:
+    image: postgres:17.11-alpine
+    profiles: [test, dev]
+    environment:
+      <<: *postgres-env
+      POSTGRES_DB: todo_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U todo -d todo_test']
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  # Full quality gate: format, lint, typecheck, all tests, 100% coverage.
+  test:
+    build:
+      context: .
+      target: test
+    profiles: [test]
+    environment:
+      DATABASE_URL: postgres://todo:todo@db-test:5432/todo_test
+    depends_on:
+      db-test:
+        condition: service_healthy
+    volumes:
+      - ./reports:/reports
+
+  # Developer loop: bind-mounted repo, dependencies in a named volume.
+  dev:
+    build:
+      context: .
+      target: deps
+    profiles: [dev]
+    working_dir: /repo
+    environment:
+      DATABASE_URL: postgres://todo:todo@db-test:5432/todo_test
+    depends_on:
+      db-test:
+        condition: service_healthy
+    volumes:
+      - .:/repo
+      - dev_node_modules:/repo/node_modules
+
+volumes:
+  dev_node_modules:
