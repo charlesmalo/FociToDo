@@ -1,7 +1,7 @@
 # FociToDo — Design Specification
 
 - **Date:** 2026-09-30
-- **Status:** Draft — awaiting review
+- **Status:** Approved 2026-09-30 · amended during planning (see §14)
 - **Source:** Foci take-home brief ("Build a To-Do List Application") + interactive brainstorming session
 
 ---
@@ -121,7 +121,7 @@ Startup order is enforced by Compose: `db` healthy → `migrate` completed succe
 | API | Express 5 (native async error propagation), `pg` with hand-written parameterized SQL |
 | Migrations | `node-pg-migrate`, plain `.sql` files |
 | Logging | `pino` + `pino-http` (JSON, request id, silent in tests) |
-| API docs | `@asteasolutions/zod-to-openapi` + `swagger-ui-express` |
+| API docs | Zod's built-in `z.toJSONSchema` assembled into OpenAPI 3.1 + `swagger-ui-express` |
 | Web | React + Vite, TanStack Query, Radix Dialog, CSS Modules |
 | Dev portal | `react-markdown` + `remark-gfm` + `mermaid` (lazy-loaded) |
 | Tests | Vitest (projects), Supertest, React Testing Library + user-event, Playwright |
@@ -231,7 +231,7 @@ CREATE INDEX todos_created_at_idx ON todos (created_at DESC, id);
 -- idempotency_keys
 CREATE TABLE idempotency_keys (
   key              varchar(255) PRIMARY KEY,
-  request_hash     char(64)     NOT NULL,
+  request_hash     varchar(64)  NOT NULL,
   response_status  smallint     NOT NULL,
   response_body    jsonb        NOT NULL,
   created_at       timestamptz  NOT NULL
@@ -253,7 +253,7 @@ erDiagram
   }
   idempotency_keys {
     varchar key PK
-    char request_hash
+    varchar request_hash
     smallint response_status
     jsonb response_body
     timestamptz created_at
@@ -340,7 +340,7 @@ The rest of this document uses paths without the `/api` prefix for brevity where
 
 **List query:** `status = all | completed | incomplete | overdue` (default `all`); `sort = createdAt | dueDate | title` (default `createdAt`); `order = asc | desc` (default `desc`). Unknown values → 400.
 
-**Validation:** request bodies are strict — unknown keys, and client-supplied `id`, `createdAt`, `isCompleted`, `version` or `isOverdue`, are rejected with 400. Path `id` must be a UUID (400 otherwise). `If-Match` must be a strong ETag `"<positive integer>"`; `*` and malformed values → 400.
+**Validation:** field errors use the field name (or the unknown key's name); body-level errors use `field: null`. Request bodies are strict — unknown keys, and client-supplied `id`, `createdAt`, `isCompleted`, `version` or `isOverdue`, are rejected with 400. Path `id` must be a UUID (400 otherwise). `If-Match` must be a strong ETag `"<positive integer>"`; `*` and malformed values → 400.
 
 **Error precedence** on PATCH and DELETE: **400** (malformed id, body or `If-Match`) → **428** (missing `If-Match`) → **404** (not found) → **412** (version mismatch).
 
@@ -350,6 +350,7 @@ The rest of this document uses paths without the `/api` prefix for brevity where
 |---|---|---|
 | Validation failure (body, query, params, headers) | 400 | `/problems/validation-error` (+ `errors: [{ field, message }]`) |
 | Malformed JSON | 400 | `/problems/malformed-json` |
+| Other client errors from the JSON parser (e.g. unsupported charset) | parser's 4xx (e.g. 415) | `/problems/bad-request` |
 | `TodoNotFoundError`, unknown route | 404 | `/problems/not-found` |
 | `VersionConflictError` | 412 | `/problems/version-conflict` |
 | Body too large (limit 16 kB) | 413 | `/problems/payload-too-large` |
@@ -362,7 +363,7 @@ The rest of this document uses paths without the `/api` prefix for brevity where
 - **Config:** environment parsed with Zod at startup; invalid config stops the process with a clear message.
 - **Logging:** `pino` JSON logs with a request id per request; silent under test.
 - **Graceful shutdown:** on `SIGTERM`/`SIGINT`, stop accepting connections, drain in-flight requests, close the pool.
-- **OpenAPI:** generated from the shared Zod schemas plus a route registry; tests assert every Express route is registered, responses conform to their documented schemas, and the committed `openapi.json` matches the generated output.
+- **OpenAPI:** generated from the shared Zod schemas with Zod's native `z.toJSONSchema` (requests on the input side, responses on the output side) plus hand-written route metadata; tests assert every Express route is registered, responses conform to their documented schemas, and the committed `openapi.json` matches the generated output.
 
 ---
 
@@ -425,7 +426,7 @@ sequenceDiagram
 
 ### 7.4 `/dev` portal
 
-- Tabs: **Overview** (README "How this was built" + workflow diagram) · **Architecture** · **API** · **Concurrency** · **Testing** · **Decisions** (ADR list and detail).
+- Tabs: **Overview** (the whole README, including "How this was built" and its workflow diagram) · **Architecture** · **API** · **Concurrency** · **Testing** · **Decisions** (ADR list and detail).
 - Content: `docs/**/*.md` bundled at build time with `import.meta.glob(..., { query: '?raw', eager: true })`. Single source — no copies.
 - Rendering: `react-markdown` + `remark-gfm`; `mermaid` code fences rendered to SVG by a lazily initialised `MermaidBlock` (neutral theme).
 - API tab links to `/api/docs` (opens in a new tab); Swagger UI is not embedded.
@@ -446,6 +447,7 @@ sequenceDiagram
 | `test` | `source` | All workspaces and dev dependencies; `CMD npm run test:ci` |
 | `api` | `build-api` + `api-prod-deps` | Compiled API, compiled shared package, production dependencies, migrations; runs as `node`; healthcheck on `/api/health` |
 | `migrate` | `api` | Same image; command `node-pg-migrate up` with SQL migrations |
+| `e2e` | Playwright image `v1.63.0-noble` | Only `@playwright/test@1.63.0` installed + `e2e/` specs |
 | `web` | `build-web` | `nginxinc/nginx-unprivileged` (alpine) serving the built SPA; `nginx.conf` with SPA fallback and `/api` proxy |
 
 All base images are pinned and multi-architecture. The build context is the repo root; `.dockerignore` excludes `node_modules`, reports and VCS data.
@@ -454,13 +456,14 @@ All base images are pinned and multi-architecture. The build context is the repo
 
 | Service | Profile | Notes |
 |---|---|---|
-| `db` | default | postgres:17-alpine; `pg_isready` healthcheck; volume `pgdata`; no published port |
+| `db` | default | postgres:17.11-alpine initialised with `--locale-provider=builtin --builtin-locale=C.UTF-8`; `pg_isready` healthcheck; volume `pgdata`; no published port |
 | `migrate` | default | depends on `db` healthy; exits 0 |
 | `api` | default | depends on `migrate` completed successfully; `read_only: true` with tmpfs `/tmp`; healthcheck |
 | `web` | default | publishes `${WEB_PORT:-8080}:8080`; depends on `api` healthy |
-| `db-test` | test | postgres:17-alpine on tmpfs; healthcheck |
-| `test` | test | target `test`; `DATABASE_URL` → `db-test`; bind mount `./coverage` |
-| `e2e` | e2e | Playwright image pinned to the same version as `@playwright/test`; `BASE_URL=http://web:8080`; bind mount `./e2e-report` |
+| `db-test` | test, dev | postgres:17.11-alpine on tmpfs (same locale); healthcheck |
+| `test` | test | target `test`; `DATABASE_URL` → `db-test`; bind mount `./reports` (coverage in `reports/coverage`) |
+| `dev` | dev | target `deps`; bind-mounted repo + named `node_modules` volume; developer TDD loop only |
+| `e2e` | overlay `compose.e2e.yaml` | target `e2e`; `BASE_URL=http://web:8080`; bind mount `./reports` (report in `reports/e2e`); the overlay also removes `web`'s host port |
 
 Development credentials are defaults in `compose.yaml`, overridable through `.env`.
 
@@ -468,19 +471,20 @@ Development credentials are defaults in `compose.yaml`, overridable through `.en
 
 ```bash
 docker compose up --build -d                   # app: http://localhost:8080 · portal: /dev · API explorer: /api/docs
-docker compose --profile test run --rm test    # lint, typecheck, all tests, 100% coverage → ./coverage/index.html
-docker compose -p foci-e2e --profile e2e up --build --exit-code-from e2e; docker compose -p foci-e2e down -v
+docker compose --profile test run --rm --build test   # lint, typecheck, all tests, 100% coverage → reports/coverage/index.html
+docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml run --rm --build e2e
+docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml down -v
 docker compose down -v                         # stop and remove data
 ```
 
-The e2e suite runs under a separate Compose project name so it never touches the demo data.
+Prerequisite: Docker with Compose v2.24+. The e2e suite runs under a separate Compose project name with no host port, so it never touches the demo data or collides with it.
 
 ### 8.4 CI
 
 `.github/workflows/ci.yml` runs on pull requests and on `main`:
 
 1. `test` — the test-profile command; uploads `coverage/`.
-2. `e2e` (needs `test`) — the isolated e2e command; uploads `e2e-report/`.
+2. `e2e` (needs `test`) — the isolated e2e command; uploads `reports/e2e`.
 3. `images` — builds the `api`, `migrate` and `web` targets.
 
 README badges: CI status (GitHub native) and a static "coverage 100% · enforced" badge linking to the workflow.
@@ -565,3 +569,22 @@ Cadence: a milestone review after each app PR (summary posted as a PR comment); 
 ## 13. Out of scope
 
 Authentication and multi-user support · pagination · soft delete / audit history · `completedAt` · client-supplied "today" for overdue · real-time updates · internationalisation · dark mode · a hosted deployment.
+
+---
+
+## 14. Amendments made during planning (2026-09-30)
+
+| # | Change | Reason |
+|---|---|---|
+| A1 | OpenAPI generated with Zod's built-in `z.toJSONSchema` instead of `@asteasolutions/zod-to-openapi` | zod-to-openapi 9 cannot document schemas created before its Zod extension runs (verified); the native converter handles all schemas (verified) |
+| A2 | Problem type `/problems/bad-request` for other JSON-parser client errors | Avoids 500s for client mistakes such as unsupported charsets |
+| A3 | Postgres initialised with the built-in `C.UTF-8` locale | Deterministic Unicode-aware `lower()`, matched by the in-memory comparator |
+| A4 | Test command includes `--build` | The image always reflects the checked-out code |
+| A5 | e2e image is a Dockerfile target on the Playwright image | Reviewers have no host `node_modules` |
+| A6 | `dev` Compose profile for the developer loop | Tools that write files (Prettier, npm) run without host Node |
+| A7 | `/dev` Overview renders the whole README | Simpler and more useful |
+| A8 | Body-level validation errors use `field: null` | Precise, mappable errors |
+| A9 | e2e via an override file and `docker compose run` | `up --exit-code-from` aborts when the one-shot `migrate` exits; no host-port collision with a running demo |
+| A10 | `request_hash` is `varchar(64)` | Avoids `char` padding |
+| A11 | Reviewer prerequisite: Compose v2.24+ | `!reset` in the e2e override |
+| A12 | TypeScript pinned to `~6.0` | typescript-eslint supports TypeScript < 6.1 |
