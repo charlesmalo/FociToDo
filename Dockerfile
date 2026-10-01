@@ -50,6 +50,16 @@ COPY --from=build-api --chown=node:node /repo/packages/shared/dist packages/shar
 COPY --chown=node:node apps/api/package.json apps/api/
 COPY --from=build-api --chown=node:node /repo/apps/api/dist apps/api/dist
 COPY --chown=node:node apps/api/migrations apps/api/migrations
+# The runtime never calls npm/npx/corepack/yarn (CMD is `node apps/api/dist/server.js`,
+# and the `migrate` stage below runs node-pg-migrate directly); drop the base image's
+# global package managers so their CVEs don't show up in a scan of this image.
+RUN rm -rf \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+    /usr/local/bin/yarn /usr/local/bin/yarnpkg \
+    /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+    /opt/yarn-v* \
+  && ! command -v npm && ! command -v npx && ! command -v corepack \
+  && ! command -v yarn && ! command -v yarnpkg
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=5s --timeout=3s --start-period=5s --retries=10 \
