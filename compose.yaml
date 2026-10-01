@@ -6,6 +6,45 @@ x-postgres-env: &postgres-env
   POSTGRES_INITDB_ARGS: --locale-provider=builtin --builtin-locale=C.UTF-8
 
 services:
+  db:
+    image: postgres:17.11-alpine
+    environment:
+      <<: *postgres-env
+      POSTGRES_DB: todo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U todo -d todo']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    build:
+      context: .
+      target: migrate
+    environment:
+      DATABASE_URL: postgres://todo:todo@db:5432/todo
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      target: api
+    environment:
+      DATABASE_URL: postgres://todo:todo@db:5432/todo
+      PORT: '3000'
+      LOG_LEVEL: info
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+
   # Throwaway database for integration and concurrency tests (RAM-backed, fresh every run).
   db-test:
     image: postgres:17.11-alpine
@@ -53,3 +92,4 @@ services:
 
 volumes:
   dev_node_modules:
+  pgdata:
