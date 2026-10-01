@@ -96,7 +96,15 @@ test('the developer portal renders the docs with diagrams', async ({ page }) => 
     .getByRole('navigation', { name: 'Documentation' })
     .getByRole('link', { name: 'Concurrency' })
     .click();
-  await expect(page.getByRole('img', { name: 'Diagram' }).first()).toBeVisible();
+  // docs/concurrency.md has three ```mermaid sequenceDiagram blocks. Assert every one of
+  // them rendered as a real SVG (MermaidBlock's success path), not its <code> fallback
+  // (no role at all) for a failed render — checking only `.first()` would miss a diagram
+  // that silently fell back while an earlier one on the page still rendered.
+  const diagrams = page.getByRole('img', { name: 'Diagram' });
+  await expect(diagrams).toHaveCount(3);
+  for (const diagram of await diagrams.all()) {
+    await expect(diagram.locator('svg')).toBeVisible();
+  }
   await page.getByRole('link', { name: '← Back to app' }).click();
   await expect(page.getByRole('heading', { name: 'FociToDo' })).toBeVisible();
 });
