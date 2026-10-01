@@ -67,6 +67,24 @@ describe('DevPortal', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Document not found.');
   });
 
+  it('starts each document with fresh diagram state', async () => {
+    const diagrams = createDocLibrary(
+      {
+        '../../../../README.md': '# Overview doc\n\n```mermaid\nflowchart LR\n```\n',
+        '../../../../docs/api.md': '# API doc\n\n```mermaid\nsequenceDiagram\n```\n',
+      },
+      {},
+    );
+    render(<DevPortal library={diagrams} />);
+    expect(await screen.findByRole('img', { name: 'Diagram' })).toBeInTheDocument();
+    navigate('#api');
+    expect(screen.getByRole('heading', { name: 'API doc' })).toBeInTheDocument();
+    // A reused MermaidBlock would still show the overview's diagram here.
+    expect(screen.queryByRole('img', { name: 'Diagram' })).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Rendering diagram…');
+    expect(await screen.findByRole('img', { name: 'Diagram' })).toBeInTheDocument();
+  });
+
   it('uses the bundled repository docs by default', () => {
     render(<DevPortal />);
     expect(screen.getByRole('heading', { level: 1, name: 'Developer portal' })).toBeInTheDocument();

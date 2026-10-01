@@ -45,7 +45,7 @@ export function DevPortal({ library = docLibrary }: { library?: DocLibrary }) {
         {page === undefined ? (
           <p role="alert">Document not found.</p>
         ) : (
-          <DocView page={page} library={library} />
+          <DocView key={page.path} page={page} library={library} />
         )}
       </main>
     </div>
