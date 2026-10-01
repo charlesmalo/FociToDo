@@ -42,10 +42,10 @@ async function createTodo(title = 'Contended'): Promise<string> {
 const sortedStatuses = (responses: Array<{ status: number }>) =>
   responses.map((response) => response.status).sort((a, b) => a - b);
 
-async function eachRound(scenario: () => Promise<void>): Promise<void> {
+async function eachRound(scenario: (round: number) => Promise<void>): Promise<void> {
   for (let round = 0; round < ROUNDS; round += 1) {
     await resetDatabase(runtime.pool);
-    await scenario();
+    await scenario(round);
   }
 }
 
@@ -144,18 +144,28 @@ describe('concurrency guarantees', () => {
   });
 
   it('delete vs patch from the same version: exactly one wins, state matches the winner', async () => {
-    await eachRound(async () => {
+    await eachRound(async (round) => {
       const id = await createTodo();
-      const [deleted, patched] = await Promise.all([
-        api().delete(`/api/todos/${id}`).set('If-Match', '"1"'),
-        api().patch(`/api/todos/${id}`).set('If-Match', '"1"').send({ title: 'Edited' }),
-      ]);
+      const remove = () => api().delete(`/api/todos/${id}`).set('If-Match', '"1"');
+      const edit = () =>
+        api().patch(`/api/todos/${id}`).set('If-Match', '"1"').send({ title: 'Edited' });
+      // Alternate which request is sent first so both outcomes get exercised.
+      const [deleted, patched] =
+        round % 2 === 0
+          ? await Promise.all([remove(), edit()])
+          : await Promise.all([edit(), remove()]).then(
+              ([edited, removed]) => [removed, edited] as const,
+            );
       const outcome = [deleted.status, patched.status];
       expect([
         [204, 404],
         [412, 200],
       ]).toContainEqual(outcome);
       expect(await countTodos()).toBe(deleted.status === 204 ? 0 : 1);
+      if (patched.status === 200) {
+        const stored = await api().get(`/api/todos/${id}`);
+        expect(stored.body).toMatchObject({ title: 'Edited', version: 2 });
+      }
     });
   });
 
