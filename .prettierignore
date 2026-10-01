@@ -1,0 +1,6 @@
+package-lock.json
+reports
+dist
+docs/superpowers
+apps/api/openapi.json
+.superpowers
