@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import { defineConfig } from 'eslint/config';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { importX } from 'eslint-plugin-import-x';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -94,6 +95,13 @@ export default defineConfig(
     files: ['apps/api/src/http/**'],
     rules: {
       'no-restricted-imports': ['error', { paths: ['pg'] }],
+    },
+  },
+  {
+    ...reactHooks.configs.flat['recommended-latest'],
+    files: ['apps/web/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: { ...globals.browser },
     },
   },
 );

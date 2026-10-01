@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
 const fromRoot = (path: string): string => fileURLToPath(new URL(path, import.meta.url));
@@ -46,6 +47,16 @@ export default defineConfig({
           fileParallelism: false,
           testTimeout: 20_000,
           hookTimeout: 60_000,
+        },
+      },
+      {
+        extends: true,
+        plugins: [react()],
+        test: {
+          name: 'web',
+          environment: 'jsdom',
+          include: ['apps/web/tests/**/*.test.{ts,tsx}'],
+          setupFiles: ['apps/web/tests/setup.ts'],
         },
       },
     ],

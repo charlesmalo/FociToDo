@@ -8,6 +8,7 @@ FROM base AS manifests
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
+COPY apps/web/package.json apps/web/
 
 # One full install (dev dependencies included) for building and testing.
 FROM manifests AS deps
