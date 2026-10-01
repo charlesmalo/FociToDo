@@ -59,6 +59,19 @@ describe('POST /api/todos', () => {
     });
   });
 
+  it.each([
+    [{ title: 'a\u0000b' }, 'title', 'Title must not contain control character U+0000'],
+    [
+      { title: 'x', dueDate: '0000-01-01' },
+      'dueDate',
+      'Due date must be a real date in YYYY-MM-DD format',
+    ],
+  ])('returns 400, not 500, for %j (Postgres would reject it)', async (body, field, message) => {
+    const response = await createTodo(body);
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toEqual([{ field, message }]);
+  });
+
   it('rejects malformed JSON', async () => {
     const response = await api()
       .post('/api/todos')

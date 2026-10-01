@@ -4,14 +4,14 @@ Base path `/api`. JSON in and out; errors are `application/problem+json` ([RFC 9
 
 ## Conventions
 
-| Topic                 | Rule                                                                                                                                                        |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Versions              | Every todo has a `version`; responses carry it as a strong `ETag` (e.g. `"3"`)                                                                              |
-| Updates and deletes   | `If-Match: "<version>"` is required: missing → **428**, stale → **412**                                                                                     |
-| Creates               | Optional `Idempotency-Key`; a repeat replays the original 201 with `Idempotent-Replayed: true`; same key + different body → **422**; keys expire after 24 h |
-| Complete / incomplete | Idempotent; no `If-Match`; the version changes only if the state changes                                                                                    |
-| Validation            | Bodies and queries are strict: unknown fields → **400** with per-field `errors`                                                                             |
-| Error precedence      | **400** (malformed) → **428** (missing If-Match) → **404** → **412**                                                                                        |
+| Topic                 | Rule                                                                                                                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Versions              | Every todo has a `version`; responses carry it as a strong `ETag` (e.g. `"3"`)                                                                                                      |
+| Updates and deletes   | `If-Match: "<version>"` is required: missing → **428**, stale → **412**                                                                                                             |
+| Creates               | Optional `Idempotency-Key`; a repeat replays the original 201 with `Idempotent-Replayed: true`; same key + different body → **422**; keys expire after 24 h                         |
+| Complete / incomplete | Idempotent; no `If-Match`; the version changes only if the state changes                                                                                                            |
+| Validation            | Bodies and queries are strict: unknown fields → **400** with per-field `errors`; `dueDate` is a real `YYYY-MM-DD` date (year ≥ 0001); title and description must not contain U+0000 |
+| Error precedence      | **400** (malformed) → **428** (missing If-Match) → **404** → **412**                                                                                                                |
 
 ## Endpoints
 
