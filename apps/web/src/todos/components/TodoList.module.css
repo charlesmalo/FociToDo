@@ -1,0 +1,23 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+.filters label {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  color: var(--color-muted);
+}

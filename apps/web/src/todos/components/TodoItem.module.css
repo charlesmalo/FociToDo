@@ -1,0 +1,40 @@
+.item {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.done .title {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
+
+.title {
+  flex: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.overdue {
+  padding: 0 var(--space-1);
+  border-radius: var(--radius);
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.due {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
