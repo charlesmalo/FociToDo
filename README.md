@@ -34,6 +34,8 @@ docker compose --profile test run --rm --build test
 
 Runs the format check, lint (including architecture-boundary rules), type checks, and every unit, integration, concurrency and component test against a throwaway RAM-backed Postgres, failing below **100% coverage**. Report: `reports/coverage/index.html`.
 
+On Linux, files under `reports/` are created by the container user (root); remove them with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` or `sudo`.
+
 End-to-end (real browser against the full stack, isolated from your demo data):
 
 ```bash

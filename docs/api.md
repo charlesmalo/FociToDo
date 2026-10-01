@@ -48,7 +48,7 @@ List parameters: `status` = `all` (default) · `completed` · `incomplete` · `o
 
 ```bash
 curl -i -X POST localhost:8080/api/todos -H 'Content-Type: application/json' \
-  -H 'Idempotency-Key: 7d1c…' -d '{"title":"Buy milk","dueDate":"2026-10-01"}'
+  -H 'Idempotency-Key: 7d1c2b9e-4a3f-4e8b-9c1d-2f6a8b0e5c41' -d '{"title":"Buy milk","dueDate":"2026-10-01"}'
 ```
 
 ```mermaid

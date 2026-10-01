@@ -12,8 +12,8 @@ A `version` column, exposed as a strong `ETag` and in the body. PATCH and DELETE
 
 ## Consequences
 
-- Lost updates are impossible; standard HTTP semantics; testable as an invariant.
-  − Clients must track the ETag; the UI handles 412 by reloading and keeping the user's edits.
+- **Positive:** Lost updates are impossible; standard HTTP semantics; testable as an invariant.
+- **Negative:** Clients must track the ETag; the UI handles 412 by reloading and keeping the user's edits.
 
 ## Alternatives considered
 

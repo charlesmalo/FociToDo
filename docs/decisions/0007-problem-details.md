@@ -12,8 +12,8 @@ All errors are `application/problem+json` with `type`, `title`, `status`, `detai
 
 ## Consequences
 
-- Self-describing errors; the web form maps `errors` straight onto fields.
-  − Problem type URIs to maintain.
+- **Positive:** Self-describing errors; the web form maps `errors` straight onto fields.
+- **Negative:** Problem type URIs to maintain.
 
 ## Alternatives considered
 

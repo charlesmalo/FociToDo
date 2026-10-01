@@ -12,8 +12,8 @@ The brief separates "update title/description/due date" from "complete" and "inc
 
 ## Consequences
 
-- Each operation maps one-to-one to the brief; versioning rules stay simple per route.
-  − Two extra routes instead of a generic PATCH of `isCompleted`.
+- **Positive:** Each operation maps one-to-one to the brief; versioning rules stay simple per route.
+- **Negative:** Two extra routes instead of a generic PATCH of `isCompleted`.
 
 ## Alternatives considered
 

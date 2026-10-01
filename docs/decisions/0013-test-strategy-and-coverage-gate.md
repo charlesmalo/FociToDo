@@ -12,8 +12,8 @@ Seven layers (schema, service, repository contract on both adapters, HTTP, concu
 
 ## Consequences
 
-- Every line runs under test; the contract suite keeps the fast in-memory tests honest; invariants catch races.
-  − More test code; logic-free bootstrap files are excluded explicitly.
+- **Positive:** Every line runs under test; the contract suite keeps the fast in-memory tests honest; invariants catch races.
+- **Negative:** More test code; logic-free bootstrap files are excluded explicitly.
 
 ## Alternatives considered
 

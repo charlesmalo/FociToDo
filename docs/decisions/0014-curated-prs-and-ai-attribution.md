@@ -12,8 +12,8 @@ One branch and PR per work package, merged with a merge commit after curating th
 
 ## Consequences
 
-- A readable, bisectable history with visible review points; clear accountability.
-  − Some branch-tidying before each PR.
+- **Positive:** A readable, bisectable history with visible review points; clear accountability.
+- **Negative:** Some branch-tidying before each PR.
 
 ## Alternatives considered
 

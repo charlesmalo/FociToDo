@@ -12,8 +12,8 @@ A lazily loaded `/dev` section of the React app renders the repository's Markdow
 
 ## Consequences
 
-- One copy of the docs; diagrams render in the product; the todo bundle stays small.
-  − The web image build includes `docs/`; the portal adds two dependencies to its own chunk.
+- **Positive:** One copy of the docs; diagrams render in the product; the todo bundle stays small.
+- **Negative:** The web image build includes `docs/`; the portal adds two dependencies to its own chunk.
 
 ## Alternatives considered
 
