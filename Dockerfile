@@ -7,6 +7,7 @@ WORKDIR /repo
 FROM base AS deps
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
+COPY apps/api/package.json apps/api/
 RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 
 FROM deps AS source
