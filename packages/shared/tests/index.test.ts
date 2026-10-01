@@ -6,4 +6,9 @@ describe('@foci/shared public API', () => {
     expect(shared.PROBLEM_TYPES.validation).toBe('/problems/validation-error');
     expect(typeof shared.toFieldErrors).toBe('function');
   });
+
+  it('re-exports the todo module', () => {
+    expect(shared.TITLE_MAX_LENGTH).toBe(200);
+    expect(typeof shared.CreateTodoSchema.parse).toBe('function');
+  });
 });
