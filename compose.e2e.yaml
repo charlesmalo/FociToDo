@@ -1,0 +1,21 @@
+# End-to-end overlay. Use with a separate project name so it never touches the demo:
+#   docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml run --rm --build e2e
+services:
+  web:
+    ports: !reset []
+
+  e2e:
+    build:
+      context: .
+      target: e2e
+    environment:
+      BASE_URL: http://web:8080
+      REPORT_DIR: /reports/e2e
+      RESULTS_DIR: /reports/e2e-results
+    depends_on:
+      web:
+        condition: service_healthy
+    volumes:
+      - ./reports:/reports
+    shm_size: 1gb
+    init: true
