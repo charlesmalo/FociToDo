@@ -61,3 +61,11 @@ COPY --from=build-web /repo/apps/web/dist /usr/share/nginx/html
 EXPOSE 8080
 HEALTHCHECK --interval=5s --timeout=3s --retries=10 \
   CMD wget -qO- http://127.0.0.1:8080/ >/dev/null || exit 1
+
+# Browser tests: the official image ships matching browsers; only the test runner is installed.
+FROM mcr.microsoft.com/playwright:v1.63.0-noble AS e2e
+WORKDIR /e2e
+RUN npm init -y >/dev/null \
+  && npm install --no-audit --no-fund --save-exact @playwright/test@1.63.0
+COPY e2e/ ./
+CMD ["npx", "playwright", "test"]
