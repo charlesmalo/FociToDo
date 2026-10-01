@@ -253,6 +253,16 @@ describe('PATCH /api/todos/:id', () => {
     expect((await patch({ title: 'x' }, '"5"', todoId(999))).status).toBe(404);
   });
 
+  it('returns 415 for an unsupported charset', async () => {
+    const response = await api()
+      .patch(`/api/todos/${id}`)
+      .set('If-Match', '"1"')
+      .set('Content-Type', 'application/json; charset=latin1')
+      .send('{"title":"x"}');
+    expect(response.status).toBe(415);
+    expect(response.body.type).toBe('/problems/bad-request');
+  });
+
   it('requires at least one field', async () => {
     const response = await patch({}, '"1"');
     expect(response.status).toBe(400);

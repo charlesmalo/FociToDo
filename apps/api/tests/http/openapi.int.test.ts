@@ -82,6 +82,15 @@ describe('responses conform to the OpenAPI document', () => {
       '/api/todos/{id}/complete',
       'post',
     );
+    expectConforms(
+      await api()
+        .patch(`/api/todos/${missing}`)
+        .set('If-Match', '"1"')
+        .set('Content-Type', 'application/json; charset=latin1')
+        .send('{"title":"x"}'),
+      '/api/todos/{id}',
+      'patch',
+    );
   });
 
   it('serves the document and the explorer from the running app', async () => {
