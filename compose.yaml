@@ -45,6 +45,20 @@ services:
       - /tmp
     restart: unless-stopped
 
+  web:
+    build:
+      context: .
+      target: web
+    ports:
+      - '${WEB_PORT:-8080}:8080'
+    depends_on:
+      api:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+
   # Throwaway database for integration and concurrency tests (RAM-backed, fresh every run).
   db-test:
     image: postgres:17.11-alpine
