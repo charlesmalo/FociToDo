@@ -11,4 +11,9 @@ describe('@foci/shared public API', () => {
     expect(shared.TITLE_MAX_LENGTH).toBe(200);
     expect(typeof shared.CreateTodoSchema.parse).toBe('function');
   });
+
+  it('re-exports the list query and header modules', () => {
+    expect(shared.DEFAULT_LIST_QUERY.status).toBe('all');
+    expect(shared.toEtag(1)).toBe('"1"');
+  });
 });
