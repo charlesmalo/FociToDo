@@ -34,6 +34,20 @@ export default defineConfig({
           exclude: ['apps/api/tests/**/*.int.test.ts', 'apps/api/tests/**/*.concurrency.test.ts'],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'api-db',
+          environment: 'node',
+          include: ['apps/api/tests/**/*.int.test.ts', 'apps/api/tests/**/*.concurrency.test.ts'],
+          globalSetup: ['apps/api/tests/support/globalSetup.ts'],
+          // Files share one database: run them one after another; tests inside a file may still
+          // issue concurrent requests on purpose.
+          fileParallelism: false,
+          testTimeout: 20_000,
+          hookTimeout: 60_000,
+        },
+      },
     ],
   },
 });
