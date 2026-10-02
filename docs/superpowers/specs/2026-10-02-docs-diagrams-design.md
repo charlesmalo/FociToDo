@@ -64,7 +64,7 @@ The Mermaid-source link targets the GitHub anchor of the diagram's heading. The 
 
 ### 2.4 Generator
 
-- Command: `docker compose --profile docs run --rm diagrams` (Docker only, NFR-0).
+- Command: `docker compose --profile docs run --rm --build diagrams` (Docker only, NFR-0; `--build` so the tool image always matches the checked-out code).
 - Runs the pinned official Mermaid CLI image; renders each diagram to SVG with a committed config file: `htmlLabels: false` (labels are real SVG `<text>`, so the image renders correctly when GitHub shows it via `<img>`), deterministic ids, a fixed theme and white background.
 - Writes all SVGs and `manifest.json`, deletes images whose id no longer exists, and exits non-zero naming `file:line` on any Mermaid syntax error.
 - Output is deterministic: running it twice on the same sources produces byte-identical files (verified when implemented).
@@ -78,7 +78,7 @@ The Mermaid-source link targets the GitHub anchor of the diagram's heading. The 
   - a manifest id has no image file, or an image file has no manifest id (missing / orphan),
   - a document's diagram is not shown in the §2.2 shape (image link to its own id + `<details>` source), or
   - a manifest id is missing from the README map, or a map row points at a missing image.
-- Each failure message names the id and the fix: `run: docker compose --profile docs run --rm diagrams`.
+- Each failure message names the id and the fix: `run: docker compose --profile docs run --rm --build diagrams`.
 
 ### 2.6 CI
 
@@ -107,10 +107,10 @@ A CI step runs the generator and then `git diff --exit-code -- docs/diagrams`, p
 
 Two pull requests, in this order, each curated and green at every commit:
 
-1. **PR B — diagram images** (`docs/diagram-images`): this spec and its plan, the tool and tests, generator and compose service, CI step, all 21 images, document restructuring (§2.2), README map (§2.3).
-2. **PR A — remove `/dev`** (`refactor/remove-dev-portal`): §3 in full, ADR 0015, spec amendment status updated.
+1. **PR A — remove `/dev`** (`refactor/remove-dev-portal`): this spec and its plans, §3 in full, ADR 0015.
+2. **PR B — diagram images** (`docs/diagram-images`): the tool and tests, generator and compose service, CI step, all 21 images, document restructuring (§2.2), README map (§2.3).
 
-PR B lands first so the diagram safety net exists before the e2e diagram journey is removed.
+PR A lands first: if the documents were restructured while the portal still existed, the portal would show broken image links and raw `<details>` markup until the portal was removed. Between the two merges no diagram changes, and PR B's own CI renders every diagram, so no diagram error can slip through the gap.
 
 After both merge, the companion review repository is refreshed: verify and scans re-run on the new `main`; traceability matrix (FR-10 removed, NFR-9 re-pointed, DOC-1 added); a review note per PR; the sign-off updated to the new commit.
 
