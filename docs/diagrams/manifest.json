@@ -1,0 +1,137 @@
+{
+  "diagrams": [
+    {
+      "id": "readme/design-overview",
+      "file": "README.md",
+      "heading": "Design overview",
+      "image": "docs/diagrams/readme/design-overview.svg",
+      "hash": "28adcc1a4d4e3532344eb80177571efd5cf194a4c76a0d6e0cdbbd2ac6672d81"
+    },
+    {
+      "id": "readme/how-this-was-built",
+      "file": "README.md",
+      "heading": "How this was built",
+      "image": "docs/diagrams/readme/how-this-was-built.svg",
+      "hash": "c9a7e1a2f9545f0af62769af812db49810eef06d1392032f39202683f4162d0d"
+    },
+    {
+      "id": "api/create-post-api-todos",
+      "file": "docs/api.md",
+      "heading": "Create — POST /api/todos",
+      "image": "docs/diagrams/api/create-post-api-todos.svg",
+      "hash": "555eea39622c72856772b0d93ec8b97d659015f822c60eb9644abe8d57239c6e"
+    },
+    {
+      "id": "api/list-get-api-todos",
+      "file": "docs/api.md",
+      "heading": "List — GET /api/todos",
+      "image": "docs/diagrams/api/list-get-api-todos.svg",
+      "hash": "d0bf3a17baea342d7df9d797777e5156d06a405ceb3946b72f587261ac3d77ab"
+    },
+    {
+      "id": "api/view-get-api-todos-id",
+      "file": "docs/api.md",
+      "heading": "View — GET /api/todos/{id}",
+      "image": "docs/diagrams/api/view-get-api-todos-id.svg",
+      "hash": "3328b710485dd974a2ad0630686640bef334dc2fd59c4ef10568fbfb895a86dd"
+    },
+    {
+      "id": "api/update-patch-api-todos-id",
+      "file": "docs/api.md",
+      "heading": "Update — PATCH /api/todos/{id}",
+      "image": "docs/diagrams/api/update-patch-api-todos-id.svg",
+      "hash": "2380e90343335dfbecbe5a8b650e128e9c988f538e6464b4ef4eb25c7a4dd35c"
+    },
+    {
+      "id": "api/complete-post-api-todos-id-complete",
+      "file": "docs/api.md",
+      "heading": "Complete — POST /api/todos/{id}/complete",
+      "image": "docs/diagrams/api/complete-post-api-todos-id-complete.svg",
+      "hash": "d770c1bbf39a009abda4e58b6c762b0fa3999a656a18a6db62035ac6411406aa"
+    },
+    {
+      "id": "api/incomplete-post-api-todos-id-incomplete",
+      "file": "docs/api.md",
+      "heading": "Incomplete — POST /api/todos/{id}/incomplete",
+      "image": "docs/diagrams/api/incomplete-post-api-todos-id-incomplete.svg",
+      "hash": "ac384a82d5aa11ad35517626cba7dcae850660d921e034707641899162ab2350"
+    },
+    {
+      "id": "api/delete-delete-api-todos-id",
+      "file": "docs/api.md",
+      "heading": "Delete — DELETE /api/todos/{id}",
+      "image": "docs/diagrams/api/delete-delete-api-todos-id.svg",
+      "hash": "f2f5f45155416cc95572cc63141b451a6d1c05a2f80efc4464e20f9a4db827ea"
+    },
+    {
+      "id": "architecture/system-context",
+      "file": "docs/architecture.md",
+      "heading": "System context",
+      "image": "docs/diagrams/architecture/system-context.svg",
+      "hash": "071f3c75d174297b8dbe550692d7d11027bb7682645ba0a876f0e4fdbbccaea7"
+    },
+    {
+      "id": "architecture/deployment-and-startup-order",
+      "file": "docs/architecture.md",
+      "heading": "Deployment and startup order",
+      "image": "docs/diagrams/architecture/deployment-and-startup-order.svg",
+      "hash": "5a50a9a0373b580b6aa81e65d5ce21e534e3b1946e3a27c2785a281a65da4b31"
+    },
+    {
+      "id": "architecture/backend-layers",
+      "file": "docs/architecture.md",
+      "heading": "Backend layers",
+      "image": "docs/diagrams/architecture/backend-layers.svg",
+      "hash": "9239ff223a6d6f13dc690af0ae85f5b1e18cf7dd357bf5583bade9e37576838d"
+    },
+    {
+      "id": "architecture/domain-model",
+      "file": "docs/architecture.md",
+      "heading": "Domain model",
+      "image": "docs/diagrams/architecture/domain-model.svg",
+      "hash": "e05fe6c580f9dcc351e167bc11828a4f3f8312ca9060c5b4dcfadabef854e7d4"
+    },
+    {
+      "id": "architecture/data-model",
+      "file": "docs/architecture.md",
+      "heading": "Data model",
+      "image": "docs/diagrams/architecture/data-model.svg",
+      "hash": "a993310160f3ecb5921913097c043072bdc61035d11ba6c0f954c8ea6feb21dd"
+    },
+    {
+      "id": "architecture/frontend",
+      "file": "docs/architecture.md",
+      "heading": "Frontend",
+      "image": "docs/diagrams/architecture/frontend.svg",
+      "hash": "af44151d4c88fcaaacea4022f8e76b16f33a40cedbdf2356fe116ebf6ff15f4c"
+    },
+    {
+      "id": "concurrency/lost-update-prevented",
+      "file": "docs/concurrency.md",
+      "heading": "Lost update, prevented",
+      "image": "docs/diagrams/concurrency/lost-update-prevented.svg",
+      "hash": "03a27ecc7920b8e0622314156a45b873fde99a7b5df90db25a040c88bbbda4e1"
+    },
+    {
+      "id": "concurrency/double-submit-absorbed",
+      "file": "docs/concurrency.md",
+      "heading": "Double submit, absorbed",
+      "image": "docs/diagrams/concurrency/double-submit-absorbed.svg",
+      "hash": "5d96293c85d46e1459730df2e6466a3b1718770f569df3900b90785edc433326"
+    },
+    {
+      "id": "concurrency/parallel-completes-one-change",
+      "file": "docs/concurrency.md",
+      "heading": "Parallel completes, one change",
+      "image": "docs/diagrams/concurrency/parallel-completes-one-change.svg",
+      "hash": "bc8a6c52d4aad178a7f44d84e4a7ce2a8c8623eff16f2e73c249507e0bf9b175"
+    },
+    {
+      "id": "testing/layers",
+      "file": "docs/testing.md",
+      "heading": "Layers",
+      "image": "docs/diagrams/testing/layers.svg",
+      "hash": "adc8189706314a628029db41c9a8fcd72d2b257ad930d5b0b4a43ef1c07d10f5"
+    }
+  ]
+}

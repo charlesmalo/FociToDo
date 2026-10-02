@@ -31,6 +31,16 @@ RUN npm run build -w @foci/shared -w @foci/api
 FROM source AS build-web
 RUN npm run build -w @foci/web
 
+FROM source AS build-diagrams
+RUN npm run build -w @foci/diagrams
+
+# Renders the Mermaid diagrams in README.md and docs/*.md to docs/diagrams/ (spec 2026-10-02 §2).
+FROM minlag/mermaid-cli:12.0.0@sha256:fa995339034aae7e5cd4f61482248b7f5c51be355b1a6f6eda11a2bbf8401f5f AS diagrams
+COPY packages/diagrams/package.json packages/diagrams/mermaid.config.json /tool/
+COPY --from=build-diagrams /repo/packages/diagrams/dist /tool/dist
+WORKDIR /repo
+ENTRYPOINT ["node", "/tool/dist/bin.js"]
+
 # Production dependencies of the API (and the shared package it links to) only.
 FROM manifests AS api-prod-deps
 RUN --mount=type=cache,target=/root/.npm \

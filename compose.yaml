@@ -104,6 +104,18 @@ services:
       - .:/repo
       - dev_node_modules:/repo/node_modules
 
+  # Regenerates docs/diagrams/ from the Mermaid blocks in README.md and docs/*.md.
+  diagrams:
+    build:
+      context: .
+      target: diagrams
+    profiles: [docs]
+    # Root so it can write into a bind-mounted checkout owned by any host user
+    # (the image's Chromium already runs with --no-sandbox).
+    user: root
+    volumes:
+      - .:/repo
+
 volumes:
   dev_node_modules:
   pgdata:
