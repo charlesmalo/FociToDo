@@ -1,6 +1,6 @@
 # 0011 In-app `/dev` portal single-sourced from `docs/`
 
-Status: Accepted · 2026-09-30
+Status: Superseded by [0015](./0015-docs-and-diagrams-in-the-repository.md) · 2026-10-02 (accepted 2026-09-30)
 
 ## Context
 

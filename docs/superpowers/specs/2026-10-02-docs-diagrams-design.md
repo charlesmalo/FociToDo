@@ -1,7 +1,7 @@
 # Docs diagrams as images, and removal of the `/dev` portal — Design
 
 - **Date:** 2026-10-02
-- **Status:** Approved in conversation 2026-10-02 · awaiting written-spec review
+- **Status:** Approved 2026-10-02
 - **Amends:** [2026-09-30-foci-todo-design.md](2026-09-30-foci-todo-design.md) (FR-10, NFR-9, ADR 0011)
 
 ## 1. Why
