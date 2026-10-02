@@ -35,8 +35,6 @@ jobs:
     name: End-to-end (Playwright)
     needs: test
     runs-on: ubuntu-latest
-    env:
-      GIT_SHA: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
       - name: Run end-to-end tests
@@ -57,8 +55,6 @@ jobs:
   images:
     name: Build runtime images
     runs-on: ubuntu-latest
-    env:
-      GIT_SHA: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
       - name: Build migrate, api and web targets

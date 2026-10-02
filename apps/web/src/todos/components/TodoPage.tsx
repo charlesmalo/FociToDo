@@ -14,12 +14,11 @@ export function TodoPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1>FociToDo</h1>
-        <nav className={styles.actions}>
+        <div className={styles.actions}>
           <button ref={newTaskRef} type="button" onClick={() => setDialog({ mode: 'create' })}>
             + New task
           </button>
-          <a href="/dev">Developer</a>
-        </nav>
+        </div>
       </header>
       <main>
         <TodoFilters query={query} onChange={setQuery} />

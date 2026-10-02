@@ -19,7 +19,7 @@ Enforced by ESLint (import boundaries):
 
 - API layers: `http → service → domain`; `service` depends on repository **ports** only.
 - `domain/` imports nothing from `service/`, `repository/`, `http/`, `pg`, `express`.
-- Web: the todo feature and the `/dev` portal never import each other; nothing in `apps/web` imports `apps/api`.
+- Web: nothing in `apps/web` imports `apps/api`.
 
 Conventions (kept by review, not by lint):
 

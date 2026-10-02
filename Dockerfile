@@ -28,12 +28,7 @@ FROM source AS build-api
 RUN npm run build -w @foci/shared -w @foci/api
 
 FROM source AS build-web
-ARG APP_VERSION=1.0.0
-ARG GIT_SHA=local
-# Empty (the default) means "today": the date the image is built, in UTC.
-ARG BUILD_DATE=
-ENV APP_VERSION=$APP_VERSION GIT_SHA=$GIT_SHA
-RUN BUILD_DATE="${BUILD_DATE:-$(date -u +%Y-%m-%d)}" npm run build -w @foci/web
+RUN npm run build -w @foci/web
 
 # Production dependencies of the API (and the shared package it links to) only.
 FROM manifests AS api-prod-deps

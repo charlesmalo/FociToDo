@@ -63,16 +63,6 @@ export default defineConfig(
               message: 'http must not depend on repository adapters',
             },
             {
-              target: './apps/web/src/todos',
-              from: ['./apps/web/src/dev'],
-              message: 'todo feature must not depend on the dev portal',
-            },
-            {
-              target: './apps/web/src/dev',
-              from: ['./apps/web/src/todos'],
-              message: 'dev portal must not depend on todo feature internals',
-            },
-            {
               target: './apps/web/src',
               from: ['./apps/api'],
               message: 'web must not import the api package',
