@@ -52,11 +52,6 @@ export default defineConfig({
       {
         extends: true,
         plugins: [react()],
-        define: {
-          __APP_VERSION__: JSON.stringify('1.2.3'),
-          __GIT_SHA__: JSON.stringify('abcdef0123456789'),
-          __BUILD_DATE__: JSON.stringify('2026-10-01'),
-        },
         test: {
           name: 'web',
           environment: 'jsdom',

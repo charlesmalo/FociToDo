@@ -4,6 +4,8 @@
 - **Status:** Approved 2026-09-30 · amended during planning (see §14)
 - **Source:** Foci take-home brief ("Build a To-Do List Application") + interactive brainstorming session
 
+> **Amended 2026-10-02:** the in-app `/dev` portal (FR-10, §7.4) was removed — see [ADR 0015](../../decisions/0015-docs-and-diagrams-in-the-repository.md) and [the docs-diagrams spec](2026-10-02-docs-diagrams-design.md). Sections that still mention it describe the original design.
+
 ---
 
 ## 1. Purpose and success criteria
@@ -36,7 +38,7 @@ The submission succeeds when:
 | FR-7 | Delete a to-do by ID |
 | FR-8 | Filter the list: all, completed, incomplete, overdue |
 | FR-9 | Sort the list by createdAt, dueDate or title, ascending or descending |
-| FR-10 | Browse developer documentation (rendered diagrams, API explorer link, ADRs, build info) from within the web UI at `/dev` |
+| FR-10 | ~~Browse developer documentation (rendered diagrams, API explorer link, ADRs, build info) from within the web UI at `/dev`~~ — removed 2026-10-02, see [ADR 0015](../../decisions/0015-docs-and-diagrams-in-the-repository.md) and [the docs-diagrams spec](2026-10-02-docs-diagrams-design.md) |
 
 ### 2.2 Data
 
@@ -424,7 +426,7 @@ sequenceDiagram
 - **Accessibility:** Radix focus management; labelled inputs with `aria-invalid` / `aria-describedby`; checkbox accessible name "Mark '<title>' complete".
 - **API client (`todoClient.ts`):** the only module that calls `fetch`; sends `If-Match` and `Idempotency-Key`; parses problem details into `ApiError { status, type, title, errors }`; validates responses with the shared schema.
 
-### 7.4 `/dev` portal
+### 7.4 `/dev` portal (removed 2026-10-02 — see ADR 0015)
 
 - Tabs: **Overview** (the whole README, including "How this was built" and its workflow diagram) · **Architecture** · **API** · **Concurrency** · **Testing** · **Decisions** (ADR list and detail).
 - Content: `docs/**/*.md` bundled at build time with `import.meta.glob(..., { query: '?raw', eager: true })`. Single source — no copies.
@@ -533,7 +535,7 @@ Vitest projects in the root config: `shared`, `api-unit`, `api-db`, `web`. The `
 
 Each Mermaid diagram stays small (about 15 lines) and sits next to the text it explains.
 
-**ADRs:** 0001 TypeScript monorepo · 0002 Postgres with `pg` and plain SQL · 0003 `node-pg-migrate` and one-shot migrate service · 0004 Optimistic locking with ETag/If-Match · 0005 Idempotent status actions and Idempotency-Key · 0006 PATCH plus action routes · 0007 RFC 9457 problem details · 0008 Server-side UTC overdue · 0009 OpenAPI generated from Zod · 0010 Single-page UI with Radix dialog and TanStack Query · 0011 In-app `/dev` portal single-sourced from docs · 0012 Single multi-stage Dockerfile and Compose profiles · 0013 Test strategy and 100% coverage gate · 0014 Curated PR workflow and AI attribution.
+**ADRs:** 0001 TypeScript monorepo · 0002 Postgres with `pg` and plain SQL · 0003 `node-pg-migrate` and one-shot migrate service · 0004 Optimistic locking with ETag/If-Match · 0005 Idempotent status actions and Idempotency-Key · 0006 PATCH plus action routes · 0007 RFC 9457 problem details · 0008 Server-side UTC overdue · 0009 OpenAPI generated from Zod · 0010 Single-page UI with Radix dialog and TanStack Query · 0011 In-app `/dev` portal single-sourced from docs (superseded by 0015) · 0012 Single multi-stage Dockerfile and Compose profiles · 0013 Test strategy and 100% coverage gate · 0014 Curated PR workflow and AI attribution.
 
 ---
 

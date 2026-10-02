@@ -28,11 +28,10 @@ docker compose ps
 
 Expected: `curl` prints something like `{"status":"ok","db":"up","schemaVersion":"<latest migration>"}` and exits `0` (the `-f` flag makes it fail on a non-2xx response); `docker compose ps` shows `db`, `api` and `web` as `healthy`.
 
-| URL                            | What                                                           |
-| ------------------------------ | -------------------------------------------------------------- |
-| http://localhost:8080          | The app                                                        |
-| http://localhost:8080/api/docs | Interactive API explorer (OpenAPI)                             |
-| http://localhost:8080/dev      | Developer portal: rendered docs, diagrams and decision records |
+| URL                            | What                               |
+| ------------------------------ | ---------------------------------- |
+| http://localhost:8080          | The app                            |
+| http://localhost:8080/api/docs | Interactive API explorer (OpenAPI) |
 
 Port 8080 busy? Copy `.env.example` to `.env` and set `WEB_PORT`.
 Stop with `docker compose down` (keeps data) or `docker compose down -v` (deletes data).

@@ -10,9 +10,6 @@
   "engines": {
     "node": ">=24"
   },
-  "overrides": {
-    "lodash-es": "4.18.1"
-  },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e/tsconfig.json",

@@ -86,25 +86,3 @@ test('tasks persist across a reload', async ({ page }) => {
   await page.reload();
   await expect(page.getByRole('button', { name: title })).toBeVisible();
 });
-
-test('the developer portal renders the docs with diagrams', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('link', { name: 'Developer' }).click();
-  await expect(page.getByRole('heading', { name: 'Developer portal' })).toBeVisible();
-  // Scoped to the portal nav: the rendered README also links to "concurrency" inline.
-  await page
-    .getByRole('navigation', { name: 'Documentation' })
-    .getByRole('link', { name: 'Concurrency' })
-    .click();
-  // docs/concurrency.md has three ```mermaid sequenceDiagram blocks. Assert every one of
-  // them rendered as a real SVG (MermaidBlock's success path), not its <code> fallback
-  // (no role at all) for a failed render — checking only `.first()` would miss a diagram
-  // that silently fell back while an earlier one on the page still rendered.
-  const diagrams = page.getByRole('img', { name: 'Diagram' });
-  await expect(diagrams).toHaveCount(3);
-  for (const diagram of await diagrams.all()) {
-    await expect(diagram.locator('svg')).toBeVisible();
-  }
-  await page.getByRole('link', { name: '← Back to app' }).click();
-  await expect(page.getByRole('heading', { name: 'FociToDo' })).toBeVisible();
-});
