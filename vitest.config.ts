@@ -12,7 +12,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['packages/*/src/**/*.{ts,tsx}', 'apps/*/src/**/*.{ts,tsx}'],
-      exclude: ['apps/api/src/server.ts', 'apps/web/src/main.tsx', '**/*.d.ts'],
+      exclude: [
+        'apps/api/src/server.ts',
+        'apps/web/src/main.tsx',
+        'packages/diagrams/src/bin.ts',
+        '**/*.d.ts',
+      ],
       reporter: ['text', 'html', 'json-summary'],
       reportsDirectory: process.env.COVERAGE_DIR ?? 'reports/coverage',
       thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
@@ -24,6 +29,14 @@ export default defineConfig({
           name: 'shared',
           environment: 'node',
           include: ['packages/shared/tests/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'diagrams',
+          environment: 'node',
+          include: ['packages/diagrams/tests/**/*.test.ts'],
         },
       },
       {

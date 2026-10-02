@@ -1,0 +1,12 @@
+{
+  "theme": "default",
+  "deterministicIds": true,
+  "deterministicIDSeed": "foci",
+  "htmlLabels": false,
+  "flowchart": { "htmlLabels": false, "useMaxWidth": false },
+  "sequence": { "useMaxWidth": false },
+  "state": { "useMaxWidth": false },
+  "er": { "useMaxWidth": false },
+  "class": { "useMaxWidth": false },
+  "handDrawnSeed": 1
+}

@@ -16,12 +16,12 @@ Branch: `docs/diagram-images`, from `main` after PR 1 (`refactor/remove-dev-port
 
 See [00-index.md](00-index.md#global-constraints-all-plans). In addition (spec §2):
 
-- Sources: every ```` ```mermaid ```` fence in `README.md` and the direct children `docs/*.md` (not `docs/decisions/`, not `docs/superpowers/`). Today: 21 diagrams (README 2, architecture 6, api 7, concurrency 3, testing 1).
+- Sources: every ```` ```mermaid ```` fence in `README.md` and the direct children `docs/*.md` (not `docs/decisions/`, not `docs/superpowers/`). Today: 19 diagrams (README 2, architecture 6, api 7, concurrency 3, testing 1).
 - Id: `<doc>/<slug>`; `<doc>` = `readme` for `README.md`, else the file name without `.md`; `<slug>` = nearest preceding heading text, lower-cased, every run outside `a-z0-9` → one `-`, leading/trailing `-` removed; repeated slugs in one doc get `-2`, `-3`, …; no heading or empty slug → `diagram`.
 - Image path `docs/diagrams/<id>.svg`; manifest `docs/diagrams/manifest.json` (`id`, `file`, `heading`, `image`, `hash` = SHA-256 hex of the source trimmed with `\n` line endings).
 - Document shape at every diagram: image line `![<alt>](<path relative to the document>)`, blank, `<details><summary>Mermaid source</summary>`, blank, the fence, blank, `</details>`. Alt = `<heading> (<kind>)`, kind from the first keyword: `sequenceDiagram` → `sequence diagram`, `flowchart`/`graph` → `flowchart`, `stateDiagram`/`stateDiagram-v2` → `state diagram`, `erDiagram` → `entity-relationship diagram`, `classDiagram` → `class diagram`, else `diagram`.
 - Fix command (in every failure message): `docker compose --profile docs run --rm --build diagrams`.
-- Mermaid CLI image pinned to `minlag/mermaid-cli:12.0.0`; config: `deterministicIds: true`, `deterministicIDSeed: "foci"`, `htmlLabels: false` (top level and `flowchart`), theme `default`, background `white`.
+- Mermaid CLI image pinned to `minlag/mermaid-cli:12.0.0`; config: `deterministicIds: true`, `deterministicIDSeed: "foci"`, `htmlLabels: false` (top level and `flowchart`), theme `default`, background `white`, `handDrawnSeed: 1` (Roughjs treats seed `0` as random, which broke determinism for ER and class diagrams).
 - `docs/diagrams/` is generated: listed in `.prettierignore`, never edited by hand.
 
 ## Review Focus
@@ -1636,12 +1636,12 @@ docs/diagrams
 docker compose --profile docs run --rm --build diagrams
 ```
 
-Expected: `Rendered 21 diagrams into docs/diagrams/`; `docs/diagrams/` holds `manifest.json` and 21 SVGs in `readme/`, `architecture/`, `api/`, `concurrency/`, `testing/`.
+Expected: `Rendered 19 diagrams into docs/diagrams/`; `docs/diagrams/` holds `manifest.json` and 19 SVGs in `readme/`, `architecture/`, `api/`, `concurrency/`, `testing/`.
 
 Verify, and record the outputs in the task report:
 
 ```bash
-find docs/diagrams -name '*.svg' | wc -l                  # 21
+find docs/diagrams -name '*.svg' | wc -l                  # 19
 grep -L '<svg' docs/diagrams/*/*.svg                      # no output: every file is an SVG
 grep -l 'foreignObject' docs/diagrams/*/*.svg             # no output: labels are SVG text
 grep -l '&lt;br' docs/diagrams/*/*.svg                    # no output: <br/> became a line break, not text
@@ -1708,7 +1708,7 @@ describe('this repository', () => {
 - [ ] **Step 2: Run it to verify it fails**
 
 Run: `docker compose --profile dev run --rm dev npx vitest run packages/diagrams/tests/check.test.ts`
-Expected: FAIL — 21 layout problems (bare fences) and 21 README-map problems; the message for each states the exact expected image line.
+Expected: FAIL — 19 layout problems (bare fences) and 19 README-map problems; the message for each states the exact expected image line.
 
 - [ ] **Step 3: Show each diagram as image + collapsed source**
 

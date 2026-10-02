@@ -51,6 +51,10 @@ curl -i -X POST localhost:8080/api/todos -H 'Content-Type: application/json' \
   -H 'Idempotency-Key: 7d1c2b9e-4a3f-4e8b-9c1d-2f6a8b0e5c41' -d '{"title":"Buy milk","dueDate":"2026-10-01"}'
 ```
 
+![Create — POST /api/todos (sequence diagram)](diagrams/api/create-post-api-todos.svg)
+
+<details><summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
   participant C as Client
@@ -75,7 +79,13 @@ sequenceDiagram
   end
 ```
 
+</details>
+
 ### List — `GET /api/todos`
+
+![List — GET /api/todos (sequence diagram)](diagrams/api/list-get-api-todos.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -91,7 +101,13 @@ sequenceDiagram
   end
 ```
 
+</details>
+
 ### View — `GET /api/todos/{id}`
+
+![View — GET /api/todos/{id} (sequence diagram)](diagrams/api/view-get-api-todos-id.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -111,12 +127,18 @@ sequenceDiagram
   end
 ```
 
+</details>
+
 ### Update — `PATCH /api/todos/{id}`
 
 ```bash
 curl -i -X PATCH localhost:8080/api/todos/<id> -H 'If-Match: "1"' \
   -H 'Content-Type: application/json' -d '{"title":"Buy oat milk"}'
 ```
+
+![Update — PATCH /api/todos/{id} (sequence diagram)](diagrams/api/update-patch-api-todos-id.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -140,7 +162,13 @@ sequenceDiagram
   end
 ```
 
+</details>
+
 ### Complete — `POST /api/todos/{id}/complete`
+
+![Complete — POST /api/todos/{id}/complete (sequence diagram)](diagrams/api/complete-post-api-todos-id-complete.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -159,7 +187,13 @@ sequenceDiagram
   end
 ```
 
+</details>
+
 ### Incomplete — `POST /api/todos/{id}/incomplete`
+
+![Incomplete — POST /api/todos/{id}/incomplete (sequence diagram)](diagrams/api/incomplete-post-api-todos-id-incomplete.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -177,7 +211,13 @@ sequenceDiagram
   end
 ```
 
+</details>
+
 ### Delete — `DELETE /api/todos/{id}`
+
+![Delete — DELETE /api/todos/{id} (sequence diagram)](diagrams/api/delete-delete-api-todos-id.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -200,3 +240,5 @@ sequenceDiagram
     end
   end
 ```
+
+</details>

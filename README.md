@@ -99,7 +99,7 @@ Exit code `0` means every journey passed. Report: `reports/e2e/index.html`.
 
 - **Port 8080 already in use:** copy `.env.example` to `.env` and set `WEB_PORT`.
 - **Can the stack and the tests run at the same time?** Yes — the test profile uses its own throwaway `db-test` Postgres, isolated from the stack's `db`.
-- **Linux: `reports/` owned by root:** files under `reports/` are created by the container user; remove them with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` or `sudo`.
+- **Linux: `reports/` or `docs/diagrams/` owned by root:** files under `reports/` are created by the container user, and the `diagrams` generator runs as root to write into the bind-mounted checkout; remove either with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` (swap in `/w/docs/diagrams` for the images) or `sudo`.
 
 ### For AI agents
 
@@ -114,6 +114,10 @@ Every command on this page is non-interactive and reports success or failure thr
 
 ## Design overview
 
+![Design overview (flowchart)](docs/diagrams/readme/design-overview.svg)
+
+<details><summary>Mermaid source</summary>
+
 ```mermaid
 flowchart LR
   B[Browser] -->|:8080| W[web · nginx]
@@ -122,13 +126,63 @@ flowchart LR
   M[migrate · one-shot] --> D
 ```
 
+</details>
+
 - **Monorepo:** `packages/shared` (Zod contract), `apps/api` (Express), `apps/web` (React). The shared schemas drive API validation, web forms and the OpenAPI document.
 - **Backend layers:** `http → service → domain`, storage behind ports with Postgres and in-memory adapters, wired by hand in one composition root. Boundaries are lint-enforced.
 - **Concurrency:** optimistic locking with `ETag`/`If-Match` (412 on conflict), idempotent complete/incomplete, and `Idempotency-Key` on create — all enforced in SQL.
 - **Errors:** RFC 9457 problem details with per-field validation errors.
 - **Why OpenAPI?** A standard, machine-readable contract generated from the same Zod schemas the API validates with, so docs can't drift; it gives reviewers an interactive page to try every endpoint at `/api/docs`.
 
-More: [architecture](docs/architecture.md) · [API and sequence diagrams](docs/api.md) · [concurrency](docs/concurrency.md) · [testing](docs/testing.md) · [decision records](docs/decisions/README.md)
+## Documentation and diagrams
+
+Every diagram is a Mermaid block in the document that explains it, shown as a generated image with its source collapsed underneath. Changed a diagram? Run `docker compose --profile docs run --rm --build diagrams` — the test gate fails until images match their source.
+
+**This README**
+
+| Diagram            | Image                                              | Mermaid source                |
+| ------------------ | -------------------------------------------------- | ----------------------------- |
+| Design overview    | [SVG](docs/diagrams/readme/design-overview.svg)    | [source](#design-overview)    |
+| How this was built | [SVG](docs/diagrams/readme/how-this-was-built.svg) | [source](#how-this-was-built) |
+
+**[Architecture](docs/architecture.md)** — context, deployment, layers, domain and data models, frontend.
+
+| Diagram                      | Image                                                              | Mermaid source                                              |
+| ---------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| System context               | [SVG](docs/diagrams/architecture/system-context.svg)               | [source](docs/architecture.md#system-context)               |
+| Deployment and startup order | [SVG](docs/diagrams/architecture/deployment-and-startup-order.svg) | [source](docs/architecture.md#deployment-and-startup-order) |
+| Backend layers               | [SVG](docs/diagrams/architecture/backend-layers.svg)               | [source](docs/architecture.md#backend-layers)               |
+| Domain model                 | [SVG](docs/diagrams/architecture/domain-model.svg)                 | [source](docs/architecture.md#domain-model)                 |
+| Data model                   | [SVG](docs/diagrams/architecture/data-model.svg)                   | [source](docs/architecture.md#data-model)                   |
+| Frontend                     | [SVG](docs/diagrams/architecture/frontend.svg)                     | [source](docs/architecture.md#frontend)                     |
+
+**[API and sequence diagrams](docs/api.md)** — conventions, endpoints, problem types, one sequence per endpoint with its error branches.
+
+| Diagram                                        | Image                                                                | Mermaid source                                              |
+| ---------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Create — `POST /api/todos`                     | [SVG](docs/diagrams/api/create-post-api-todos.svg)                   | [source](docs/api.md#create--post-apitodos)                 |
+| List — `GET /api/todos`                        | [SVG](docs/diagrams/api/list-get-api-todos.svg)                      | [source](docs/api.md#list--get-apitodos)                    |
+| View — `GET /api/todos/{id}`                   | [SVG](docs/diagrams/api/view-get-api-todos-id.svg)                   | [source](docs/api.md#view--get-apitodosid)                  |
+| Update — `PATCH /api/todos/{id}`               | [SVG](docs/diagrams/api/update-patch-api-todos-id.svg)               | [source](docs/api.md#update--patch-apitodosid)              |
+| Complete — `POST /api/todos/{id}/complete`     | [SVG](docs/diagrams/api/complete-post-api-todos-id-complete.svg)     | [source](docs/api.md#complete--post-apitodosidcomplete)     |
+| Incomplete — `POST /api/todos/{id}/incomplete` | [SVG](docs/diagrams/api/incomplete-post-api-todos-id-incomplete.svg) | [source](docs/api.md#incomplete--post-apitodosidincomplete) |
+| Delete — `DELETE /api/todos/{id}`              | [SVG](docs/diagrams/api/delete-delete-api-todos-id.svg)              | [source](docs/api.md#delete--delete-apitodosid)             |
+
+**[Concurrency](docs/concurrency.md)** — the race scenarios and how the design absorbs them.
+
+| Diagram                        | Image                                                              | Mermaid source                                              |
+| ------------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| Lost update, prevented         | [SVG](docs/diagrams/concurrency/lost-update-prevented.svg)         | [source](docs/concurrency.md#lost-update-prevented)         |
+| Double submit, absorbed        | [SVG](docs/diagrams/concurrency/double-submit-absorbed.svg)        | [source](docs/concurrency.md#double-submit-absorbed)        |
+| Parallel completes, one change | [SVG](docs/diagrams/concurrency/parallel-completes-one-change.svg) | [source](docs/concurrency.md#parallel-completes-one-change) |
+
+**[Testing](docs/testing.md)** — test layers, topology, conventions and coverage policy.
+
+| Diagram | Image                                   | Mermaid source                   |
+| ------- | --------------------------------------- | -------------------------------- |
+| Layers  | [SVG](docs/diagrams/testing/layers.svg) | [source](docs/testing.md#layers) |
+
+**[Decision records](docs/decisions/README.md)** — one ADR per architectural choice (no diagrams).
 
 ## Testing strategy
 
@@ -167,11 +221,17 @@ Tests mirror source paths (`src/a/B.ts` → `tests/a/B.test.ts`). See [docs/test
 
 ## How this was built
 
+![How this was built (flowchart)](docs/diagrams/readme/how-this-was-built.svg)
+
+<details><summary>Mermaid source</summary>
+
 ```mermaid
 flowchart LR
   A[Brainstorm<br/>requirements and decisions] --> B[Design spec] --> C[Implementation plan]
   C --> D[TDD per task<br/>Claude Code] --> E[Milestone review<br/>and triage] --> F[Curated PR<br/>CI green] --> G[Merge]
 ```
+
+</details>
 
 Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUDE.md). Requirements, decisions and the plan are in [docs/superpowers](docs/superpowers); every architectural choice has an [ADR](docs/decisions/README.md). Each work package was reviewed before merging; review reports, the requirements traceability matrix and verification evidence live in the companion repository **[FociToDo-review](https://github.com/charlesmalo/FociToDo-review)**. AI-assisted commits carry a `Co-Authored-By` trailer.
 
@@ -179,10 +239,12 @@ Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUD
 
 ```
 packages/shared/   Zod contract (schemas, types, problem details)
+packages/diagrams/ Diagram extraction, checks and generator
 apps/api/          Express API: domain · service · repository (postgres, in-memory) · http
 apps/web/          React app: api client · todo feature · styles
 e2e/               Playwright journeys
 docs/              Guides, ADRs, spec and plan
-Dockerfile         One multi-stage build: test · api · migrate · web · e2e
-compose.yaml       Default stack + test/dev profiles; compose.e2e.yaml overlay
+docs/diagrams/     Generated diagram images (do not edit)
+Dockerfile         One multi-stage build: test · api · migrate · diagrams · web · e2e
+compose.yaml       Default stack + test/dev/docs profiles; compose.e2e.yaml overlay
 ```

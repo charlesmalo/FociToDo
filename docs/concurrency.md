@@ -13,6 +13,10 @@ Every guarantee below is enforced by the database, not by timing, and is proven 
 
 ## Lost update, prevented
 
+![Lost update, prevented (sequence diagram)](diagrams/concurrency/lost-update-prevented.svg)
+
+<details><summary>Mermaid source</summary>
+
 ```mermaid
 sequenceDiagram
   participant A as Client A
@@ -29,9 +33,15 @@ sequenceDiagram
   API-->>B: 412 version-conflict
 ```
 
+</details>
+
 The web app sends the version the user started from — the one the edit form opened on, or the one on screen when Delete was clicked — so a background refetch can never turn a stale edit into a silent overwrite. It reacts to a 412 by showing a notice, reloading the todo and keeping the user's edits; saving again then targets the reloaded version.
 
 ## Double submit, absorbed
+
+![Double submit, absorbed (sequence diagram)](diagrams/concurrency/double-submit-absorbed.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -48,9 +58,15 @@ sequenceDiagram
   API-->>U: 201 replay, same body
 ```
 
+</details>
+
 The web form generates one key per submission attempt and reuses it when the same payload is retried.
 
 ## Parallel completes, one change
+
+![Parallel completes, one change (sequence diagram)](diagrams/concurrency/parallel-completes-one-change.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 sequenceDiagram
@@ -63,6 +79,8 @@ sequenceDiagram
   DB-->>API: others: 0 rows → re-read, unchanged
   API-->>C: 20 × 200, ETag "2"
 ```
+
+</details>
 
 ## What is not guaranteed
 
