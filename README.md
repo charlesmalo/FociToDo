@@ -9,13 +9,24 @@ A to-do application — TypeScript, Express, Postgres and React — built to dem
 
 ## Quick start
 
-Requires Docker Desktop (or Docker Engine) with Compose v2.24+.
+Requires Docker Desktop (or Docker Engine) with Compose v2.24+. Nothing else — no host Node/npm; every command below runs in a container.
 
 ```bash
 git clone https://github.com/charlesmalo/FociToDo.git
 cd FociToDo
-docker compose up --build -d
+docker compose up --build -d --wait
 ```
+
+`--wait` blocks until `docker compose` can confirm the stack is actually ready, then exits `0`; it exits non-zero if a service fails to become healthy (the one-shot `migrate` service runs to completion first and its exit `0` counts as success, not a failure).
+
+**Check it's up:**
+
+```bash
+curl -fsS http://localhost:8080/api/health
+docker compose ps
+```
+
+Expected: `curl` prints something like `{"status":"ok","db":"up","schemaVersion":"<latest migration>"}` and exits `0` (the `-f` flag makes it fail on a non-2xx response); `docker compose ps` shows `db`, `api` and `web` as `healthy`.
 
 | URL                            | What                                                           |
 | ------------------------------ | -------------------------------------------------------------- |
@@ -26,24 +37,81 @@ docker compose up --build -d
 Port 8080 busy? Copy `.env.example` to `.env` and set `WEB_PORT`.
 Stop with `docker compose down` (keeps data) or `docker compose down -v` (deletes data).
 
+**Smoke test (optional):** proves the API end to end through nginx — create, list, update under optimistic locking, complete, delete. POSIX `sh`-friendly; no `jq` required.
+
+```bash
+BASE=http://localhost:8080/api
+
+# Create — the id comes from the Location header, the version from ETag.
+create=$(curl -sS -i -X POST "$BASE/todos" -H 'Content-Type: application/json' \
+  -d '{"title":"Buy milk","dueDate":"2026-10-01"}')
+echo "$create"
+id=$(printf '%s' "$create" | grep -i '^Location:' | sed 's#.*/todos/##' | tr -d '\r')
+etag=$(printf '%s' "$create" | grep -i '^ETag:' | sed 's/^ETag: *//' | tr -d '\r')
+
+# List
+curl -sS "$BASE/todos"
+
+# Update — send the last ETag back as If-Match; a stale one gets 412.
+update=$(curl -sS -i -X PATCH "$BASE/todos/$id" -H "If-Match: $etag" \
+  -H 'Content-Type: application/json' -d '{"title":"Buy oat milk"}')
+echo "$update"
+etag=$(printf '%s' "$update" | grep -i '^ETag:' | sed 's/^ETag: *//' | tr -d '\r')
+
+# Complete — idempotent, no If-Match needed.
+complete=$(curl -sS -i -X POST "$BASE/todos/$id/complete")
+echo "$complete"
+etag=$(printf '%s' "$complete" | grep -i '^ETag:' | sed 's/^ETag: *//' | tr -d '\r')
+
+# Delete — requires the current If-Match.
+curl -sS -i -X DELETE "$BASE/todos/$id" -H "If-Match: $etag"
+```
+
+Each command prints the full response; the last `DELETE` should print `HTTP/1.1 204 No Content`. If `grep`/`sed` aren't available, read `id` from the printed `Location` header and `etag` from the printed `ETag` header by hand and substitute them into the next command.
+
 ## Running the tests
 
 ```bash
 docker compose --profile test run --rm --build test
 ```
 
-Runs the format check, lint (including architecture-boundary rules), type checks, and every unit, integration, concurrency and component test against a throwaway RAM-backed Postgres, failing below **100% coverage**. Report: `reports/coverage/index.html`.
+Exit code `0` means the full gate passed: format check, lint (including architecture-boundary rules), type checks, and every unit, integration, concurrency and component test against a throwaway RAM-backed Postgres, at **100% coverage**. Any other exit code means something failed — scroll up to the failing step's output. Report: `reports/coverage/index.html`.
 
-On Linux, files under `reports/` are created by the container user (root); remove them with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` or `sudo`.
+This is safe to run while the stack from Quick start is still up: the test profile starts its own throwaway `db-test` Postgres, separate from the stack's `db`, and the two don't share ports or data.
 
-End-to-end (real browser against the full stack, isolated from your demo data):
+Single test file, for contributors (runs in the same container image as the gate, against the same throwaway `db-test`):
 
 ```bash
-docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml run --rm --build e2e
-docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml down -v
+docker compose --profile dev run --rm dev npx vitest run <file>
 ```
 
-Report: `reports/e2e/index.html`.
+See [CLAUDE.md](CLAUDE.md) for the rest of the developer commands (format, lint, etc.).
+
+End-to-end (real browser against the full stack, isolated from your demo data). Teardown runs even if the tests fail:
+
+```bash
+(docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml run --rm --build e2e; \
+ rc=$?; docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml down -v; exit $rc)
+```
+
+Exit code `0` means every journey passed. Report: `reports/e2e/index.html`.
+
+### Troubleshooting
+
+- **Port 8080 already in use:** copy `.env.example` to `.env` and set `WEB_PORT`.
+- **Can the stack and the tests run at the same time?** Yes — the test profile uses its own throwaway `db-test` Postgres, isolated from the stack's `db`.
+- **Linux: `reports/` owned by root:** files under `reports/` are created by the container user; remove them with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` or `sudo`.
+
+### For AI agents
+
+Every command on this page is non-interactive and reports success or failure through its exit code — no need to parse logs or guess:
+
+- Boot with `docker compose up --build -d --wait`; non-zero exit means a service failed to become healthy.
+- Verify with `curl -fsS http://localhost:8080/api/health` (non-zero exit on a non-2xx response) and `docker compose ps`.
+- Run the full gate with `docker compose --profile test run --rm --build test`; exit `0` is the only passing result.
+- Run e2e with the subshell command above so teardown always runs regardless of the test outcome.
+- Never run host `npm`/`node` — tooling runs in Docker via `docker compose --profile dev run --rm dev <cmd>`.
+- Contributor rules (TDD, architecture boundaries, commit format) are in [CLAUDE.md](CLAUDE.md).
 
 ## Design overview
 
