@@ -20,7 +20,7 @@ Goals:
 ### 2.1 Source of truth and layout
 
 - The Mermaid text in the `.md` files stays the single source of truth. Images are generated files, like `apps/api/openapi.json`, and are never edited by hand.
-- Diagram sources: every ```` ```mermaid ```` block in `README.md` and `docs/*.md` (today: README 2, architecture 6, api 7, concurrency 3, testing 1 — 21 in total). ADRs contain none.
+- Diagram sources: every ```` ```mermaid ```` block in `README.md` and `docs/*.md` (today: README 2, architecture 6, api 7, concurrency 3, testing 1 — 19 in total). ADRs contain none.
 - Each diagram has a stable **id** `<doc>/<slug>`:
   - `<doc>` = `readme` for `README.md`, otherwise the file name without extension (`architecture`, `api`, `concurrency`, `testing`).
   - `<slug>` = the nearest preceding Markdown heading's text, lower-cased, with every run of characters outside `a-z0-9` replaced by one `-` and leading/trailing `-` removed (e.g. `### Create — \`POST /api/todos\`` → `create-post-api-todos`); if two diagrams share a heading, the second and later get `-2`, `-3`, ….
@@ -65,7 +65,7 @@ The Mermaid-source link targets the GitHub anchor of the diagram's heading. The 
 ### 2.4 Generator
 
 - Command: `docker compose --profile docs run --rm --build diagrams` (Docker only, NFR-0; `--build` so the tool image always matches the checked-out code).
-- Runs the pinned official Mermaid CLI image; renders each diagram to SVG with a committed config file: `htmlLabels: false` (labels are real SVG `<text>`, so the image renders correctly when GitHub shows it via `<img>`), deterministic ids, a fixed theme and white background.
+- Runs the pinned official Mermaid CLI image; renders each diagram to SVG with a committed config file: `htmlLabels: false` (labels are real SVG `<text>`, so the image renders correctly when GitHub shows it via `<img>`), deterministic ids, a fixed theme, white background, and `handDrawnSeed: 1` (Roughjs treats seed `0` as random, which broke determinism for ER and class diagrams).
 - Writes all SVGs and `manifest.json`, deletes images whose id no longer exists, and exits non-zero naming `file:line` on any Mermaid syntax error.
 - Output is deterministic: running it twice on the same sources produces byte-identical files (verified when implemented).
 - If SVG text labels do not render correctly as an `<img>` on GitHub, the generator emits PNG instead and the spec is amended — decided by an empirical check during implementation, not assumed.
@@ -82,7 +82,7 @@ The Mermaid-source link targets the GitHub anchor of the diagram's heading. The 
 
 ### 2.6 CI
 
-A CI step runs the generator and then `git diff --exit-code -- docs/diagrams`, proving the committed images are exactly what the pinned toolchain produces and that every diagram parses.
+A CI step runs the generator and then checks `git status --porcelain -- docs/diagrams` is empty — catching modified, new and deleted images — proving the committed images are exactly what the pinned toolchain produces and that every diagram parses. On failure it prints the diff and uploads the regenerated images as a build artifact.
 
 ## 3. Removing the `/dev` portal
 
@@ -108,7 +108,7 @@ A CI step runs the generator and then `git diff --exit-code -- docs/diagrams`, p
 Two pull requests, in this order, each curated and green at every commit:
 
 1. **PR A — remove `/dev`** (`refactor/remove-dev-portal`): this spec and its plans, §3 in full, ADR 0015.
-2. **PR B — diagram images** (`docs/diagram-images`): the tool and tests, generator and compose service, CI step, all 21 images, document restructuring (§2.2), README map (§2.3).
+2. **PR B — diagram images** (`docs/diagram-images`): the tool and tests, generator and compose service, CI step, all 19 images, document restructuring (§2.2), README map (§2.3).
 
 PR A lands first: if the documents were restructured while the portal still existed, the portal would show broken image links and raw `<details>` markup until the portal was removed. Between the two merges no diagram changes, and PR B's own CI renders every diagram, so no diagram error can slip through the gap.
 

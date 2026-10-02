@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   checkImages,
@@ -8,6 +9,7 @@ import {
 } from '../src/check.js';
 import { extractDiagrams } from '../src/extract.js';
 import { buildManifest, serialiseManifest } from '../src/manifest.js';
+import { fsRepo } from '../src/repo.js';
 import { memoryRepo } from './support/memoryRepo.js';
 
 const FIX = 'run: docker compose --profile docs run --rm --build diagrams';
@@ -126,5 +128,12 @@ describe('checkRepository', () => {
     expect(problems[1]).toMatch(
       /^README\.md: the diagram map has no row for api\/list-get-api-todos/,
     );
+  });
+});
+
+describe('this repository', () => {
+  it('has a current image, image-first layout and README map row for every diagram', () => {
+    const root = fileURLToPath(new URL('../../../', import.meta.url));
+    expect(checkRepository(fsRepo(root))).toEqual([]);
   });
 });

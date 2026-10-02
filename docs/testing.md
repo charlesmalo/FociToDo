@@ -8,6 +8,8 @@ docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml down -v
 
 Reports: `reports/coverage/index.html`, `reports/e2e/index.html`.
 
+The gate also fails when a diagram image is stale, missing or orphaned, or a diagram is missing from the README map (fix: `docker compose --profile docs run --rm --build diagrams`).
+
 ## Layers
 
 | Layer               | Where                                       | Runs against                                   | Proves                                                                        |
@@ -20,12 +22,18 @@ Reports: `reports/coverage/index.html`, `reports/e2e/index.html`.
 | Web                 | `apps/web/tests`                            | jsdom, fake `TodoClient`                       | UI states, validation, conflicts, idempotency keys, dialog accessibility      |
 | End-to-end          | `e2e/`                                      | Playwright → nginx → API → Postgres            | The deployed stack works as a whole                                           |
 
+![Layers (flowchart)](diagrams/testing/layers.svg)
+
+<details><summary>Mermaid source</summary>
+
 ```mermaid
 flowchart LR
   U[unit + component<br/>shared · api-unit · web] --> M[(in-memory / fakes)]
   I[integration + concurrency<br/>api-db] --> T[(db-test<br/>RAM-backed Postgres)]
   E[e2e<br/>Playwright] --> S[full stack<br/>project foci-e2e]
 ```
+
+</details>
 
 ## Conventions
 

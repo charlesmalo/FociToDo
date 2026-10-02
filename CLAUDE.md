@@ -1,6 +1,6 @@
 # FociToDo — instructions for AI agents
 
-Full-stack to-do app: npm-workspaces monorepo (`packages/shared`, `apps/api`, `apps/web`).
+Full-stack to-do app: npm-workspaces monorepo (`packages/shared`, `packages/diagrams`, `apps/api`, `apps/web`).
 Design: `docs/superpowers/specs/2026-09-30-foci-todo-design.md`. Plan: `docs/superpowers/plans/2026-09-30-foci-todo/`.
 
 ## Commands (Docker only — never assume host Node)
@@ -11,6 +11,7 @@ dev npx vitest run <file>                                  # one test file
 dev npx prettier --write .                                 # format
 docker compose --profile test run --rm --build test        # full gate: format, lint, typecheck, tests, 100% coverage
 docker compose up --build -d                               # run the app on http://localhost:8080
+docker compose --profile docs run --rm --build diagrams    # regenerate docs/diagrams after editing a Mermaid block
 ```
 
 ## Architecture rules
@@ -41,4 +42,5 @@ Conventions (kept by review, not by lint):
 - API/shared imports use `.js` extensions; web imports are extensionless.
 - Conventional Commits with scope; every commit green; end each commit with a `Co-Authored-By: Claude <model> <noreply@anthropic.com>` trailer naming the Claude model that authored it.
 - One branch and PR per plan file; curate with `--fixup` + autosquash before opening the PR.
-- Never edit generated files by hand (`apps/api/openapi.json`).
+- Never edit generated files by hand (`apps/api/openapi.json`, `docs/diagrams/`).
+- New or edited diagram: keep it a bare ```mermaid block at column 0 under its heading, shown as image + collapsed `<details>` source, with a README map row; run the regenerate command — the gate prints the exact lines expected.

@@ -1,14 +1,19 @@
 # Architecture
 
-FociToDo is an npm-workspaces monorepo with three packages and one rule: **dependencies point inward**.
+FociToDo is an npm-workspaces monorepo with four packages and one rule: **dependencies point inward**.
 
-| Package           | Role                                                                                                                   |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `packages/shared` | The contract: Zod schemas and types used by the API (validation, OpenAPI) and the web app (forms, response validation) |
-| `apps/api`        | Express API: `http → service → domain`, storage behind ports                                                           |
-| `apps/web`        | React single-page app; only `src/api/todoClient.ts` talks HTTP                                                         |
+| Package             | Role                                                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared`   | The contract: Zod schemas and types used by the API (validation, OpenAPI) and the web app (forms, response validation) |
+| `packages/diagrams` | Dev-only tool: extracts Mermaid diagrams from Markdown and generates `docs/diagrams/`                                  |
+| `apps/api`          | Express API: `http → service → domain`, storage behind ports                                                           |
+| `apps/web`          | React single-page app; only `src/api/todoClient.ts` talks HTTP                                                         |
 
 ## System context
+
+![System context (flowchart)](diagrams/architecture/system-context.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 flowchart LR
@@ -18,9 +23,15 @@ flowchart LR
   M[migrate · one-shot] --> D
 ```
 
+</details>
+
 nginx serves the SPA and proxies `/api/*` unchanged, so the browser sees a single origin (no CORS). Only `web` publishes a port.
 
 ## Deployment and startup order
+
+![Deployment and startup order (flowchart)](diagrams/architecture/deployment-and-startup-order.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 flowchart LR
@@ -29,11 +40,17 @@ flowchart LR
   api -->|healthy| web[web<br/>nginx :8080]
 ```
 
+</details>
+
 - `migrate` runs the SQL migrations once and exits; the API never changes the schema at runtime.
 - A failed migration stops startup cleanly instead of crash-looping the API.
 - Runtime images are non-root, contain compiled JavaScript and production dependencies only; the API container is read-only.
 
 ## Backend layers
+
+![Backend layers (flowchart)](diagrams/architecture/backend-layers.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 flowchart TB
@@ -44,6 +61,8 @@ flowchart TB
   mem[repository/in-memory] -. implements .-> ports
   app[app.ts<br/>composition root] --> http & service & pg
 ```
+
+</details>
 
 | Layer          | May import                             | Must not import                            |
 | -------------- | -------------------------------------- | ------------------------------------------ |
@@ -59,6 +78,10 @@ These rules are ESLint errors (`import-x/no-restricted-paths`), so a violation f
 
 ## Domain model
 
+![Domain model (state diagram)](diagrams/architecture/domain-model.svg)
+
+<details><summary>Mermaid source</summary>
+
 ```mermaid
 stateDiagram-v2
   [*] --> Incomplete: create
@@ -69,9 +92,15 @@ stateDiagram-v2
   note right of Incomplete: isOverdue = due before today (UTC), derived, never stored
 ```
 
+</details>
+
 Every change increments `version`; completing an already-completed todo changes nothing.
 
 ## Data model
+
+![Data model (entity-relationship diagram)](diagrams/architecture/data-model.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 erDiagram
@@ -93,9 +122,15 @@ erDiagram
   }
 ```
 
+</details>
+
 `CHECK` constraints repeat the key validation rules, so bad data cannot enter even if application code is bypassed.
 
 ## Frontend
+
+![Frontend (flowchart)](diagrams/architecture/frontend.svg)
+
+<details><summary>Mermaid source</summary>
 
 ```mermaid
 flowchart TB
@@ -107,6 +142,8 @@ flowchart TB
   List & Item & Create & Details --> Hooks[useTodos · TanStack Query]
   Hooks --> Client[todoClient.ts] -->|fetch /api| API[(API)]
 ```
+
+</details>
 
 - Server state lives in TanStack Query; every mutation invalidates the todo queries when it settles.
 - The panels know nothing about the dialog, so the dialog could be replaced by an inline panel without changing them.

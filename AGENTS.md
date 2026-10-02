@@ -18,6 +18,9 @@ docker compose --profile test run --rm --build test
 # One test file (dev profile)
 docker compose --profile dev run --rm dev npx vitest run <file>
 
+# Regenerate docs/diagrams after editing a Mermaid block
+docker compose --profile docs run --rm --build diagrams
+
 # End-to-end — teardown runs even if the tests fail
 (docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml run --rm --build e2e; \
  rc=$?; docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml down -v; exit $rc)
