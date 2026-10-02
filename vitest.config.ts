@@ -29,6 +29,14 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'diagrams',
+          environment: 'node',
+          include: ['packages/diagrams/tests/**/*.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'api-unit',
           environment: 'node',
           include: ['apps/api/tests/**/*.test.ts'],
