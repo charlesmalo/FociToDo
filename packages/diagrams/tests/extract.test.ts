@@ -43,6 +43,8 @@ describe('diagramKind and altText', () => {
     ['erDiagram\n  A ||--o{ B : has', 'entity-relationship diagram'],
     ['classDiagram\n  A <|-- B', 'class diagram'],
     ['pie\n  "a": 1', 'diagram'],
+    ['block-beta\n  columns 3', 'wireframe'],
+    ['block\n  columns 3', 'wireframe'],
   ])('%#: kind of %s', (source, kind) => {
     expect(diagramKind(source)).toBe(kind);
   });

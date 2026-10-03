@@ -34,6 +34,8 @@ const KINDS: Readonly<Record<string, string>> = {
   'stateDiagram-v2': 'state diagram',
   erDiagram: 'entity-relationship diagram',
   classDiagram: 'class diagram',
+  'block-beta': 'wireframe',
+  block: 'wireframe',
 };
 
 export function docName(file: string): string {

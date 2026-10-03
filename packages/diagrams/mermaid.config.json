@@ -8,5 +8,6 @@
   "state": { "useMaxWidth": false },
   "er": { "useMaxWidth": false },
   "class": { "useMaxWidth": false },
+  "block": { "useMaxWidth": false },
   "handDrawnSeed": 1
 }

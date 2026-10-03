@@ -147,6 +147,7 @@ flowchart TB
 
 - Server state lives in TanStack Query; every mutation invalidates the todo queries when it settles.
 - The panels know nothing about the dialog, so the dialog could be replaced by an inline panel without changing them.
+- See [UI wireframes](ui.md) for every screen state these components render.
 - Due dates are rendered as stored strings (never through `Date`), so they cannot shift across timezones.
 
 ## Cross-cutting

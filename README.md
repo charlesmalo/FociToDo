@@ -182,6 +182,24 @@ Every diagram is a Mermaid block in the document that explains it, shown as a ge
 | ------- | --------------------------------------- | -------------------------------- |
 | Layers  | [SVG](docs/diagrams/testing/layers.svg) | [source](docs/testing.md#layers) |
 
+**[UI](docs/ui.md)** — every screen state of the single-page UI as a wireframe.
+
+| Wireframe                      | Image                                                    | Mermaid source                                     |
+| ------------------------------ | -------------------------------------------------------- | -------------------------------------------------- |
+| Task list — loading            | [SVG](docs/diagrams/ui/task-list-loading.svg)            | [source](docs/ui.md#task-list--loading)            |
+| Task list — empty              | [SVG](docs/diagrams/ui/task-list-empty.svg)              | [source](docs/ui.md#task-list--empty)              |
+| Task list — with tasks         | [SVG](docs/diagrams/ui/task-list-with-tasks.svg)         | [source](docs/ui.md#task-list--with-tasks)         |
+| Task list — no match           | [SVG](docs/diagrams/ui/task-list-no-match.svg)           | [source](docs/ui.md#task-list--no-match)           |
+| Task list — load error         | [SVG](docs/diagrams/ui/task-list-load-error.svg)         | [source](docs/ui.md#task-list--load-error)         |
+| Filters and sorting            | [SVG](docs/diagrams/ui/filters-and-sorting.svg)          | [source](docs/ui.md#filters-and-sorting)           |
+| Dialog — new task              | [SVG](docs/diagrams/ui/dialog-new-task.svg)              | [source](docs/ui.md#dialog--new-task)              |
+| Dialog — new task with errors  | [SVG](docs/diagrams/ui/dialog-new-task-with-errors.svg)  | [source](docs/ui.md#dialog--new-task-with-errors)  |
+| Dialog — task details          | [SVG](docs/diagrams/ui/dialog-task-details.svg)          | [source](docs/ui.md#dialog--task-details)          |
+| Dialog — edit task             | [SVG](docs/diagrams/ui/dialog-edit-task.svg)             | [source](docs/ui.md#dialog--edit-task)             |
+| Dialog — delete confirmation   | [SVG](docs/diagrams/ui/dialog-delete-confirmation.svg)   | [source](docs/ui.md#dialog--delete-confirmation)   |
+| Dialog — changed elsewhere     | [SVG](docs/diagrams/ui/dialog-changed-elsewhere.svg)     | [source](docs/ui.md#dialog--changed-elsewhere)     |
+| Dialog — task no longer exists | [SVG](docs/diagrams/ui/dialog-task-no-longer-exists.svg) | [source](docs/ui.md#dialog--task-no-longer-exists) |
+
 **[Decision records](docs/decisions/README.md)** — one ADR per architectural choice (no diagrams).
 
 ## Testing strategy
