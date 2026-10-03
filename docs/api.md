@@ -1,6 +1,6 @@
 # API
 
-Base path `/api`. JSON in and out; errors are `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)). The interactive explorer is at **http://localhost:8080/api/docs** and the machine-readable contract at `/api/openapi.json` (generated from the same Zod schemas the API validates with).
+Base path `/api`. JSON in and out; errors are `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)). The browsable reference is the local file [`docs/api/index.html`](api/index.html) (open it in a browser; it works offline) and the machine-readable contract is [`apps/api/openapi.json`](../apps/api/openapi.json) (generated from the same Zod schemas the API validates with).
 
 ## Conventions
 

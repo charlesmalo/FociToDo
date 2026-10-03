@@ -21,6 +21,9 @@ docker compose --profile dev run --rm dev npx vitest run <file>
 # Regenerate docs/diagrams after editing a Mermaid block
 docker compose --profile docs run --rm --build diagrams
 
+# Regenerate docs/api/index.html after regenerating apps/api/openapi.json (UPDATE_OPENAPI=1, a separate run)
+docker compose --profile dev run --rm -e UPDATE_API_DOCS=1 dev npx vitest run packages/diagrams/tests/apiDocs.test.ts
+
 # End-to-end — teardown runs even if the tests fail
 (docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml run --rm --build e2e; \
  rc=$?; docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml down -v; exit $rc)

@@ -6,5 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "swagger-ui-dist": "5.33.0"
   }
 }

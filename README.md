@@ -28,10 +28,11 @@ docker compose ps
 
 Expected: `curl` prints something like `{"status":"ok","db":"up","schemaVersion":"<latest migration>"}` and exits `0` (the `-f` flag makes it fail on a non-2xx response); `docker compose ps` shows `db`, `api` and `web` as `healthy`.
 
-| URL                            | What                               |
-| ------------------------------ | ---------------------------------- |
-| http://localhost:8080          | The app                            |
-| http://localhost:8080/api/docs | Interactive API explorer (OpenAPI) |
+| URL                   | What    |
+| --------------------- | ------- |
+| http://localhost:8080 | The app |
+
+**API reference:** open [`docs/api/index.html`](docs/api/index.html) in a browser (generated from `apps/api/openapi.json`; works offline).
 
 Port 8080 busy? Copy `.env.example` to `.env` and set `WEB_PORT`.
 Stop with `docker compose down` (keeps data) or `docker compose down -v` (deletes data).
@@ -132,7 +133,7 @@ flowchart LR
 - **Backend layers:** `http → service → domain`, storage behind ports with Postgres and in-memory adapters, wired by hand in one composition root. Boundaries are lint-enforced.
 - **Concurrency:** optimistic locking with `ETag`/`If-Match` (412 on conflict), idempotent complete/incomplete, and `Idempotency-Key` on create — all enforced in SQL.
 - **Errors:** RFC 9457 problem details with per-field validation errors.
-- **Why OpenAPI?** A standard, machine-readable contract generated from the same Zod schemas the API validates with, so docs can't drift; it gives reviewers an interactive page to try every endpoint at `/api/docs`.
+- **Why OpenAPI?** A standard, machine-readable contract generated from the same Zod schemas the API validates with, so docs can't drift; the reference is a local, offline file ([`docs/api/index.html`](docs/api/index.html)), not an endpoint of the running app.
 
 ## Documentation and diagrams
 
