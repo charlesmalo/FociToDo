@@ -132,6 +132,97 @@
       "heading": "Layers",
       "image": "docs/diagrams/testing/layers.svg",
       "hash": "adc8189706314a628029db41c9a8fcd72d2b257ad930d5b0b4a43ef1c07d10f5"
+    },
+    {
+      "id": "ui/task-list-loading",
+      "file": "docs/ui.md",
+      "heading": "Task list — loading",
+      "image": "docs/diagrams/ui/task-list-loading.svg",
+      "hash": "fdebfabacded804425b670ebd1b1aef63ac6685b46cddc2959b55dade1040a60"
+    },
+    {
+      "id": "ui/task-list-empty",
+      "file": "docs/ui.md",
+      "heading": "Task list — empty",
+      "image": "docs/diagrams/ui/task-list-empty.svg",
+      "hash": "46842d79ea34b5f2ef06c0c90718cbe2026f39bb02efb55c190a6b38a6892966"
+    },
+    {
+      "id": "ui/task-list-with-tasks",
+      "file": "docs/ui.md",
+      "heading": "Task list — with tasks",
+      "image": "docs/diagrams/ui/task-list-with-tasks.svg",
+      "hash": "f11b7970e9eaf11226761c3912a5d8fddbde36aef37773e474a75e9c08ee8978"
+    },
+    {
+      "id": "ui/task-list-no-match",
+      "file": "docs/ui.md",
+      "heading": "Task list — no match",
+      "image": "docs/diagrams/ui/task-list-no-match.svg",
+      "hash": "71a234f05c6f284daa67cfe640da6df0e3f5dcd72cb46ac0eea26af3354c94fd"
+    },
+    {
+      "id": "ui/task-list-load-error",
+      "file": "docs/ui.md",
+      "heading": "Task list — load error",
+      "image": "docs/diagrams/ui/task-list-load-error.svg",
+      "hash": "dd1fd3ef16cd45fd7f0358d60660de1c72084b51315eb5a6ab6196256e007116"
+    },
+    {
+      "id": "ui/filters-and-sorting",
+      "file": "docs/ui.md",
+      "heading": "Filters and sorting",
+      "image": "docs/diagrams/ui/filters-and-sorting.svg",
+      "hash": "03565a108a9585f6d5950f923e1b4e52bc3b14aa9064c919663ea3887a224530"
+    },
+    {
+      "id": "ui/dialog-new-task",
+      "file": "docs/ui.md",
+      "heading": "Dialog — new task",
+      "image": "docs/diagrams/ui/dialog-new-task.svg",
+      "hash": "62d8258d1cc26bee6c7900bc95b6418f4b40647dc4f2bc1bc39670da57c08093"
+    },
+    {
+      "id": "ui/dialog-new-task-with-errors",
+      "file": "docs/ui.md",
+      "heading": "Dialog — new task with errors",
+      "image": "docs/diagrams/ui/dialog-new-task-with-errors.svg",
+      "hash": "28419511938ab027f65f8db42007dfe30415be68fac1f8fb484c70533e26abf7"
+    },
+    {
+      "id": "ui/dialog-task-details",
+      "file": "docs/ui.md",
+      "heading": "Dialog — task details",
+      "image": "docs/diagrams/ui/dialog-task-details.svg",
+      "hash": "72a0c8bc99ba1a74de1f5567e99756d6d9db616f6393a17b04e8d4c1ffdb06fa"
+    },
+    {
+      "id": "ui/dialog-edit-task",
+      "file": "docs/ui.md",
+      "heading": "Dialog — edit task",
+      "image": "docs/diagrams/ui/dialog-edit-task.svg",
+      "hash": "33d4ea46b3a777b63127ea5850c5a075c6d288c817160ea5718eafb740fab74e"
+    },
+    {
+      "id": "ui/dialog-delete-confirmation",
+      "file": "docs/ui.md",
+      "heading": "Dialog — delete confirmation",
+      "image": "docs/diagrams/ui/dialog-delete-confirmation.svg",
+      "hash": "9fe9b82024a8c91521e6742742be92a26caab8dc63f802f3c839682398b2ec45"
+    },
+    {
+      "id": "ui/dialog-changed-elsewhere",
+      "file": "docs/ui.md",
+      "heading": "Dialog — changed elsewhere",
+      "image": "docs/diagrams/ui/dialog-changed-elsewhere.svg",
+      "hash": "71334034010dcd85ca60446c952f927c590855a4631145a62e68fb6dedbd8981"
+    },
+    {
+      "id": "ui/dialog-task-no-longer-exists",
+      "file": "docs/ui.md",
+      "heading": "Dialog — task no longer exists",
+      "image": "docs/diagrams/ui/dialog-task-no-longer-exists.svg",
+      "hash": "a6459f53e1c4fb4b61572c67541130b5407df28905596f6c2ddc21df4dba1706"
     }
   ]
 }
