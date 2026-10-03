@@ -7,6 +7,7 @@ import {
   type TodoSortField,
   type TodoStatus,
 } from '@foci/shared';
+import { useId } from 'react';
 import styles from './TodoList.module.css';
 
 const STATUS_LABELS: Record<TodoStatus, string> = {
@@ -28,11 +29,15 @@ interface TodoFiltersProps {
 }
 
 export function TodoFilters({ query, onChange }: TodoFiltersProps) {
+  const showId = useId();
+  const sortId = useId();
+  const orderId = useId();
   return (
     <div role="group" aria-label="Filter and sort" className={styles.filters}>
-      <label>
-        Show
+      <span className={styles.field}>
+        <label htmlFor={showId}>Show</label>
         <select
+          id={showId}
           value={query.status}
           onChange={(event) => onChange({ ...query, status: event.target.value as TodoStatus })}
         >
@@ -42,10 +47,11 @@ export function TodoFilters({ query, onChange }: TodoFiltersProps) {
             </option>
           ))}
         </select>
-      </label>
-      <label>
-        Sort by
+      </span>
+      <span className={styles.field}>
+        <label htmlFor={sortId}>Sort by</label>
         <select
+          id={sortId}
           value={query.sort}
           onChange={(event) => onChange({ ...query, sort: event.target.value as TodoSortField })}
         >
@@ -55,10 +61,11 @@ export function TodoFilters({ query, onChange }: TodoFiltersProps) {
             </option>
           ))}
         </select>
-      </label>
-      <label>
-        Order
+      </span>
+      <span className={styles.field}>
+        <label htmlFor={orderId}>Order</label>
         <select
+          id={orderId}
           value={query.order}
           onChange={(event) => onChange({ ...query, order: event.target.value as SortOrder })}
         >
@@ -68,7 +75,7 @@ export function TodoFilters({ query, onChange }: TodoFiltersProps) {
             </option>
           ))}
         </select>
-      </label>
+      </span>
     </div>
   );
 }

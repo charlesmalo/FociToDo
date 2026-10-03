@@ -5,7 +5,7 @@
   margin-block: var(--space-3);
 }
 
-.filters label {
+.filters .field {
   display: flex;
   gap: var(--space-1);
   align-items: center;
