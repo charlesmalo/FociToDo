@@ -1,7 +1,7 @@
 # API docs as a repository artifact, and deadlines as UTC instants — Design
 
 - **Date:** 2026-10-03
-- **Status:** Approved in conversation 2026-10-03 · awaiting written-spec review
+- **Status:** Approved 2026-10-03
 - **Amends:** [2026-09-30-foci-todo-design.md](2026-09-30-foci-todo-design.md) (DR-4, DR-8, list query, frontend dates), ADR 0008 and ADR 0009
 
 ## 1. Why
@@ -52,7 +52,7 @@ README (URL table loses `/api/docs`; "API reference: open `docs/api/index.html`"
 
 ### 3.4 Web app
 
-- The form's "Due date" becomes **"Due"**: `<input type="datetime-local">` in the viewer's timezone, optional. When the user picks a day with no time yet, the time is prefilled with **17:00**. On submit the local value is converted to a UTC instant (`new Date(local).toISOString()`); an empty field sends `null`.
+- The form's single date field becomes two labelled inputs, **Due date** (`<input type="date">`) and **Due time** (`<input type="time">`), both in the viewer's timezone and optional together. When a date is entered and the time is empty, the time is prefilled with **17:00**; clearing the date clears the deadline (sends `null`). On submit the local date and time are combined and converted to a UTC instant (the date and time are parsed as local time and serialised with `toISOString()`). Two inputs rather than one `datetime-local`: browsers treat a half-filled `datetime-local` as empty, so a day-only pick could not be prefilled with a time.
 - Display: the deadline is shown in the viewer's locale with date and time (`Intl.DateTimeFormat`, e.g. "Due Oct 3, 2026, 6:00 PM"), in the list and the details dialog.
 - Badges: **Overdue** (as today) and **Due soon**, both from the server's `isOverdue` / `isDueSoon`. The Show filter gains **Due soon**; Sort by shows **Due** for `dueAt`.
 
