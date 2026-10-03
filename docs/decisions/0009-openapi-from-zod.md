@@ -1,6 +1,6 @@
 # 0009 OpenAPI generated from Zod
 
-Status: Accepted · 2026-09-30
+Status: Accepted · 2026-09-30 · serving the document and explorer superseded by [0016](./0016-api-docs-as-a-repository-artifact.md)
 
 ## Context
 
