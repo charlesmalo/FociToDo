@@ -3,10 +3,8 @@ import type { Logger } from 'pino';
 import { pinoHttp } from 'pino-http';
 import type { HealthService } from '../service/HealthService.js';
 import type { TodoService } from '../service/TodoService.js';
-import { createDocsRouter } from './docsRoutes.js';
 import { errorHandler, notFoundHandler } from './errorHandler.js';
 import { createHealthRouter } from './healthRoutes.js';
-import { buildOpenApiDocument } from './openapi.js';
 import { createTodoRouter } from './todoRoutes.js';
 
 export const JSON_BODY_LIMIT = '16kb';
@@ -26,7 +24,6 @@ export function createHttpApp({ todoService, healthService, logger }: HttpDepend
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use('/api', createHealthRouter(healthService));
   app.use('/api', createTodoRouter(todoService));
-  app.use('/api', createDocsRouter(buildOpenApiDocument()));
   app.use(notFoundHandler);
   app.use(errorHandler);
   return app;

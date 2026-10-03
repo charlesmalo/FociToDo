@@ -39,8 +39,12 @@ test.describe('API through the nginx proxy', () => {
     expect(await second.json()).toEqual(await first.json());
   });
 
-  test('serves the API explorer and deep links', async ({ request }) => {
-    expect((await request.get('/api/docs/')).status()).toBe(200);
+  test('does not expose API docs, and deep links fall back to the app', async ({ request }) => {
+    for (const path of ['/api/docs/', '/api/openapi.json']) {
+      const response = await request.get(path);
+      expect(response.status()).toBe(404);
+      expect(response.headers()['content-type']).toMatch(/^application\/problem\+json/);
+    }
     expect((await request.get('/any/deep/link')).status()).toBe(200);
   });
 });

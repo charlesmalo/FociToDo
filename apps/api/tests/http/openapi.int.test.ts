@@ -93,8 +93,13 @@ describe('responses conform to the OpenAPI document', () => {
     );
   });
 
-  it('serves the document and the explorer from the running app', async () => {
-    expect((await api().get('/api/openapi.json')).body).toEqual(buildOpenApiDocument());
-    expect((await api().get('/api/docs/')).status).toBe(200);
-  });
+  it.each(['/api/docs', '/api/docs/', '/api/docs/index.html', '/api/openapi.json'])(
+    'does not expose API documentation at %s',
+    async (path) => {
+      const response = await api().get(path);
+      expect(response.status).toBe(404);
+      expect(response.headers['content-type']).toMatch(/^application\/problem\+json/);
+      expect(response.body.type).toBe('/problems/not-found');
+    },
+  );
 });
