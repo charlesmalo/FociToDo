@@ -26,7 +26,7 @@
       "file": "docs/api.md",
       "heading": "List — GET /api/todos",
       "image": "docs/diagrams/api/list-get-api-todos.svg",
-      "hash": "d0bf3a17baea342d7df9d797777e5156d06a405ceb3946b72f587261ac3d77ab"
+      "hash": "2347c03dbbd3de3c46b91c64dac26efe2a9c1145e62e7124767a4e018d8aab69"
     },
     {
       "id": "api/view-get-api-todos-id",
@@ -89,14 +89,14 @@
       "file": "docs/architecture.md",
       "heading": "Domain model",
       "image": "docs/diagrams/architecture/domain-model.svg",
-      "hash": "e05fe6c580f9dcc351e167bc11828a4f3f8312ca9060c5b4dcfadabef854e7d4"
+      "hash": "ed062534132fe094cdd1525a1bba5a68fc74719d0dbaa28e88b0121366c5bddf"
     },
     {
       "id": "architecture/data-model",
       "file": "docs/architecture.md",
       "heading": "Data model",
       "image": "docs/diagrams/architecture/data-model.svg",
-      "hash": "a993310160f3ecb5921913097c043072bdc61035d11ba6c0f954c8ea6feb21dd"
+      "hash": "d98b08c8834b5919ae969389e7576016a4b5e40e261c0f29b4bc9115e0218298"
     },
     {
       "id": "architecture/frontend",
@@ -152,7 +152,7 @@
       "file": "docs/ui.md",
       "heading": "Task list — with tasks",
       "image": "docs/diagrams/ui/task-list-with-tasks.svg",
-      "hash": "f11b7970e9eaf11226761c3912a5d8fddbde36aef37773e474a75e9c08ee8978"
+      "hash": "f1f4b7f236832fe008c8157aa1fb2f162f7fb58f3f145ce2e9523a07153c7785"
     },
     {
       "id": "ui/task-list-no-match",
@@ -173,49 +173,49 @@
       "file": "docs/ui.md",
       "heading": "Filters and sorting",
       "image": "docs/diagrams/ui/filters-and-sorting.svg",
-      "hash": "03565a108a9585f6d5950f923e1b4e52bc3b14aa9064c919663ea3887a224530"
+      "hash": "3fad5591b2ff099632bdad7ce939be7ef840c4633131f97a18f3630800b77b66"
     },
     {
       "id": "ui/dialog-new-task",
       "file": "docs/ui.md",
       "heading": "Dialog — new task",
       "image": "docs/diagrams/ui/dialog-new-task.svg",
-      "hash": "62d8258d1cc26bee6c7900bc95b6418f4b40647dc4f2bc1bc39670da57c08093"
+      "hash": "ba599e1ce4ca8174a4badd4677b02e0167ed836e7c6747c7d61af88d72d79e30"
     },
     {
       "id": "ui/dialog-new-task-with-errors",
       "file": "docs/ui.md",
       "heading": "Dialog — new task with errors",
       "image": "docs/diagrams/ui/dialog-new-task-with-errors.svg",
-      "hash": "28419511938ab027f65f8db42007dfe30415be68fac1f8fb484c70533e26abf7"
+      "hash": "f2cea914dc3b9dd613e62fb091718277c0dea0ccd9e24f1f0f20618c7be56486"
     },
     {
       "id": "ui/dialog-task-details",
       "file": "docs/ui.md",
       "heading": "Dialog — task details",
       "image": "docs/diagrams/ui/dialog-task-details.svg",
-      "hash": "72a0c8bc99ba1a74de1f5567e99756d6d9db616f6393a17b04e8d4c1ffdb06fa"
+      "hash": "3d4d182803f4f0a71cf1ef14f7faf50e251a2a47428ce44ad01b7c8ec4180721"
     },
     {
       "id": "ui/dialog-edit-task",
       "file": "docs/ui.md",
       "heading": "Dialog — edit task",
       "image": "docs/diagrams/ui/dialog-edit-task.svg",
-      "hash": "33d4ea46b3a777b63127ea5850c5a075c6d288c817160ea5718eafb740fab74e"
+      "hash": "4cb4a9faa748c73ba82d908cb3152db56f55d7c8db54391b89f5a6180a436e8c"
     },
     {
       "id": "ui/dialog-delete-confirmation",
       "file": "docs/ui.md",
       "heading": "Dialog — delete confirmation",
       "image": "docs/diagrams/ui/dialog-delete-confirmation.svg",
-      "hash": "9fe9b82024a8c91521e6742742be92a26caab8dc63f802f3c839682398b2ec45"
+      "hash": "3e636213a4113b97b998c22c8d00816a61e5a798bf7c0611cbac3abfbbfee236"
     },
     {
       "id": "ui/dialog-changed-elsewhere",
       "file": "docs/ui.md",
       "heading": "Dialog — changed elsewhere",
       "image": "docs/diagrams/ui/dialog-changed-elsewhere.svg",
-      "hash": "71334034010dcd85ca60446c952f927c590855a4631145a62e68fb6dedbd8981"
+      "hash": "af63954bc78aa6bbbc11075cb0aea12e8c9725a56afa1ae10582a54d0fc90c8b"
     },
     {
       "id": "ui/dialog-task-no-longer-exists",

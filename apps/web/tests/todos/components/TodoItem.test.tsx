@@ -1,36 +1,43 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../../../src/api/ApiError';
+import { formatDeadline } from '../../../src/todos/format';
 import { TodoItem } from '../../../src/todos/components/TodoItem';
 import { fakeClient, makeView, renderWithProviders } from '../../support/fixtures';
 
-describe('TodoItem', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
+// The deadline text depends on the viewer's locale and timezone; pin it so these tests do not.
+vi.mock('../../../src/todos/format', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  formatDeadline: (iso: string) => `deadline ${iso}`,
+}));
 
-  it('renders title, due date and overdue badge', () => {
-    const todo = makeView({ title: 'File taxes', dueDate: '2026-09-01', isOverdue: true });
+describe('TodoItem', () => {
+  it('renders title, formatted deadline and overdue badge', () => {
+    const dueAt = '2026-09-01T10:00:00.000Z';
+    const todo = makeView({ title: 'File taxes', dueAt, isOverdue: true });
     renderWithProviders(<TodoItem todo={todo} onOpen={vi.fn()} />, fakeClient());
     expect(screen.getByRole('button', { name: 'File taxes' })).toBeInTheDocument();
-    expect(screen.getByText('Due 2026-09-01')).toBeInTheDocument();
+    expect(screen.getByText(`Due ${formatDeadline(dueAt)}`)).toBeInTheDocument();
     expect(screen.getByText('Overdue')).toBeInTheDocument();
+    expect(screen.queryByText('Due soon')).not.toBeInTheDocument();
   });
 
-  it('renders the due date exactly as stored, even west of UTC', () => {
-    vi.stubEnv('TZ', 'Pacific/Honolulu');
+  it('renders the due-soon badge', () => {
+    const dueAt = '2026-10-04T10:00:00.000Z';
     renderWithProviders(
-      <TodoItem todo={makeView({ dueDate: '2026-10-01' })} onOpen={vi.fn()} />,
+      <TodoItem todo={makeView({ dueAt, isDueSoon: true })} onOpen={vi.fn()} />,
       fakeClient(),
     );
-    expect(screen.getByText('Due 2026-10-01')).toBeInTheDocument();
+    expect(screen.getByText('Due soon')).toBeInTheDocument();
+    expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
   });
 
   it('omits due date and badge when not applicable', () => {
     renderWithProviders(<TodoItem todo={makeView()} onOpen={vi.fn()} />, fakeClient());
     expect(screen.queryByText(/^Due /)).not.toBeInTheDocument();
     expect(screen.queryByText('Overdue')).not.toBeInTheDocument();
+    expect(screen.queryByText('Due soon')).not.toBeInTheDocument();
   });
 
   it('opens the todo', async () => {

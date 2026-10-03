@@ -1,6 +1,6 @@
 # 0008 Overdue computed server-side in UTC
 
-Status: Accepted · 2026-09-30
+Status: Superseded by [0017](./0017-deadlines-are-utc-instants.md) · 2026-09-30
 
 ## Context
 

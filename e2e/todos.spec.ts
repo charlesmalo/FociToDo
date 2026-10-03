@@ -10,11 +10,16 @@ test('create, view, edit, complete, filter and delete a task', async ({ page }) 
   const createDialog = page.getByRole('dialog', { name: 'New task' });
   await createDialog.getByLabel('Title').fill(title);
   await createDialog.getByLabel('Due date').fill('2030-01-15');
+  await expect(createDialog.getByLabel('Due time')).toHaveValue('17:00');
   await createDialog.getByRole('button', { name: 'Add task' }).click();
   await expect(createDialog).toBeHidden();
 
   const item = page.getByRole('listitem').filter({ hasText: title });
-  await expect(item).toContainText('Due 2030-01-15');
+  const deadline = new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date('2030-01-15T17:00'));
+  await expect(item).toContainText(`Due ${deadline}`);
 
   await item.getByRole('button', { name: title }).click();
   await page
@@ -22,6 +27,8 @@ test('create, view, edit, complete, filter and delete a task', async ({ page }) 
     .getByRole('button', { name: 'Edit' })
     .click();
   const editDialog = page.getByRole('dialog', { name: 'Edit task' });
+  await expect(editDialog.getByLabel('Due date')).toHaveValue('2030-01-15');
+  await expect(editDialog.getByLabel('Due time')).toHaveValue('17:00');
   await editDialog.getByLabel('Title').fill(edited);
   await editDialog.getByRole('button', { name: 'Save' }).click();
   await expect(page.getByRole('dialog', { name: 'Task details' })).toContainText(edited);

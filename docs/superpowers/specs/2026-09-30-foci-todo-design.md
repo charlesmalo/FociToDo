@@ -47,11 +47,11 @@ The submission succeeds when:
 | DR-1 | `id` | UUID, server-generated |
 | DR-2 | `title` | Required; trimmed; 1–200 characters |
 | DR-3 | `description` | Optional; ≤ 2000 characters; empty string stored as `null` |
-| DR-4 | `dueDate` | Optional; strict `YYYY-MM-DD`; must be a real calendar date; past dates allowed |
+| DR-4 | ~~`dueDate`~~ | ~~Optional; strict `YYYY-MM-DD`; must be a real calendar date; past dates allowed~~ Superseded by `dueAt`, a UTC instant: see [the 2026-10-03 spec](./2026-10-03-api-docs-and-deadlines-design.md) and [ADR 0017](../../decisions/0017-deadlines-are-utc-instants.md) |
 | DR-5 | `isCompleted` | Boolean; defaults to `false` |
 | DR-6 | `createdAt` | ISO-8601 UTC timestamp, server-generated |
 | DR-7 | `version` | Positive integer, starts at 1, read-only; exposed in body and as `ETag` |
-| DR-8 | `isOverdue` | Derived, read-only: `!isCompleted && dueDate < today (UTC)`; never stored |
+| DR-8 | `isOverdue` | ~~Derived, read-only: `!isCompleted && dueDate < today (UTC)`; never stored~~ Superseded: derived from the `dueAt` instant, with a new `isDueSoon`; see [the 2026-10-03 spec](./2026-10-03-api-docs-and-deadlines-design.md) and [ADR 0017](../../decisions/0017-deadlines-are-utc-instants.md) |
 
 ### 2.3 Non-functional
 

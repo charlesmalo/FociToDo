@@ -4,7 +4,8 @@ import type { Storage, StoredResponse } from '../../src/repository/ports.js';
 import { todoId } from '../support/fakes.js';
 import { makeTodo } from '../support/todoFactory.js';
 
-const TODAY = '2026-09-30';
+const NOW = new Date('2026-09-30T12:00:00.000Z');
+const HOUR = 60 * 60 * 1000;
 const query = (overrides: Partial<ListTodosQuery>): ListTodosQuery => ({
   ...DEFAULT_LIST_QUERY,
   ...overrides,
@@ -40,7 +41,7 @@ export function describeRepositoryContract(
         const todo = makeTodo({
           title: 'Pay rent',
           description: 'Before noon',
-          dueDate: '2026-10-01',
+          dueAt: at('2026-10-01T17:45:30.123Z'),
           createdAt: at('2026-09-15T08:30:00.123Z'),
         });
         await storage.todos.create(todo);
@@ -58,25 +59,45 @@ export function describeRepositoryContract(
       });
 
       it('applies only the provided fields and bumps the version', async () => {
-        const todo = makeTodo({ title: 'Old', description: 'Keep me', dueDate: '2026-10-01' });
+        const todo = makeTodo({
+          title: 'Old',
+          description: 'Keep me',
+          dueAt: at('2026-10-01T17:00:00.000Z'),
+        });
         await storage.todos.create(todo);
         const updated = await storage.todos.update(todo.id, 1, { title: 'New' });
         expect(updated).toEqual({ ...todo, title: 'New', version: 2 });
         expect(await storage.todos.findById(todo.id)).toEqual(updated);
       });
 
-      it('clears optional fields with null and updates the due date', async () => {
-        const todo = makeTodo({ description: 'x', dueDate: '2026-10-01' });
+      it('clears optional fields with null and updates the deadline', async () => {
+        const todo = makeTodo({ description: 'x', dueAt: at('2026-10-01T17:00:00.000Z') });
         await storage.todos.create(todo);
-        expect(
-          await storage.todos.update(todo.id, 1, { description: null, dueDate: null }),
-        ).toEqual({ ...todo, description: null, dueDate: null, version: 2 });
-        expect(await storage.todos.update(todo.id, 2, { dueDate: '2027-01-31' })).toEqual({
+        expect(await storage.todos.update(todo.id, 1, { description: null, dueAt: null })).toEqual({
           ...todo,
           description: null,
-          dueDate: '2027-01-31',
+          dueAt: null,
+          version: 2,
+        });
+        const later = at('2027-01-31T08:15:00.500Z');
+        expect(await storage.todos.update(todo.id, 2, { dueAt: later })).toEqual({
+          ...todo,
+          description: null,
+          dueAt: later,
           version: 3,
         });
+        expect((await storage.todos.findById(todo.id))?.dueAt).toEqual(later);
+      });
+
+      it('returns a detached dueAt', async () => {
+        const iso = '2026-10-01T17:00:00.000Z';
+        const todo = makeTodo({ dueAt: at(iso) });
+        await storage.todos.create(todo);
+        todo.dueAt?.setUTCFullYear(1999);
+        const found = await storage.todos.findById(todo.id);
+        expect(found?.dueAt).toEqual(at(iso));
+        found?.dueAt?.setUTCFullYear(1999);
+        expect((await storage.todos.findById(todo.id))?.dueAt).toEqual(at(iso));
       });
 
       it('refuses an update with a stale version and leaves the row unchanged', async () => {
@@ -117,52 +138,93 @@ export function describeRepositoryContract(
         const done = makeTodo({
           title: 'done',
           isCompleted: true,
-          dueDate: '2026-09-01',
+          dueAt: at('2026-09-01T10:00:00Z'),
           createdAt: at('2026-09-01T00:00:00Z'),
         });
         const late = makeTodo({
           title: 'late',
-          dueDate: '2026-09-29',
+          dueAt: at('2026-09-29T10:00:00Z'),
           createdAt: at('2026-09-02T00:00:00Z'),
         });
-        const dueToday = makeTodo({
-          title: 'today',
-          dueDate: TODAY,
+        const dueLater = makeTodo({
+          title: 'later',
+          dueAt: at('2026-10-05T10:00:00Z'),
           createdAt: at('2026-09-03T00:00:00Z'),
         });
         const undated = makeTodo({ title: 'undated', createdAt: at('2026-09-04T00:00:00Z') });
 
         beforeEach(async () => {
-          for (const todo of [late, undated, done, dueToday]) await storage.todos.create(todo);
+          for (const todo of [late, undated, done, dueLater]) await storage.todos.create(todo);
         });
 
         it.each([
-          ['all', ['undated', 'today', 'late', 'done']],
+          ['all', ['undated', 'later', 'late', 'done']],
           ['completed', ['done']],
-          ['incomplete', ['undated', 'today', 'late']],
+          ['incomplete', ['undated', 'later', 'late']],
           ['overdue', ['late']],
+          ['due-soon', []],
         ] as const)('filters by status %s (newest first by default)', async (status, titles) => {
-          const todos = await storage.todos.list(query({ status }), TODAY);
+          const todos = await storage.todos.list(query({ status }), NOW);
           expect(todos.map((todo) => todo.title)).toEqual(titles);
         });
 
         it('sorts by createdAt ascending', async () => {
-          const todos = await storage.todos.list(query({ order: 'asc' }), TODAY);
-          expect(todos.map((todo) => todo.title)).toEqual(['done', 'late', 'today', 'undated']);
+          const todos = await storage.todos.list(query({ order: 'asc' }), NOW);
+          expect(todos.map((todo) => todo.title)).toEqual(['done', 'late', 'later', 'undated']);
         });
 
-        it('sorts by due date with undated todos last in both directions', async () => {
-          const asc = await storage.todos.list(query({ sort: 'dueDate', order: 'asc' }), TODAY);
-          const desc = await storage.todos.list(query({ sort: 'dueDate', order: 'desc' }), TODAY);
-          expect(asc.map((todo) => todo.title)).toEqual(['done', 'late', 'today', 'undated']);
-          expect(desc.map((todo) => todo.title)).toEqual(['today', 'late', 'done', 'undated']);
+        it('sorts by deadline with undated todos last in both directions', async () => {
+          const asc = await storage.todos.list(query({ sort: 'dueAt', order: 'asc' }), NOW);
+          const desc = await storage.todos.list(query({ sort: 'dueAt', order: 'desc' }), NOW);
+          expect(asc.map((todo) => todo.title)).toEqual(['done', 'late', 'later', 'undated']);
+          expect(desc.map((todo) => todo.title)).toEqual(['later', 'late', 'done', 'undated']);
         });
 
         it('returns detached copies', async () => {
-          const [first] = await storage.todos.list(query({}), TODAY);
+          const [first] = await storage.todos.list(query({}), NOW);
           if (first === undefined) throw new Error('expected a todo');
           first.title = 'mutated';
           expect((await storage.todos.findById(first.id))?.title).toBe('undated');
+        });
+      });
+
+      describe('overdue and due-soon boundaries', () => {
+        const offsets: [string, number | null, boolean][] = [
+          ['minus1ms', -1, false],
+          ['exactlyNow', 0, false],
+          ['inside', 24 * HOUR - 1, false],
+          ['windowEnd', 24 * HOUR, false],
+          ['completedSoon', HOUR, true],
+          ['completedLate', -HOUR, true],
+          ['noDeadline', null, false],
+        ];
+        // Created oldest-first so the default newest-first order is the reverse of this list.
+        beforeEach(async () => {
+          let day = 1;
+          for (const [title, offset, isCompleted] of offsets) {
+            day += 1;
+            await storage.todos.create(
+              makeTodo({
+                title,
+                isCompleted,
+                dueAt: offset === null ? null : new Date(NOW.getTime() + offset),
+                createdAt: at(`2026-09-${String(day).padStart(2, '0')}T00:00:00Z`),
+              }),
+            );
+          }
+        });
+
+        const titlesFor = async (status: 'overdue' | 'due-soon') =>
+          (await storage.todos.list(query({ status, sort: 'dueAt', order: 'asc' }), NOW)).map(
+            (todo) => todo.title,
+          );
+
+        it('overdue means incomplete and strictly before now', async () => {
+          expect(await titlesFor('overdue')).toEqual(['minus1ms']);
+        });
+
+        it('due-soon means incomplete, from now (inclusive) up to 24h (exclusive)', async () => {
+          expect(await titlesFor('due-soon')).toEqual(['exactlyNow', 'inside']);
         });
       });
 
@@ -187,7 +249,7 @@ export function describeRepositoryContract(
           makeTodo({ id: todoId(5), title: 'Apple', createdAt: at('2026-09-02T00:00:00Z') }),
         ];
         for (const todo of todos) await storage.todos.create(todo);
-        const asc = await storage.todos.list(query({ sort: 'title', order: 'asc' }), TODAY);
+        const asc = await storage.todos.list(query({ sort: 'title', order: 'asc' }), NOW);
         expect(asc.map((todo) => todo.id)).toEqual([
           todoId(5),
           todoId(1),
@@ -289,7 +351,7 @@ export function describeRepositoryContract(
         );
         const results = await Promise.all(attempts);
         expect(results.filter(Boolean)).toHaveLength(1);
-        const all = await storage.todos.list(query({}), TODAY);
+        const all = await storage.todos.list(query({}), NOW);
         expect(all).toHaveLength(1);
       });
     });

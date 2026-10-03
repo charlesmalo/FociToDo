@@ -5,7 +5,7 @@ import {
   type TodoView,
   type UpdateTodo,
 } from '@foci/shared';
-import { utcDate, type Clock } from '../domain/clock.js';
+import type { Clock } from '../domain/clock.js';
 import {
   IdempotencyKeyReuseError,
   PreconditionRequiredError,
@@ -13,7 +13,7 @@ import {
   VersionConflictError,
 } from '../domain/errors.js';
 import type { IdGenerator } from '../domain/ids.js';
-import { toView, type Todo } from '../domain/todo.js';
+import { toView, type Todo, type TodoPatch } from '../domain/todo.js';
 import type { TodoRepository, UnitOfWork } from '../repository/ports.js';
 import { hashCreateRequest } from './requestHash.js';
 
@@ -31,6 +31,12 @@ export interface CreateTodoResult {
   replayed: boolean;
 }
 
+function toTodoPatch(patch: UpdateTodo): TodoPatch {
+  const { dueAt, ...rest } = patch;
+  if (dueAt === undefined) return rest;
+  return { ...rest, dueAt: dueAt === null ? null : new Date(dueAt) };
+}
+
 export class TodoService {
   constructor(private readonly deps: TodoServiceDependencies) {}
 
@@ -40,12 +46,12 @@ export class TodoService {
       id: this.deps.ids.next(),
       title: input.title,
       description: input.description ?? null,
-      dueDate: input.dueDate ?? null,
+      dueAt: input.dueAt === undefined || input.dueAt === null ? null : new Date(input.dueAt),
       isCompleted: false,
       createdAt: now,
       version: 1,
     };
-    const view = toView(todo, utcDate(now));
+    const view = toView(todo, now);
 
     if (idempotencyKey === undefined) {
       await this.deps.todos.create(todo);
@@ -80,9 +86,9 @@ export class TodoService {
   }
 
   async list(query: ListTodosQuery): Promise<TodoView[]> {
-    const today = this.today();
-    const todos = await this.deps.todos.list(query, today);
-    return todos.map((todo) => toView(todo, today));
+    const now = this.deps.clock.now();
+    const todos = await this.deps.todos.list(query, now);
+    return todos.map((todo) => toView(todo, now));
   }
 
   async update(
@@ -91,7 +97,7 @@ export class TodoService {
     patch: UpdateTodo,
   ): Promise<TodoView> {
     if (expectedVersion === undefined) throw new PreconditionRequiredError();
-    const updated = await this.deps.todos.update(id, expectedVersion, patch);
+    const updated = await this.deps.todos.update(id, expectedVersion, toTodoPatch(patch));
     if (updated === null) throw await this.notFoundOrConflict(id);
     return this.view(updated);
   }
@@ -122,11 +128,7 @@ export class TodoService {
     return existing === null ? new TodoNotFoundError(id) : new VersionConflictError(id);
   }
 
-  private today(): string {
-    return utcDate(this.deps.clock.now());
-  }
-
   private view(todo: Todo): TodoView {
-    return toView(todo, this.today());
+    return toView(todo, this.deps.clock.now());
   }
 }

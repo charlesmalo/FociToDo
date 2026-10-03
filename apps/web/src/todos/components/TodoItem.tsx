@@ -1,5 +1,6 @@
 import type { TodoView } from '@foci/shared';
 import { describeError } from '../../api/describeError';
+import { formatDeadline } from '../format';
 import { useSetCompleted } from '../useTodos';
 import styles from './TodoItem.module.css';
 
@@ -25,8 +26,8 @@ export function TodoItem({ todo, onOpen }: TodoItemProps) {
         {todo.title}
       </button>
       {todo.isOverdue && <span className={styles.overdue}>Overdue</span>}
-      {/* dueDate is a calendar date: render the stored string, never via Date (no timezone shift). */}
-      {todo.dueDate !== null && <span className={styles.due}>Due {todo.dueDate}</span>}
+      {todo.isDueSoon && <span className={styles.dueSoon}>Due soon</span>}
+      {todo.dueAt !== null && <span className={styles.due}>Due {formatDeadline(todo.dueAt)}</span>}
       {setCompleted.isError && (
         <span role="alert" className={styles.error}>
           {describeError(setCompleted.error)}

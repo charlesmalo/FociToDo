@@ -2,7 +2,7 @@ import type { CreateTodoInput } from '@foci/shared';
 import { useState } from 'react';
 import { ApiError } from '../../api/ApiError';
 import { describeError } from '../../api/describeError';
-import { formatTimestamp } from '../format';
+import { formatDeadline, formatTimestamp } from '../format';
 import { useDeleteTodo, useTodo, useUpdateTodo } from '../useTodos';
 import { ErrorBanner } from './ErrorBanner';
 import styles from './TodoDetailsPanel.module.css';
@@ -100,6 +100,7 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
       {editing ? (
         <TodoForm
           initialValues={toFormValues(current)}
+          initialDueAt={current.dueAt}
           submitLabel="Save"
           onSubmit={save}
           onCancel={() => {
@@ -114,10 +115,11 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
             <dd>{current.title}</dd>
             <dt>Description</dt>
             <dd>{current.description ?? '—'}</dd>
-            <dt>Due date</dt>
+            <dt>Due</dt>
             <dd>
-              {current.dueDate ?? '—'}
+              {current.dueAt === null ? '—' : formatDeadline(current.dueAt)}
               {current.isOverdue && <span className={styles.overdue}> Overdue</span>}
+              {current.isDueSoon && <span className={styles.dueSoon}> Due soon</span>}
             </dd>
             <dt>Status</dt>
             <dd>{current.isCompleted ? 'Completed' : 'Not completed'}</dd>

@@ -4,14 +4,14 @@ Base path `/api`. JSON in and out; errors are `application/problem+json` ([RFC 9
 
 ## Conventions
 
-| Topic                 | Rule                                                                                                                                                                                |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Versions              | Every todo has a `version`; responses carry it as a strong `ETag` (e.g. `"3"`)                                                                                                      |
-| Updates and deletes   | `If-Match: "<version>"` is required: missing → **428**, stale → **412**                                                                                                             |
-| Creates               | Optional `Idempotency-Key`; a repeat replays the original 201 with `Idempotent-Replayed: true`; same key + different body → **422**; keys expire after 24 h                         |
-| Complete / incomplete | Idempotent; no `If-Match`; the version changes only if the state changes                                                                                                            |
-| Validation            | Bodies and queries are strict: unknown fields → **400** with per-field `errors`; `dueDate` is a real `YYYY-MM-DD` date (year ≥ 0001); title and description must not contain U+0000 |
-| Error precedence      | **400** (malformed) → **428** (missing If-Match) → **404** → **412**                                                                                                                |
+| Topic                 | Rule                                                                                                                                                                                                                                                                                                                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Versions              | Every todo has a `version`; responses carry it as a strong `ETag` (e.g. `"3"`)                                                                                                                                                                                                                                                                                                           |
+| Updates and deletes   | `If-Match: "<version>"` is required: missing → **428**, stale → **412**                                                                                                                                                                                                                                                                                                                  |
+| Creates               | Optional `Idempotency-Key`; a repeat replays the original 201 with `Idempotent-Replayed: true`; same key + different body → **422**; keys expire after 24 h                                                                                                                                                                                                                              |
+| Complete / incomplete | Idempotent; no `If-Match`; the version changes only if the state changes                                                                                                                                                                                                                                                                                                                 |
+| Validation            | Bodies and queries are strict: unknown fields → **400** with per-field `errors`; `dueAt` is an RFC 3339 date-time with an offset or `Z` (year 0001–9999 of the UTC instant), e.g. `2026-10-03T18:00:00-04:00`; a bare date or a time without an offset → **400**. It is stored and returned as a UTC instant (`2026-10-03T22:00:00.000Z`); title and description must not contain U+0000 |
+| Error precedence      | **400** (malformed) → **428** (missing If-Match) → **404** → **412**                                                                                                                                                                                                                                                                                                                     |
 
 ## Endpoints
 
@@ -26,7 +26,7 @@ Base path `/api`. JSON in and out; errors are `application/problem+json` ([RFC 9
 | DELETE | `/api/todos/{id}`              | 204                       | 400, 404, 412, 428           |
 | GET    | `/api/health`                  | 200                       | 503                          |
 
-List parameters: `status` = `all` (default) · `completed` · `incomplete` · `overdue`; `sort` = `createdAt` (default) · `dueDate` · `title`; `order` = `desc` (default) · `asc`. Todos without a due date sort last; ties break by newest, then id.
+List parameters: `status` = `all` (default) · `completed` · `incomplete` · `overdue` · `due-soon`; `sort` = `createdAt` (default) · `dueAt` · `title`; `order` = `desc` (default) · `asc`. `overdue` is incomplete with `dueAt` in the past; `due-soon` is incomplete with `dueAt` from now up to (excluding) 24 hours ahead; both are also returned as `isOverdue` and `isDueSoon` on each todo. Todos without a deadline sort last; ties break by newest, then id.
 
 ## Problem types
 
@@ -48,7 +48,7 @@ List parameters: `status` = `all` (default) · `completed` · `incomplete` · `o
 
 ```bash
 curl -i -X POST localhost:8080/api/todos -H 'Content-Type: application/json' \
-  -H 'Idempotency-Key: 7d1c2b9e-4a3f-4e8b-9c1d-2f6a8b0e5c41' -d '{"title":"Buy milk","dueDate":"2026-10-01"}'
+  -H 'Idempotency-Key: 7d1c2b9e-4a3f-4e8b-9c1d-2f6a8b0e5c41' -d '{"title":"Buy milk","dueAt":"2026-10-01T17:00:00-04:00"}'
 ```
 
 ![Create — POST /api/todos (sequence diagram)](diagrams/api/create-post-api-todos.svg)
@@ -92,12 +92,12 @@ sequenceDiagram
   participant C as Client
   participant A as API
   participant DB as Postgres
-  C->>A: GET /api/todos?status=overdue&sort=dueDate&order=asc
+  C->>A: GET /api/todos?status=due-soon&sort=dueAt&order=asc
   alt unknown or repeated parameter
     A-->>C: 400 validation-error
   else valid
     A->>DB: SELECT … WHERE filter ORDER BY sort, created_at DESC, id
-    A-->>C: 200 [todos with isOverdue]
+    A-->>C: 200 [todos with isOverdue / isDueSoon]
   end
 ```
 

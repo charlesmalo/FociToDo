@@ -40,6 +40,17 @@ describe('responses conform to the OpenAPI document', () => {
     expectConforms(list, '/api/todos', 'get');
     TodoViewListSchema.parse(list.body);
 
+    const withDeadline = await api()
+      .post('/api/todos')
+      .send({ title: 'Deadline', dueAt: '2999-01-01T09:00:00+02:00' });
+    expectConforms(withDeadline, '/api/todos', 'post');
+    expect(TodoViewSchema.parse(withDeadline.body).dueAt).toBe('2999-01-01T07:00:00.000Z');
+    for (const query of ['status=due-soon', 'status=overdue', 'sort=dueAt&order=desc']) {
+      const filtered = await api().get(`/api/todos?${query}`);
+      expectConforms(filtered, '/api/todos', 'get');
+      TodoViewListSchema.parse(filtered.body);
+    }
+
     const one = await api().get(`/api/todos/${id}`);
     expectConforms(one, '/api/todos/{id}', 'get');
     TodoViewSchema.parse(one.body);
@@ -66,6 +77,12 @@ describe('responses conform to the OpenAPI document', () => {
     const missing = todoId(999);
     expectConforms(await api().post('/api/todos').send({}), '/api/todos', 'post');
     expectConforms(await api().get('/api/todos?status=nope'), '/api/todos', 'get');
+    expectConforms(await api().get('/api/todos?sort=dueDate'), '/api/todos', 'get');
+    expectConforms(
+      await api().post('/api/todos').send({ title: 'x', dueAt: '2026-10-01' }),
+      '/api/todos',
+      'post',
+    );
     expectConforms(await api().get(`/api/todos/${missing}`), '/api/todos/{id}', 'get');
     expectConforms(
       await api().patch(`/api/todos/${missing}`).send({ title: 'x' }),

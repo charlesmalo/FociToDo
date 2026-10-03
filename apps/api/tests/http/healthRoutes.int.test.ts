@@ -15,7 +15,7 @@ describe('GET /api/health', () => {
     expect(response.body).toEqual({
       status: 'ok',
       db: 'up',
-      schemaVersion: '1759190400001_create-idempotency-keys',
+      schemaVersion: '1759190400002_due-at-instants',
     });
   });
 

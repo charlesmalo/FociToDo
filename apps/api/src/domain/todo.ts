@@ -4,7 +4,7 @@ export interface Todo {
   id: string;
   title: string;
   description: string | null;
-  dueDate: string | null;
+  dueAt: Date | null;
   isCompleted: boolean;
   createdAt: Date;
   version: number;
@@ -14,23 +14,33 @@ export interface Todo {
 export interface TodoPatch {
   title?: string;
   description?: string | null;
-  dueDate?: string | null;
+  dueAt?: Date | null;
 }
 
-/** Overdue is derived, never stored: incomplete and due strictly before `today` (YYYY-MM-DD, UTC). */
-export function isOverdue(todo: Todo, today: string): boolean {
-  return !todo.isCompleted && todo.dueDate !== null && todo.dueDate < today;
+export const DUE_SOON_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/** Overdue: incomplete and the deadline moment has passed. Identical in every timezone. */
+export function isOverdue(todo: Todo, now: Date): boolean {
+  return !todo.isCompleted && todo.dueAt !== null && todo.dueAt.getTime() < now.getTime();
 }
 
-export function toView(todo: Todo, today: string): TodoView {
+/** Due soon: incomplete and the deadline is now or within the next 24 hours. */
+export function isDueSoon(todo: Todo, now: Date): boolean {
+  if (todo.isCompleted || todo.dueAt === null) return false;
+  const remaining = todo.dueAt.getTime() - now.getTime();
+  return remaining >= 0 && remaining < DUE_SOON_WINDOW_MS;
+}
+
+export function toView(todo: Todo, now: Date): TodoView {
   return {
     id: todo.id,
     title: todo.title,
     description: todo.description,
-    dueDate: todo.dueDate,
+    dueAt: todo.dueAt === null ? null : todo.dueAt.toISOString(),
     isCompleted: todo.isCompleted,
     createdAt: todo.createdAt.toISOString(),
     version: todo.version,
-    isOverdue: isOverdue(todo, today),
+    isOverdue: isOverdue(todo, now),
+    isDueSoon: isDueSoon(todo, now),
   };
 }

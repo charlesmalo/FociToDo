@@ -8,9 +8,16 @@ export const todoKeys = {
   detail: (id: string) => ['todos', 'detail', id] as const,
 };
 
+/** Overdue and due-soon flags are derived from the clock, so an open list re-reads them every minute. */
+export const LIST_REFETCH_INTERVAL_MS = 60_000;
+
 export function useTodoList(query: ListTodosQuery) {
   const client = useTodoClient();
-  return useQuery({ queryKey: todoKeys.list(query), queryFn: () => client.list(query) });
+  return useQuery({
+    queryKey: todoKeys.list(query),
+    queryFn: () => client.list(query),
+    refetchInterval: LIST_REFETCH_INTERVAL_MS,
+  });
 }
 
 export function useTodo(id: string) {

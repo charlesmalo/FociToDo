@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CreateTodoSchema,
   DESCRIPTION_MAX_LENGTH,
+  DUE_AT_ERROR,
   TITLE_MAX_LENGTH,
   TodoIdSchema,
   TodoViewListSchema,
@@ -37,16 +38,20 @@ describe('CreateTodoSchema', () => {
       CreateTodoSchema.parse({
         title: 'Pay rent',
         description: 'Before noon',
-        dueDate: '2026-10-01',
+        dueAt: '2026-10-01T12:00:00Z',
       }),
-    ).toEqual({ title: 'Pay rent', description: 'Before noon', dueDate: '2026-10-01' });
+    ).toEqual({
+      title: 'Pay rent',
+      description: 'Before noon',
+      dueAt: '2026-10-01T12:00:00.000Z',
+    });
   });
 
   it('accepts explicit nulls for optional fields', () => {
-    expect(CreateTodoSchema.parse({ title: 'x', description: null, dueDate: null })).toEqual({
+    expect(CreateTodoSchema.parse({ title: 'x', description: null, dueAt: null })).toEqual({
       title: 'x',
       description: null,
-      dueDate: null,
+      dueAt: null,
     });
   });
 
@@ -128,40 +133,48 @@ describe('CreateTodoSchema', () => {
     ]);
   });
 
-  it.each(['0001-01-01', '2000-01-01', '2028-02-29', '2026-12-31'])(
-    'accepts the real date %s',
-    (dueDate) => {
-      expect(CreateTodoSchema.parse({ title: 'x', dueDate }).dueDate).toBe(dueDate);
-    },
-  );
+  it.each([
+    ['2026-10-03T22:00:00Z', '2026-10-03T22:00:00.000Z'],
+    ['2026-10-03T18:00:00-04:00', '2026-10-03T22:00:00.000Z'],
+    ['2026-10-03T22:00:00.123+00:00', '2026-10-03T22:00:00.123Z'],
+    ['0001-01-01T00:00:00Z', '0001-01-01T00:00:00.000Z'],
+  ])('accepts %s and normalises it to %s', (dueAt, expected) => {
+    expect(CreateTodoSchema.parse({ title: 'x', dueAt }).dueAt).toBe(expected);
+  });
 
   it.each([
-    '2026-02-29',
-    '2026-13-01',
-    '2026-1-01',
-    '2026-10-01T00:00:00Z',
-    'tomorrow',
-    '0000-01-01',
-    '0000-02-29',
-  ])('rejects the invalid date %s', (dueDate) => {
-    const result = CreateTodoSchema.safeParse({ title: 'x', dueDate });
+    '2026-10-03',
+    '2026-10-03T22:00:00',
+    '2026-02-30T10:00:00Z',
+    '0000-01-01T00:00:00Z',
+    '10000-01-01T00:00:00Z',
+    '0001-01-01T00:00:00+01:00',
+    '9999-12-31T23:59:59-01:00',
+    'not a date',
+    '',
+    1759528800000,
+  ])('rejects the invalid instant %j', (dueAt) => {
+    const result = CreateTodoSchema.safeParse({ title: 'x', dueAt });
     expect(issues(result)).toEqual([
-      expect.objectContaining({
-        path: ['dueDate'],
-        message: 'Due date must be a real date in YYYY-MM-DD format',
-      }),
+      expect.objectContaining({ path: ['dueAt'], message: DUE_AT_ERROR }),
     ]);
   });
 
-  it.each(['id', 'isCompleted', 'createdAt', 'version', 'isOverdue', 'dueDat'])(
-    'rejects the client-supplied or unknown field %s',
-    (field) => {
-      const result = CreateTodoSchema.safeParse({ title: 'x', [field]: 'y' });
-      expect(issues(result)).toEqual([
-        expect.objectContaining({ code: 'unrecognized_keys', keys: [field] }),
-      ]);
-    },
-  );
+  it.each([
+    'id',
+    'isCompleted',
+    'createdAt',
+    'version',
+    'isOverdue',
+    'isDueSoon',
+    'dueDate',
+    'dueDat',
+  ])('rejects the client-supplied or unknown field %s', (field) => {
+    const result = CreateTodoSchema.safeParse({ title: 'x', [field]: 'y' });
+    expect(issues(result)).toEqual([
+      expect.objectContaining({ code: 'unrecognized_keys', keys: [field] }),
+    ]);
+  });
 
   it.each([undefined, null, [], 'text', 42])('rejects the non-object body %j', (body) => {
     const result = CreateTodoSchema.safeParse(body);
@@ -177,9 +190,9 @@ describe('UpdateTodoSchema', () => {
   });
 
   it('accepts clearing optional fields with null', () => {
-    expect(UpdateTodoSchema.parse({ description: null, dueDate: null })).toEqual({
+    expect(UpdateTodoSchema.parse({ description: null, dueAt: null })).toEqual({
       description: null,
-      dueDate: null,
+      dueAt: null,
     });
   });
 
@@ -192,7 +205,7 @@ describe('UpdateTodoSchema', () => {
     expect(issues(result)).toEqual([
       expect.objectContaining({
         path: [],
-        message: 'At least one of title, description or dueDate is required',
+        message: 'At least one of title, description or dueAt is required',
       }),
     ]);
   });
@@ -217,16 +230,29 @@ describe('TodoViewSchema', () => {
     id: '7f3a2c1e-9b4d-4e8a-a1b2-c3d4e5f60718',
     title: 'Buy milk',
     description: null,
-    dueDate: '2026-10-01',
+    dueAt: '2026-10-01T12:00:00.000Z',
     isCompleted: false,
     createdAt: '2026-09-30T12:00:00.000Z',
     version: 1,
     isOverdue: false,
+    isDueSoon: false,
   };
 
   it('accepts a valid view', () => {
     expect(TodoViewSchema.parse(view)).toEqual(view);
     expect(TodoViewListSchema.parse([view])).toEqual([view]);
+  });
+
+  it('accepts a null dueAt', () => {
+    expect(TodoViewSchema.parse({ ...view, dueAt: null }).dueAt).toBeNull();
+  });
+
+  it('requires isDueSoon', () => {
+    expect(TodoViewSchema.safeParse({ ...view, isDueSoon: undefined }).success).toBe(false);
+  });
+
+  it('rejects a dueAt that is not an ISO datetime', () => {
+    expect(TodoViewSchema.safeParse({ ...view, dueAt: '2026-10-01' }).success).toBe(false);
   });
 
   it('rejects a non-positive version', () => {

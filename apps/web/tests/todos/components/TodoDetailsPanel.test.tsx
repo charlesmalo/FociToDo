@@ -2,8 +2,15 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../../../src/api/ApiError';
+import { formatDeadline } from '../../../src/todos/format';
 import { TodoDetailsPanel } from '../../../src/todos/components/TodoDetailsPanel';
 import { fakeClient, makeView, renderWithProviders } from '../../support/fixtures';
+
+// The deadline text depends on the viewer's locale and timezone; pin it so these tests do not.
+vi.mock('../../../src/todos/format', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  formatDeadline: (iso: string) => `deadline ${iso}`,
+}));
 
 const problem = (status: number, detail = 'Problem') =>
   new ApiError({ type: '/problems/x', title: 'x', status, detail });
@@ -23,7 +30,7 @@ describe('TodoDetailsPanel — viewing', () => {
     const todo = makeView({
       title: 'File taxes',
       description: 'Blue folder',
-      dueDate: '2026-09-01',
+      dueAt: '2026-09-01T10:00:00.000Z',
       isOverdue: true,
       isCompleted: false,
     });
@@ -31,8 +38,22 @@ describe('TodoDetailsPanel — viewing', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Loading…');
     expect(await screen.findByText('File taxes')).toBeInTheDocument();
     expect(screen.getByText('Blue folder')).toBeInTheDocument();
-    expect(screen.getByText(/2026-09-01/)).toHaveTextContent('Overdue');
+    const due = screen.getByText(formatDeadline('2026-09-01T10:00:00.000Z'), { exact: false });
+    expect(screen.getByText('Due', { selector: 'dt' })).toBeInTheDocument();
+    expect(due).toHaveTextContent('Overdue');
+    expect(due).not.toHaveTextContent('Due soon');
     expect(screen.getByText('Not completed')).toBeInTheDocument();
+  });
+
+  it('shows the deadline and a due-soon badge', async () => {
+    setup({
+      get: vi.fn(async () => makeView({ dueAt: '2026-10-04T10:00:00.000Z', isDueSoon: true })),
+    });
+    const due = await screen.findByText(formatDeadline('2026-10-04T10:00:00.000Z'), {
+      exact: false,
+    });
+    expect(due).toHaveTextContent('Due soon');
+    expect(due).not.toHaveTextContent('Overdue');
   });
 
   it('shows placeholders for empty optional fields and completed status', async () => {
@@ -71,8 +92,19 @@ describe('TodoDetailsPanel — editing', () => {
     expect(update).toHaveBeenCalledWith(todo.id, 3, {
       title: 'New',
       description: null,
-      dueDate: null,
+      dueAt: null,
     });
+  });
+
+  it('keeps a stored deadline exactly as it was on a title-only edit', async () => {
+    const dueAt = '2026-10-01T23:59:59.000Z';
+    const todo = makeView({ title: 'Old', version: 3, dueAt });
+    const update = vi.fn(async () => makeView({ ...todo, title: 'Old!', version: 4 }));
+    setup({ get: vi.fn(async () => todo), update }, true);
+    await userEvent.type(await screen.findByLabelText('Title'), '!');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(update).toHaveBeenCalled());
+    expect(update).toHaveBeenCalledWith(todo.id, 3, { title: 'Old!', description: null, dueAt });
   });
 
   it('on 412 shows a conflict notice, reloads, keeps the edits and saves against the new version', async () => {

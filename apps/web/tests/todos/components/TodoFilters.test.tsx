@@ -10,8 +10,10 @@ describe('TodoFilters', () => {
     render(<TodoFilters query={DEFAULT_LIST_QUERY} onChange={onChange} />);
     await userEvent.selectOptions(screen.getByLabelText('Show'), 'Overdue');
     expect(onChange).toHaveBeenLastCalledWith({ ...DEFAULT_LIST_QUERY, status: 'overdue' });
-    await userEvent.selectOptions(screen.getByLabelText('Sort by'), 'Due date');
-    expect(onChange).toHaveBeenLastCalledWith({ ...DEFAULT_LIST_QUERY, sort: 'dueDate' });
+    await userEvent.selectOptions(screen.getByLabelText('Show'), 'Due soon');
+    expect(onChange).toHaveBeenLastCalledWith({ ...DEFAULT_LIST_QUERY, status: 'due-soon' });
+    await userEvent.selectOptions(screen.getByLabelText('Sort by'), 'Due');
+    expect(onChange).toHaveBeenLastCalledWith({ ...DEFAULT_LIST_QUERY, sort: 'dueAt' });
     await userEvent.selectOptions(screen.getByLabelText('Order'), 'Ascending');
     expect(onChange).toHaveBeenLastCalledWith({ ...DEFAULT_LIST_QUERY, order: 'asc' });
   });

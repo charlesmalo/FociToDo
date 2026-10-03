@@ -4,8 +4,8 @@ import type { Todo, TodoPatch } from '../domain/todo.js';
 export interface TodoRepository {
   create(todo: Todo): Promise<void>;
   findById(id: string): Promise<Todo | null>;
-  /** Filters and sorts in storage; `today` (YYYY-MM-DD, UTC) defines "overdue". */
-  list(query: ListTodosQuery, today: string): Promise<Todo[]>;
+  /** Filters and sorts in storage; `now` defines "overdue" and "due soon". */
+  list(query: ListTodosQuery, now: Date): Promise<Todo[]>;
   /** Applies the patch only if the stored version equals `expectedVersion`; bumps the version. `null` = no row updated. */
   update(id: string, expectedVersion: number, patch: TodoPatch): Promise<Todo | null>;
   /** Sets the flag; bumps the version only when the value actually changes. `null` = not found. */

@@ -17,7 +17,7 @@ describe('CreateTodoPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Add task' }));
     await vi.waitFor(() => expect(onDone).toHaveBeenCalledOnce());
     expect(create).toHaveBeenCalledWith(
-      { title: 'Buy milk', description: null, dueDate: null },
+      { title: 'Buy milk', description: null, dueAt: null },
       'key-1',
     );
   });

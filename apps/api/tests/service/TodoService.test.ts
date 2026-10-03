@@ -36,19 +36,33 @@ describe('TodoService', () => {
           id: todoId(1),
           title: 'Buy milk',
           description: null,
-          dueDate: null,
+          dueAt: null,
           isCompleted: false,
           createdAt: '2026-09-30T12:00:00.000Z',
           version: 1,
           isOverdue: false,
+          isDueSoon: false,
         },
       });
       expect(await storage.todos.findById(todoId(1))).not.toBeNull();
     });
 
-    it('marks a todo created with a past due date as overdue', async () => {
-      const { todo } = await service.create({ title: 'Late', dueDate: '2026-09-01' });
-      expect(todo.isOverdue).toBe(true);
+    it('stores the deadline as an instant and flags a past one as overdue', async () => {
+      const { todo } = await service.create({ title: 'Late', dueAt: '2026-09-01T10:00:00.000Z' });
+      expect(todo).toMatchObject({ dueAt: '2026-09-01T10:00:00.000Z', isOverdue: true });
+      expect(todo.isDueSoon).toBe(false);
+      const stored = await storage.todos.findById(todo.id);
+      expect(stored?.dueAt).toEqual(new Date('2026-09-01T10:00:00.000Z'));
+    });
+
+    it('flags a deadline within 24 hours as due soon', async () => {
+      const { todo } = await service.create({ title: 'Soon', dueAt: '2026-09-30T18:00:00.000Z' });
+      expect(todo).toMatchObject({ isOverdue: false, isDueSoon: true });
+    });
+
+    it('treats a todo created with no deadline as neither overdue nor due soon', async () => {
+      const { todo } = await service.create({ title: 'Someday', dueAt: null });
+      expect(todo).toMatchObject({ dueAt: null, isOverdue: false, isDueSoon: false });
     });
 
     it('stores the todo and replays the same response for a repeated key', async () => {
@@ -56,7 +70,9 @@ describe('TodoService', () => {
       const second = await service.create({ title: 'Once' }, 'key-1');
       expect(first.replayed).toBe(false);
       expect(second).toEqual({ todo: first.todo, replayed: true });
-      expect(await storage.todos.list(DEFAULT_LIST_QUERY, '2026-09-30')).toHaveLength(1);
+      expect(
+        await storage.todos.list(DEFAULT_LIST_QUERY, new Date('2026-09-30T12:00:00.000Z')),
+      ).toHaveLength(1);
     });
 
     it('rejects a key reused with a different payload', async () => {
@@ -71,7 +87,9 @@ describe('TodoService', () => {
       clock.advance(IDEMPOTENCY_TTL_MS + 1);
       const again = await service.create({ title: 'Different' }, 'key-1');
       expect(again.replayed).toBe(false);
-      expect(await storage.todos.list(DEFAULT_LIST_QUERY, '2026-10-01')).toHaveLength(2);
+      expect(
+        await storage.todos.list(DEFAULT_LIST_QUERY, new Date('2026-10-01T12:00:00.000Z')),
+      ).toHaveLength(2);
     });
 
     it('creates exactly one todo for concurrent requests sharing a key', async () => {
@@ -80,7 +98,9 @@ describe('TodoService', () => {
       );
       expect(results.filter((result) => !result.replayed)).toHaveLength(1);
       expect(new Set(results.map((result) => result.todo.id)).size).toBe(1);
-      expect(await storage.todos.list(DEFAULT_LIST_QUERY, '2026-09-30')).toHaveLength(1);
+      expect(
+        await storage.todos.list(DEFAULT_LIST_QUERY, new Date('2026-09-30T12:00:00.000Z')),
+      ).toHaveLength(1);
     });
 
     it('fails loudly if a claimed-by-someone-else record cannot be read back', async () => {
@@ -110,22 +130,65 @@ describe('TodoService', () => {
       await expect(service.get(todoId(99))).rejects.toBeInstanceOf(TodoNotFoundError);
     });
 
-    it('lists with the requested filter and computes overdue against today (UTC)', async () => {
-      await service.create({ title: 'Due today', dueDate: '2026-09-30' });
-      await service.create({ title: 'Late', dueDate: '2026-09-29' });
+    it('lists with the requested filter and computes the flags against the clock', async () => {
+      await service.create({ title: 'Later', dueAt: '2026-09-30T12:00:00.000Z' });
+      await service.create({ title: 'Late', dueAt: '2026-09-30T11:59:59.999Z' });
       const overdue = await service.list({ ...DEFAULT_LIST_QUERY, status: 'overdue' });
       expect(overdue.map((todo) => [todo.title, todo.isOverdue])).toEqual([['Late', true]]);
       clock.set('2026-10-01T00:00:00.000Z');
       const all = await service.list(DEFAULT_LIST_QUERY);
       expect(all.every((todo) => todo.isOverdue)).toBe(true);
     });
+
+    it('passes the clock instant to the repository', async () => {
+      const seen: Date[] = [];
+      const spyService = new TodoService({
+        todos: {
+          ...storage.todos,
+          list: async (_query, now) => {
+            seen.push(now);
+            return [];
+          },
+        },
+        unitOfWork: storage.unitOfWork,
+        clock,
+        ids: new SequentialIds(),
+      });
+      await spyService.list(DEFAULT_LIST_QUERY);
+      expect(seen).toEqual([new Date('2026-09-30T12:00:00.000Z')]);
+    });
   });
 
   describe('update', () => {
     it('applies the patch and returns the new version', async () => {
       const { todo } = await service.create({ title: 'Old' });
-      const updated = await service.update(todo.id, 1, { title: 'New', dueDate: '2026-10-05' });
-      expect(updated).toEqual({ ...todo, title: 'New', dueDate: '2026-10-05', version: 2 });
+      const updated = await service.update(todo.id, 1, {
+        title: 'New',
+        dueAt: '2026-10-05T09:00:00.000Z',
+      });
+      expect(updated).toEqual({
+        ...todo,
+        title: 'New',
+        dueAt: '2026-10-05T09:00:00.000Z',
+        version: 2,
+      });
+      expect((await storage.todos.findById(todo.id))?.dueAt).toEqual(
+        new Date('2026-10-05T09:00:00.000Z'),
+      );
+    });
+
+    it('clears the deadline with null and leaves it alone when absent', async () => {
+      const { todo } = await service.create({ title: 'Due', dueAt: '2026-10-05T09:00:00.000Z' });
+      const untouched = await service.update(todo.id, 1, { title: 'Renamed' });
+      expect(untouched.dueAt).toBe('2026-10-05T09:00:00.000Z');
+      const cleared = await service.update(todo.id, 2, { dueAt: null });
+      expect(cleared).toMatchObject({ dueAt: null, isOverdue: false, isDueSoon: false });
+    });
+
+    it('computes the flags against the clock when updating', async () => {
+      const { todo } = await service.create({ title: 'Due' });
+      const updated = await service.update(todo.id, 1, { dueAt: '2026-09-30T13:00:00.000Z' });
+      expect(updated).toMatchObject({ isOverdue: false, isDueSoon: true });
     });
 
     it('requires a version (428 before anything else)', async () => {
@@ -161,9 +224,11 @@ describe('TodoService', () => {
       });
     });
 
-    it('clears the overdue flag when completed', async () => {
-      const { todo } = await service.create({ title: 'Late', dueDate: '2026-09-01' });
-      await expect(service.complete(todo.id)).resolves.toMatchObject({ isOverdue: false });
+    it('clears the overdue and due-soon flags when completed', async () => {
+      const late = await service.create({ title: 'Late', dueAt: '2026-09-01T00:00:00.000Z' });
+      await expect(service.complete(late.todo.id)).resolves.toMatchObject({ isOverdue: false });
+      const soon = await service.create({ title: 'Soon', dueAt: '2026-09-30T13:00:00.000Z' });
+      await expect(service.complete(soon.todo.id)).resolves.toMatchObject({ isDueSoon: false });
     });
 
     it('throws TodoNotFoundError for an unknown id', async () => {

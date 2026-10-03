@@ -17,9 +17,9 @@ export class InMemoryTodoRepository implements TodoRepository {
     return todo === undefined ? null : structuredClone(todo);
   }
 
-  async list(query: ListTodosQuery, today: string): Promise<Todo[]> {
+  async list(query: ListTodosQuery, now: Date): Promise<Todo[]> {
     return [...this.database.todos.values()]
-      .filter(matchesStatus(query.status, today))
+      .filter(matchesStatus(query.status, now))
       .sort(compareTodos(query.sort, query.order))
       .map((todo) => structuredClone(todo));
   }
@@ -30,7 +30,7 @@ export class InMemoryTodoRepository implements TodoRepository {
     const next: Todo = { ...current, version: current.version + 1 };
     if (patch.title !== undefined) next.title = patch.title;
     if (patch.description !== undefined) next.description = patch.description;
-    if (patch.dueDate !== undefined) next.dueDate = patch.dueDate;
+    if (patch.dueAt !== undefined) next.dueAt = patch.dueAt;
     this.database.todos.set(id, structuredClone(next));
     return structuredClone(next);
   }
