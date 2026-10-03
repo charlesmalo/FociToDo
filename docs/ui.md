@@ -44,7 +44,7 @@ block-beta
 
 ## Task list — with tasks
 
-After the list request succeeds with tasks, including one overdue and one completed.
+After the list request succeeds with tasks, including one overdue, one due soon and one completed.
 
 ![Task list — with tasks (wireframe)](diagrams/ui/task-list-with-tasks.svg)
 
@@ -55,9 +55,10 @@ block-beta
   columns 3
   title["FociToDo"]:2 newtask["+ New task"]
   filters["Show: All ▾ · Sort by: Created ▾ · Order: Descending ▾"]:3
-  row1["☐ Buy oat milk · Due 2030-01-15"]:3
-  row2["☐ File taxes · OVERDUE · Due 2026-04-30"]:3
-  row3["☑ Call the bank (completed, struck through)"]:3
+  row1["☐ Buy oat milk · Due Jan 15, 2030, 5:00 PM"]:3
+  row2["☐ File taxes · OVERDUE · Due Apr 30, 2026, 5:00 PM"]:3
+  row3["☐ Send invoice · DUE SOON · Due Oct 4, 2026, 9:00 AM"]:3
+  row4["☑ Call the bank (completed, struck through)"]:3
 ```
 
 </details>
@@ -109,8 +110,8 @@ Rendered above the task list in every list state, shown here with each select's 
 ```mermaid
 block-beta
   columns 3
-  show["Show ▾<br/>All · Completed · Incomplete · Overdue"]
-  sort["Sort by ▾<br/>Created · Due date · Title"]
+  show["Show ▾<br/>All · Completed · Incomplete · Overdue · Due soon"]
+  sort["Sort by ▾<br/>Created · Due · Title"]
   order["Order ▾<br/>Ascending · Descending"]
 ```
 
@@ -130,7 +131,7 @@ block-beta
   heading["New task"] close["×"]
   titlefield["Title [ ]"]:2
   description["Description [ ]"]:2
-  due["Due date [yyyy-mm-dd]"]:2
+  due["Due date [yyyy-mm-dd] · Due time [--:--]"]:2
   space add["Add task"]
 ```
 
@@ -151,7 +152,7 @@ block-beta
   titlefield["Title [ ]"]:2
   titleerror["Title is required"]:2
   description["Description [ ]"]:2
-  due["Due date [yyyy-mm-dd]"]:2
+  due["Due date [yyyy-mm-dd] · Due time [--:--]"]:2
   space add["Add task"]
 ```
 
@@ -171,7 +172,7 @@ block-beta
   heading["Task details"] close["×"]
   t["Title · File taxes"]:2
   d["Description · Receipts in the blue folder"]:2
-  due["Due date · 2026-04-30 Overdue"]:2
+  due["Due · Apr 30, 2026, 5:00 PM Overdue"]:2
   s["Status · Not completed"]:2
   c["Created · local date and time"]:2
   edit["Edit"] delete["Delete"]
@@ -193,7 +194,7 @@ block-beta
   heading["Edit task"] close["×"]
   titlefield["Title [File taxes]"]:2
   description["Description [Receipts in the blue folder]"]:2
-  due["Due date [2026-04-30]"]:2
+  due["Due date [2026-04-30] · Due time [17:00]"]:2
   cancel["Cancel"] save["Save"]
 ```
 
@@ -211,7 +212,7 @@ After Delete is clicked in task details, before the deletion is confirmed.
 block-beta
   columns 3
   heading["Task details"]:2 close["×"]
-  fields["Title · Description · Due date · Status · Created"]:3
+  fields["Title · Description · Due · Status · Created"]:3
   confirm["Delete this task?"] yes["Yes, delete"] cancel["Cancel"]
 ```
 
@@ -232,7 +233,7 @@ block-beta
   notice["This task was changed elsewhere and has been reloaded.<br/>Your edits are kept — review and save again."]:2
   titlefield["Title [my edited title]"]:2
   description["Description [ ]"]:2
-  due["Due date [yyyy-mm-dd]"]:2
+  due["Due date [yyyy-mm-dd] · Due time [--:--]"]:2
   cancel["Cancel"] save["Save"]
 ```
 

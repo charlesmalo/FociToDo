@@ -89,7 +89,7 @@ stateDiagram-v2
   Completed --> Incomplete: incomplete
   Incomplete --> [*]: delete
   Completed --> [*]: delete
-  note right of Incomplete: isOverdue = due before today (UTC), derived, never stored
+  note right of Incomplete: isOverdue = deadline passed; isDueSoon = within 24 h; both derived, never stored
 ```
 
 </details>
@@ -108,7 +108,7 @@ erDiagram
     uuid id PK
     varchar title "1-200, not blank"
     varchar description "nullable, max 2000"
-    date due_date "nullable"
+    timestamptz due_at "nullable, UTC instant"
     boolean is_completed
     timestamptz created_at
     int version "optimistic lock"
@@ -148,7 +148,7 @@ flowchart TB
 - Server state lives in TanStack Query; every mutation invalidates the todo queries when it settles.
 - The panels know nothing about the dialog, so the dialog could be replaced by an inline panel without changing them.
 - See [UI wireframes](ui.md) for every screen state these components render.
-- Due dates are rendered as stored strings (never through `Date`), so they cannot shift across timezones.
+- Deadlines are UTC instants formatted with `Intl.DateTimeFormat` in the viewer's locale and timezone; the form combines the **Due date** and **Due time** inputs in the viewer's timezone into an instant, so the status flags (computed by the server) are the same everywhere.
 
 ## Cross-cutting
 

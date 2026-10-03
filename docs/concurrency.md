@@ -86,4 +86,4 @@ sequenceDiagram
 
 - A replayed create returns the **original** response snapshot, even if the todo was edited or deleted since (standard idempotency-key semantics).
 - Complete/incomplete do not take `If-Match`: setting a target state cannot lose an update, but it does change the version, so a pending edit based on the old version gets a 412.
-- Overdue is computed against the server's UTC date; near midnight it can differ from the user's local date.
+- `isOverdue` and `isDueSoon` are derived from the server clock when a response is built, so a replayed create or a list fetched earlier shows them as of that moment.
