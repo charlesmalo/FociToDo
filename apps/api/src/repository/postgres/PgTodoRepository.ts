@@ -7,19 +7,21 @@ const STATUS_FILTERS: Record<TodoStatus, string> = {
   all: 'TRUE',
   completed: 'is_completed',
   incomplete: 'NOT is_completed',
-  overdue: 'NOT is_completed AND due_date < $1::date',
+  overdue: 'NOT is_completed AND due_at < $1::timestamptz',
+  'due-soon': `NOT is_completed AND due_at >= $1::timestamptz
+    AND due_at < $1::timestamptz + interval '24 hours'`,
 };
 
 const SORT_EXPRESSIONS: Record<TodoSortField, string> = {
   createdAt: 'created_at',
-  dueDate: 'due_date',
+  dueAt: 'due_at',
   title: 'lower(title) COLLATE "C"',
 };
 
 /** Primary order, then deterministic tie-breakers shared with the in-memory adapter. */
 function orderBy(sort: TodoSortField, order: SortOrder): string {
   const direction = order === 'asc' ? 'ASC' : 'DESC';
-  const nulls = sort === 'dueDate' ? ' NULLS LAST' : '';
+  const nulls = sort === 'dueAt' ? ' NULLS LAST' : '';
   return `${SORT_EXPRESSIONS[sort]} ${direction}${nulls}, created_at DESC, id ASC`;
 }
 
@@ -28,13 +30,13 @@ export class PgTodoRepository implements TodoRepository {
 
   async create(todo: Todo): Promise<void> {
     await this.db.query(
-      `INSERT INTO todos (id, title, description, due_date, is_completed, created_at, version)
+      `INSERT INTO todos (id, title, description, due_at, is_completed, created_at, version)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
         todo.id,
         todo.title,
         todo.description,
-        todo.dueDate,
+        todo.dueAt,
         todo.isCompleted,
         todo.createdAt,
         todo.version,
@@ -50,8 +52,8 @@ export class PgTodoRepository implements TodoRepository {
     return firstTodo(rows);
   }
 
-  async list(query: ListTodosQuery, today: string): Promise<Todo[]> {
-    const values = query.status === 'overdue' ? [today] : [];
+  async list(query: ListTodosQuery, now: Date): Promise<Todo[]> {
+    const values = query.status === 'overdue' || query.status === 'due-soon' ? [now] : [];
     const { rows } = await this.db.query<TodoRow>(
       `SELECT ${TODO_COLUMNS} FROM todos WHERE ${STATUS_FILTERS[query.status]}
        ORDER BY ${orderBy(query.sort, query.order)}`,
@@ -69,7 +71,7 @@ export class PgTodoRepository implements TodoRepository {
     };
     if (patch.title !== undefined) assign('title', patch.title);
     if (patch.description !== undefined) assign('description', patch.description);
-    if (patch.dueDate !== undefined) assign('due_date', patch.dueDate);
+    if (patch.dueAt !== undefined) assign('due_at', patch.dueAt);
     assignments.push('version = version + 1');
     const { rows } = await this.db.query<TodoRow>(
       `UPDATE todos SET ${assignments.join(', ')}

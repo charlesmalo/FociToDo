@@ -4,6 +4,8 @@ FROM node:24.21-alpine AS base
 WORKDIR /repo
 # Opt out of install-time telemetry from @scarf/scarf (pulled in by swagger-ui-dist).
 ENV SCARF_ANALYTICS=false
+# node-postgres serialises Date parameters in the process timezone; pinning UTC keeps storage identical on any host.
+ENV TZ=UTC
 
 # Every workspace manifest + the lockfile: the cache key for dependency installs.
 FROM base AS manifests

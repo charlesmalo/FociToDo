@@ -21,6 +21,14 @@ describe('database schema', () => {
     expect(rows).toEqual([{ is_completed: false, version: 1 }]);
   });
 
+  it('stores deadlines as a timestamptz instant and has no due_date column', async () => {
+    const { rows } = await pool.query(
+      `SELECT column_name, data_type FROM information_schema.columns
+       WHERE table_name = 'todos' AND column_name IN ('due_at', 'due_date')`,
+    );
+    expect(rows).toEqual([{ column_name: 'due_at', data_type: 'timestamp with time zone' }]);
+  });
+
   it('rejects a blank title', async () => {
     await expect(insert('   ')).rejects.toThrow(/check constraint/);
   });

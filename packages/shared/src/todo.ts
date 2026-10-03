@@ -26,13 +26,25 @@ const DescriptionSchema = z
   .nullable()
   .transform((value) => (value === '' ? null : value));
 
-const DUE_DATE_ERROR = 'Due date must be a real date in YYYY-MM-DD format';
+export const DUE_AT_ERROR =
+  'Due must be a date and time with a timezone offset, e.g. 2026-10-03T18:00:00Z';
 
-/** ISO 8601 allows year 0000, but Postgres `date` has no year 0 — reject it like any bad date. */
-const DueDateSchema = z.iso
-  .date({ error: DUE_DATE_ERROR })
-  .refine((value) => !value.startsWith('0000'), { error: DUE_DATE_ERROR })
-  .nullable();
+/** An exact moment: RFC 3339 with an offset (never a bare date or local time), normalised to UTC. */
+const DueAtSchema = z.iso
+  .datetime({ offset: true, error: DUE_AT_ERROR })
+  .refine(
+    (value) => {
+      const year = new Date(value).getUTCFullYear();
+      return year >= 1 && year <= 9999;
+    },
+    // Zod 4 keeps running refinements after a format failure; skip them so there is one issue.
+    { error: DUE_AT_ERROR, when: (payload) => payload.issues.length === 0 },
+  )
+  .transform((value) => new Date(value).toISOString())
+  .nullable()
+  .describe(
+    'Deadline as an RFC 3339 date-time with an offset or Z (e.g. 2026-10-03T18:00:00Z); responses are in UTC. null clears it.',
+  );
 
 const OBJECT_BODY = { error: 'Request body must be a JSON object' };
 
@@ -40,7 +52,7 @@ export const CreateTodoSchema = z.strictObject(
   {
     title: TitleSchema,
     description: DescriptionSchema.optional(),
-    dueDate: DueDateSchema.optional(),
+    dueAt: DueAtSchema.optional(),
   },
   OBJECT_BODY,
 );
@@ -53,12 +65,12 @@ export const UpdateTodoSchema = z
     {
       title: TitleSchema.optional(),
       description: DescriptionSchema.optional(),
-      dueDate: DueDateSchema.optional(),
+      dueAt: DueAtSchema.optional(),
     },
     OBJECT_BODY,
   )
   .refine((patch) => Object.keys(patch).length > 0, {
-    error: 'At least one of title, description or dueDate is required',
+    error: 'At least one of title, description or dueAt is required',
   });
 
 export type UpdateTodoInput = z.input<typeof UpdateTodoSchema>;
@@ -68,11 +80,17 @@ export const TodoViewSchema = z.object({
   id: TodoIdSchema,
   title: z.string(),
   description: z.string().nullable(),
-  dueDate: z.iso.date().nullable(),
+  dueAt: z.iso
+    .datetime()
+    .nullable()
+    .describe('Deadline as an RFC 3339 date-time in UTC, or null when there is none.'),
   isCompleted: z.boolean(),
   createdAt: z.iso.datetime(),
   version: z.int().positive(),
-  isOverdue: z.boolean(),
+  isOverdue: z.boolean().describe('Incomplete and the deadline is already in the past.'),
+  isDueSoon: z
+    .boolean()
+    .describe('Incomplete and the deadline is within the next 24 hours (not yet passed).'),
 });
 
 export type TodoView = z.infer<typeof TodoViewSchema>;

@@ -14,11 +14,12 @@ export function makeView(overrides: Partial<TodoView> = {}): TodoView {
     id: `00000000-0000-4000-8000-${sequence.toString().padStart(12, '0')}`,
     title: `Task ${sequence}`,
     description: null,
-    dueDate: null,
+    dueAt: null,
     isCompleted: false,
     createdAt: '2026-09-30T12:00:00.000Z',
     version: 1,
     isOverdue: false,
+    isDueSoon: false,
     ...overrides,
   };
 }

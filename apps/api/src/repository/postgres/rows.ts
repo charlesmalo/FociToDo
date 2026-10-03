@@ -3,15 +3,13 @@ import type { Todo } from '../../domain/todo.js';
 
 export type Queryable = Pool | PoolClient;
 
-/** `due_date` is selected as text so it never passes through a JS Date (no timezone shift). */
-export const TODO_COLUMNS = `id, title, description, to_char(due_date, 'YYYY-MM-DD') AS due_date,
-  is_completed, created_at, version`;
+export const TODO_COLUMNS = 'id, title, description, due_at, is_completed, created_at, version';
 
 export interface TodoRow {
   id: string;
   title: string;
   description: string | null;
-  due_date: string | null;
+  due_at: Date | null;
   is_completed: boolean;
   created_at: Date;
   version: number;
@@ -22,7 +20,7 @@ export function toTodo(row: TodoRow): Todo {
     id: row.id,
     title: row.title,
     description: row.description,
-    dueDate: row.due_date,
+    dueAt: row.due_at,
     isCompleted: row.is_completed,
     createdAt: row.created_at,
     version: row.version,

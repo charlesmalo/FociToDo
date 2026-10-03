@@ -29,6 +29,15 @@
   text-transform: uppercase;
 }
 
+.dueSoon {
+  padding: 0 var(--space-1);
+  border-radius: var(--radius);
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
 .due {
   color: var(--color-muted);
   font-size: 0.875rem;

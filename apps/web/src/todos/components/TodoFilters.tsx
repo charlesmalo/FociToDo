@@ -15,10 +15,11 @@ const STATUS_LABELS: Record<TodoStatus, string> = {
   completed: 'Completed',
   incomplete: 'Incomplete',
   overdue: 'Overdue',
+  'due-soon': 'Due soon',
 };
 const SORT_LABELS: Record<TodoSortField, string> = {
   createdAt: 'Created',
-  dueDate: 'Due date',
+  dueAt: 'Due',
   title: 'Title',
 };
 const ORDER_LABELS: Record<SortOrder, string> = { desc: 'Descending', asc: 'Ascending' };

@@ -472,17 +472,18 @@
               "null"
             ]
           },
-          "dueDate": {
+          "dueAt": {
             "anyOf": [
               {
                 "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Deadline as an RFC 3339 date-time in UTC, or null when there is none."
           },
           "isCompleted": {
             "type": "boolean"
@@ -498,18 +499,24 @@
             "maximum": 9007199254740991
           },
           "isOverdue": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Incomplete and the deadline is already in the past."
+          },
+          "isDueSoon": {
+            "type": "boolean",
+            "description": "Incomplete and the deadline is within the next 24 hours (not yet passed)."
           }
         },
         "required": [
           "id",
           "title",
           "description",
-          "dueDate",
+          "dueAt",
           "isCompleted",
           "createdAt",
           "version",
-          "isOverdue"
+          "isOverdue",
+          "isDueSoon"
         ],
         "additionalProperties": false
       },
@@ -532,17 +539,18 @@
               }
             ]
           },
-          "dueDate": {
+          "dueAt": {
             "anyOf": [
               {
                 "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Deadline as an RFC 3339 date-time with an offset or Z (e.g. 2026-10-03T18:00:00Z); responses are in UTC. null clears it."
           }
         },
         "required": [
@@ -569,17 +577,18 @@
               }
             ]
           },
-          "dueDate": {
+          "dueAt": {
             "anyOf": [
               {
                 "type": "string",
-                "format": "date",
-                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Deadline as an RFC 3339 date-time with an offset or Z (e.g. 2026-10-03T18:00:00Z); responses are in UTC. null clears it."
           }
         },
         "additionalProperties": false
@@ -707,8 +716,10 @@
             "all",
             "completed",
             "incomplete",
-            "overdue"
-          ]
+            "overdue",
+            "due-soon"
+          ],
+          "description": "Which todos to list: all; completed; incomplete; overdue (incomplete, deadline in the past); due-soon (incomplete, deadline within the next 24 hours)."
         }
       },
       "Sort": {
@@ -720,7 +731,7 @@
           "type": "string",
           "enum": [
             "createdAt",
-            "dueDate",
+            "dueAt",
             "title"
           ]
         }

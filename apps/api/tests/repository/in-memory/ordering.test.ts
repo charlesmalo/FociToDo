@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   compareCodePoints,
+  compareDueAts,
   compareTodos,
   matchesStatus,
 } from '../../../src/repository/in-memory/ordering.js';
@@ -26,20 +27,25 @@ describe('compareCodePoints', () => {
 });
 
 describe('matchesStatus', () => {
-  const today = '2026-09-30';
-  const done = makeTodo({ isCompleted: true, dueDate: '2026-09-01' });
-  const late = makeTodo({ dueDate: '2026-09-29' });
-  const dueToday = makeTodo({ dueDate: today });
+  const now = new Date('2026-09-30T12:00:00.000Z');
+  const offset = (ms: number) => new Date(now.getTime() + ms);
+  const day = 24 * 60 * 60 * 1000;
+  const done = makeTodo({ isCompleted: true, dueAt: offset(-day) });
+  const late = makeTodo({ dueAt: offset(-1) });
+  const atNow = makeTodo({ dueAt: offset(0) });
+  const soon = makeTodo({ dueAt: offset(day - 1) });
+  const afterWindow = makeTodo({ dueAt: offset(day) });
   const undated = makeTodo();
-  const all = [done, late, dueToday, undated];
+  const all = [done, late, atNow, soon, afterWindow, undated];
 
   it.each([
-    ['all', [done, late, dueToday, undated]],
+    ['all', all],
     ['completed', [done]],
-    ['incomplete', [late, dueToday, undated]],
+    ['incomplete', [late, atNow, soon, afterWindow, undated]],
     ['overdue', [late]],
+    ['due-soon', [atNow, soon]],
   ] as const)('filters %s', (status, expected) => {
-    expect(all.filter(matchesStatus(status, today))).toEqual(expected);
+    expect(all.filter(matchesStatus(status, now))).toEqual(expected);
   });
 });
 
@@ -63,16 +69,16 @@ describe('compareTodos', () => {
     expect([...input].sort(compareTodos('title', 'desc'))).toEqual([eclair, banana, lower, upper]);
   });
 
-  it('puts todos without a due date last in both directions', () => {
-    const early = makeTodo({ dueDate: '2026-10-01' });
-    const late = makeTodo({ dueDate: '2026-12-01' });
-    const undated = makeTodo({ dueDate: null });
-    expect([undated, late, early].sort(compareTodos('dueDate', 'asc'))).toEqual([
+  it('puts todos without a deadline last in both directions', () => {
+    const early = makeTodo({ dueAt: at('2026-10-01T10:00:00Z') });
+    const late = makeTodo({ dueAt: at('2026-10-01T10:00:00.001Z') });
+    const undated = makeTodo({ dueAt: null });
+    expect([undated, late, early].sort(compareTodos('dueAt', 'asc'))).toEqual([
       early,
       late,
       undated,
     ]);
-    expect([undated, early, late].sort(compareTodos('dueDate', 'desc'))).toEqual([
+    expect([undated, early, late].sort(compareTodos('dueAt', 'desc'))).toEqual([
       late,
       early,
       undated,
@@ -81,12 +87,30 @@ describe('compareTodos', () => {
 
   it('breaks full ties by id ascending', () => {
     const createdAt = at('2026-09-01T00:00:00Z');
-    const first = makeTodo({ id: todoId(1), dueDate: '2026-10-01', createdAt });
-    const second = makeTodo({ id: todoId(2), dueDate: '2026-10-01', createdAt });
-    const undatedFirst = makeTodo({ id: todoId(3), dueDate: null, createdAt });
-    const undatedSecond = makeTodo({ id: todoId(4), dueDate: null, createdAt });
-    expect(
-      [undatedSecond, second, undatedFirst, first].sort(compareTodos('dueDate', 'asc')),
-    ).toEqual([first, second, undatedFirst, undatedSecond]);
+    const first = makeTodo({ id: todoId(1), dueAt: at('2026-10-01T10:00:00Z'), createdAt });
+    const second = makeTodo({ id: todoId(2), dueAt: at('2026-10-01T10:00:00Z'), createdAt });
+    const undatedFirst = makeTodo({ id: todoId(3), dueAt: null, createdAt });
+    const undatedSecond = makeTodo({ id: todoId(4), dueAt: null, createdAt });
+    expect([undatedSecond, second, undatedFirst, first].sort(compareTodos('dueAt', 'asc'))).toEqual(
+      [first, second, undatedFirst, undatedSecond],
+    );
+  });
+});
+
+describe('compareDueAts', () => {
+  const early = new Date('2026-10-01T10:00:00Z');
+  const late = new Date('2026-10-01T10:00:00.001Z');
+
+  it('compares instants in the given direction', () => {
+    expect(compareDueAts(early, late, 1)).toBeLessThan(0);
+    expect(compareDueAts(early, late, -1)).toBeGreaterThan(0);
+    expect(compareDueAts(early, new Date(early), 1)).toBe(0);
+  });
+
+  it('puts null last in both directions and ties null with null', () => {
+    expect(compareDueAts(null, early, 1)).toBe(1);
+    expect(compareDueAts(null, early, -1)).toBe(1);
+    expect(compareDueAts(early, null, -1)).toBe(-1);
+    expect(compareDueAts(null, null, 1)).toBe(0);
   });
 });

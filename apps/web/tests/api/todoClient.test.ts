@@ -27,10 +27,10 @@ describe('createTodoClient', () => {
     const todo = makeView();
     const { fetchFn, calls } = recordingFetch(json([todo]));
     const client = createTodoClient(fetchFn);
-    await expect(
-      client.list({ status: 'overdue', sort: 'dueDate', order: 'asc' }),
-    ).resolves.toEqual([todo]);
-    expect(calls[0]?.url).toBe('/api/todos?status=overdue&sort=dueDate&order=asc');
+    await expect(client.list({ status: 'overdue', sort: 'dueAt', order: 'asc' })).resolves.toEqual([
+      todo,
+    ]);
+    expect(calls[0]?.url).toBe('/api/todos?status=overdue&sort=dueAt&order=asc');
     expect(headersOf(calls[0]?.init).Accept).toBe('application/json, application/problem+json');
   });
 

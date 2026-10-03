@@ -1,5 +1,5 @@
 import type { SortOrder, TodoSortField, TodoStatus } from '@foci/shared';
-import { isOverdue, type Todo } from '../../domain/todo.js';
+import { isDueSoon, isOverdue, type Todo } from '../../domain/todo.js';
 
 const codePoints = (text: string): number[] =>
   Array.from(text, (character) => character.codePointAt(0) as number);
@@ -16,7 +16,7 @@ export function compareCodePoints(a: string, b: string): number {
   return left.length - right.length;
 }
 
-export function matchesStatus(status: TodoStatus, today: string): (todo: Todo) => boolean {
+export function matchesStatus(status: TodoStatus, now: Date): (todo: Todo) => boolean {
   switch (status) {
     case 'all':
       return () => true;
@@ -25,7 +25,9 @@ export function matchesStatus(status: TodoStatus, today: string): (todo: Todo) =
     case 'incomplete':
       return (todo) => !todo.isCompleted;
     case 'overdue':
-      return (todo) => isOverdue(todo, today);
+      return (todo) => isOverdue(todo, now);
+    case 'due-soon':
+      return (todo) => isDueSoon(todo, now);
   }
 }
 
@@ -41,17 +43,16 @@ function comparePrimary(sort: TodoSortField, direction: number, a: Todo, b: Todo
       return direction * (a.createdAt.getTime() - b.createdAt.getTime());
     case 'title':
       return direction * compareCodePoints(a.title.toLowerCase(), b.title.toLowerCase());
-    case 'dueDate':
-      return compareDueDates(a.dueDate, b.dueDate, direction);
+    case 'dueAt':
+      return compareDueAts(a.dueAt, b.dueAt, direction);
   }
 }
 
-/** Todos without a due date sort last regardless of direction (Postgres `NULLS LAST`). */
-function compareDueDates(a: string | null, b: string | null, direction: number): number {
-  if (a === b) return 0;
-  if (a === null) return 1;
+/** Todos without a deadline sort last regardless of direction (Postgres `NULLS LAST`). */
+export function compareDueAts(a: Date | null, b: Date | null, direction: number): number {
+  if (a === null) return b === null ? 0 : 1;
   if (b === null) return -1;
-  return direction * (a < b ? -1 : 1);
+  return direction * (a.getTime() - b.getTime());
 }
 
 function compareTieBreak(a: Todo, b: Todo): number {

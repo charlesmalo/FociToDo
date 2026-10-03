@@ -8,7 +8,7 @@ afterAll(() => pool.end());
 describe('PgDatabaseProbe against Postgres', () => {
   it('reports the latest applied migration', async () => {
     await expect(new PgDatabaseProbe(pool).check()).resolves.toEqual({
-      schemaVersion: '1759190400001_create-idempotency-keys',
+      schemaVersion: '1759190400002_due-at-instants',
     });
   });
 });

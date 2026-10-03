@@ -13,6 +13,9 @@ export default defineConfig({
   outputDir: process.env.RESULTS_DIR ?? 'test-results',
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost:8080',
+    // Expected strings must not depend on the runner's locale or timezone.
+    locale: 'en-US',
+    timezoneId: 'UTC',
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
   },

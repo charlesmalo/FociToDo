@@ -9,7 +9,7 @@ export function makeTodo(overrides: Partial<Todo> = {}): Todo {
     id: todoId(sequence),
     title: `Task ${sequence}`,
     description: null,
-    dueDate: null,
+    dueAt: null,
     isCompleted: false,
     createdAt: new Date('2026-09-01T00:00:00.000Z'),
     version: 1,

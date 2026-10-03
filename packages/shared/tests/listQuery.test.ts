@@ -12,14 +12,21 @@ describe('ListTodosQuerySchema', () => {
   });
 
   it('accepts every documented combination', () => {
-    expect(
-      ListTodosQuerySchema.parse({ status: 'overdue', sort: 'dueDate', order: 'asc' }),
-    ).toEqual({ status: 'overdue', sort: 'dueDate', order: 'asc' });
+    expect(ListTodosQuerySchema.parse({ status: 'overdue', sort: 'dueAt', order: 'asc' })).toEqual({
+      status: 'overdue',
+      sort: 'dueAt',
+      order: 'asc',
+    });
+  });
+
+  it('accepts status=due-soon', () => {
+    expect(ListTodosQuerySchema.parse({ status: 'due-soon' }).status).toBe('due-soon');
   });
 
   it.each([
     [{ status: 'done' }, 'status'],
     [{ sort: 'priority' }, 'sort'],
+    [{ sort: 'dueDate' }, 'sort'],
     [{ order: 'up' }, 'order'],
   ])('rejects unknown values %j', (query, field) => {
     const result = ListTodosQuerySchema.safeParse(query);
