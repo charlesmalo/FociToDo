@@ -25,7 +25,7 @@ flowchart LR
 
 </details>
 
-nginx serves the SPA and proxies `/api/*` unchanged, so the browser sees a single origin (no CORS). Only `web` publishes a port.
+nginx serves the SPA and proxies `/api/*` unchanged, so the browser sees a single origin (no CORS). Only `web` publishes a port. nginx re-resolves `api` through Docker's embedded DNS (rather than once at startup), so the proxy keeps working after `api` restarts and gets a new container IP.
 
 ## Deployment and startup order
 
