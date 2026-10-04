@@ -24,6 +24,39 @@ export const DEFAULT_DUE_TIME = '17:00';
 
 export const EMPTY_FORM: TodoFormValues = { title: '', description: '', dueDate: '', dueTime: '' };
 
+export const REAL_DATE_ERROR = 'Enter a real date';
+
+/** The wire fields an edit can change; the date and time inputs together are one `dueAt`. */
+export type ChangedField = 'title' | 'description' | 'dueAt';
+
+/** The deadline as one comparable value; a time kept while the date is empty is no deadline. */
+const deadlineKey = ({ dueDate, dueTime }: TodoFormValues): string =>
+  dueDate === '' ? '' : `${dueDate}T${dueTime === '' ? DEFAULT_DUE_TIME : dueTime}`;
+
+export function changedFields(values: TodoFormValues, start: TodoFormValues): ChangedField[] {
+  const changed: ChangedField[] = [];
+  if (values.title !== start.title) changed.push('title');
+  if (values.description !== start.description) changed.push('description');
+  if (deadlineKey(values) !== deadlineKey(start)) changed.push('dueAt');
+  return changed;
+}
+
+/** After a reload: untouched fields adopt the reloaded values; fields the user edited keep their input. */
+export function rebaseValues(
+  values: TodoFormValues,
+  start: TodoFormValues,
+  reloaded: TodoFormValues,
+): TodoFormValues {
+  const deadlineEdited = deadlineKey(values) !== deadlineKey(start);
+  return {
+    title: values.title === start.title ? reloaded.title : values.title,
+    description:
+      values.description === start.description ? reloaded.description : values.description,
+    dueDate: deadlineEdited ? values.dueDate : reloaded.dueDate,
+    dueTime: deadlineEdited ? values.dueTime : reloaded.dueTime,
+  };
+}
+
 export function toInput(values: TodoFormValues): CreateTodoInput {
   return {
     title: values.title,
@@ -32,14 +65,19 @@ export function toInput(values: TodoFormValues): CreateTodoInput {
   };
 }
 
-/** The entered local date and time as a UTC instant; an unparseable entry is passed on raw so the schema rejects it. */
-function toDueAt({ dueDate, dueTime }: TodoFormValues): string | null {
-  if (dueDate === '') return null;
-  const local = `${dueDate}T${dueTime === '' ? DEFAULT_DUE_TIME : dueTime}`;
-  const instant = new Date(local);
+/** Whether the entered local date exists; an empty date (no deadline) counts as real. */
+function hasRealDate(values: TodoFormValues): boolean {
+  if (values.dueDate === '') return true;
+  const instant = new Date(deadlineKey(values));
   // Date rolls an impossible day (02-30) over to the next month; only an exact round trip is real.
-  const real = !Number.isNaN(instant.getTime()) && localParts(instant).dueDate === dueDate;
-  return real ? instant.toISOString() : local;
+  return !Number.isNaN(instant.getTime()) && localParts(instant).dueDate === values.dueDate;
+}
+
+/** The entered local date and time as a UTC instant; an unparseable entry is passed on raw so the schema rejects it. */
+function toDueAt(values: TodoFormValues): string | null {
+  if (values.dueDate === '') return null;
+  const local = deadlineKey(values);
+  return hasRealDate(values) ? new Date(local).toISOString() : local;
 }
 
 /** A moment as the viewer's local calendar date (`YYYY-MM-DD`) and wall-clock time (`HH:MM`). */
@@ -101,22 +139,38 @@ interface TodoFormProps {
    * precision, so while they are untouched this exact instant is sent back instead of a re-derived one.
    */
   initialDueAt?: string | null;
+  /**
+   * The version `initialValues` were read from. When it changes (a reload after a 412), the edit is
+   * merged with the reloaded values: untouched fields adopt them, edited fields keep the input.
+   */
+  baseVersion?: number;
   submitLabel: string;
-  onSubmit: (input: CreateTodoInput) => Promise<void>;
+  /** `changed` lists the fields edited since the form started (or was last rebased). */
+  onSubmit: (input: CreateTodoInput, changed: readonly ChangedField[]) => Promise<void>;
   onCancel?: () => void;
 }
 
 export function TodoForm({
   initialValues = EMPTY_FORM,
   initialDueAt,
+  baseVersion,
   submitLabel,
   onSubmit,
   onCancel,
 }: TodoFormProps) {
   const id = useId();
   const [values, setValues] = useState(initialValues);
-  /** What the form started from; later prop changes (a background refetch) must not move it. */
-  const [initial] = useState({ values: initialValues, dueAt: initialDueAt });
+  /** What the form started from; a background refetch must not move it, only a new base version. */
+  const [start, setStart] = useState({
+    values: initialValues,
+    dueAt: initialDueAt,
+    version: baseVersion,
+  });
+  // A new base version (the panel's reload after a 412) merges the reloaded values into the edit.
+  if (baseVersion !== start.version) {
+    setValues((current) => rebaseValues(current, start.values, initialValues));
+    setStart({ values: initialValues, dueAt: initialDueAt, version: baseVersion });
+  }
   const [errors, setErrors] = useState<SplitErrors>({ fields: {}, general: null });
   const [submitting, setSubmitting] = useState(false);
 
@@ -127,9 +181,10 @@ export function TodoForm({
   const change = (name: keyof TodoFormValues, value: string) =>
     setValues((current) => {
       const next = { ...current, [name]: value };
-      if (name === 'dueDate') {
-        if (value === '') next.dueTime = '';
-        else if (current.dueTime === '') next.dueTime = DEFAULT_DUE_TIME;
+      // Backspacing a date segment briefly reports '': keep the chosen time.
+      // 17:00 is prefilled only if no time was ever chosen.
+      if (name === 'dueDate' && value !== '' && current.dueTime === '') {
+        next.dueTime = DEFAULT_DUE_TIME;
       }
       return next;
     });
@@ -147,10 +202,13 @@ export function TodoForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!hasRealDate(values)) {
+      setErrors({ fields: { dueDate: REAL_DATE_ERROR }, general: null });
+      return;
+    }
     const input = toInput(values);
-    const deadlineUntouched =
-      values.dueDate === initial.values.dueDate && values.dueTime === initial.values.dueTime;
-    if (deadlineUntouched && initial.dueAt !== undefined) input.dueAt = initial.dueAt;
+    const changed = changedFields(values, start.values);
+    if (!changed.includes('dueAt') && start.dueAt !== undefined) input.dueAt = start.dueAt;
     const parsed = CreateTodoSchema.safeParse(input);
     if (!parsed.success) {
       setErrors(splitErrors(toFieldErrors(parsed.error)));
@@ -159,7 +217,7 @@ export function TodoForm({
     setErrors({ fields: {}, general: null });
     setSubmitting(true);
     try {
-      await onSubmit(input);
+      await onSubmit(input, changed);
     } catch (error) {
       setErrors(
         error instanceof ApiError && error.errors.length > 0
@@ -192,6 +250,8 @@ export function TodoForm({
             if (values.dueTime === '') change('dueTime', DEFAULT_DUE_TIME);
           }}
           {...fieldProps('dueTime')}
+          // While the date is empty the chosen time is kept but not shown (the input is disabled).
+          value={values.dueDate === '' ? '' : values.dueTime}
         />
       </Field>
       <div className={styles.buttons}>

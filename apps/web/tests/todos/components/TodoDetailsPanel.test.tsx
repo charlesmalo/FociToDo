@@ -89,14 +89,31 @@ describe('TodoDetailsPanel — editing', () => {
     await userEvent.type(title, 'New');
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await vi.waitFor(() => expect(onEditingChange).toHaveBeenCalledWith(false));
-    expect(update).toHaveBeenCalledWith(todo.id, 3, {
-      title: 'New',
-      description: null,
-      dueAt: null,
-    });
+    expect(update).toHaveBeenCalledWith(todo.id, 3, { title: 'New' });
   });
 
-  it('keeps a stored deadline exactly as it was on a title-only edit', async () => {
+  it('sends only a cleared description as null', async () => {
+    const todo = makeView({ description: 'Blue folder', dueAt: '2030-01-15T09:00:00.000Z' });
+    const update = vi.fn(async () => makeView({ ...todo, description: null, version: 2 }));
+    const { onEditingChange } = setup({ get: vi.fn(async () => todo), update }, true);
+    await userEvent.clear(await screen.findByLabelText('Description'));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(onEditingChange).toHaveBeenCalledWith(false));
+    expect(update).toHaveBeenCalledWith(todo.id, 1, { description: null });
+  });
+
+  it('leaves edit mode without a request when nothing changed', async () => {
+    const update = vi.fn();
+    const { onEditingChange } = setup(
+      { get: vi.fn(async () => makeView({ dueAt: '2030-01-15T09:00:42.123Z' })), update },
+      true,
+    );
+    await userEvent.click(await screen.findByRole('button', { name: 'Save' }));
+    expect(onEditingChange).toHaveBeenCalledWith(false);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it('leaves a stored deadline alone on a title-only edit', async () => {
     const dueAt = '2026-10-01T23:59:59.000Z';
     const todo = makeView({ title: 'Old', version: 3, dueAt });
     const update = vi.fn(async () => makeView({ ...todo, title: 'Old!', version: 4 }));
@@ -104,7 +121,7 @@ describe('TodoDetailsPanel — editing', () => {
     await userEvent.type(await screen.findByLabelText('Title'), '!');
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await vi.waitFor(() => expect(update).toHaveBeenCalled());
-    expect(update).toHaveBeenCalledWith(todo.id, 3, { title: 'Old!', description: null, dueAt });
+    expect(update).toHaveBeenCalledWith(todo.id, 3, { title: 'Old!' });
   });
 
   it('on 412 shows a conflict notice, reloads, keeps the edits and saves against the new version', async () => {
@@ -151,10 +168,60 @@ describe('TodoDetailsPanel — editing', () => {
     expect(update.mock.calls.map((call) => call[1])).toEqual([1, 2]);
   });
 
+  it("on 412 adopts the other writer's description and keeps the edited title for the retry", async () => {
+    const v1 = makeView({ title: 'Old', description: 'Original', version: 1 });
+    const v2 = makeView({ ...v1, description: 'Theirs', version: 2 });
+    const get = vi.fn().mockResolvedValueOnce(v1).mockResolvedValue(v2);
+    const update = vi
+      .fn()
+      .mockRejectedValueOnce(problem(412))
+      .mockResolvedValueOnce(makeView({ ...v2, title: 'Mine', version: 3 }));
+    const { onEditingChange } = setup({ get, update }, true);
+    const title = await screen.findByLabelText('Title');
+    await userEvent.clear(title);
+    await userEvent.type(title, 'Mine');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Your edits are kept — review and save again.',
+    );
+    await vi.waitFor(() => expect(screen.getByLabelText('Description')).toHaveValue('Theirs'));
+    expect(screen.getByLabelText('Title')).toHaveValue('Mine');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(onEditingChange).toHaveBeenCalledWith(false));
+    expect(update).toHaveBeenNthCalledWith(1, v1.id, 1, { title: 'Mine' });
+    expect(update).toHaveBeenNthCalledWith(2, v1.id, 2, { title: 'Mine' });
+  });
+
+  it("on 412 adopts the other writer's title and keeps the edited deadline for the retry", async () => {
+    const v1 = makeView({ title: 'Old', dueAt: '2030-01-15T09:00:00.000Z', version: 1 });
+    const v2 = makeView({ ...v1, title: 'Theirs', version: 2 });
+    const get = vi.fn().mockResolvedValueOnce(v1).mockResolvedValue(v2);
+    const update = vi
+      .fn()
+      .mockRejectedValueOnce(problem(412))
+      .mockResolvedValueOnce(makeView({ ...v2, version: 3 }));
+    const { onEditingChange } = setup({ get, update }, true);
+    fireEvent.change(await screen.findByLabelText('Due date'), {
+      target: { value: '2030-02-01' },
+    });
+    const time = screen.getByLabelText('Due time');
+    fireEvent.change(time, { target: { value: '08:00' } });
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('changed elsewhere');
+    await vi.waitFor(() => expect(screen.getByLabelText('Title')).toHaveValue('Theirs'));
+    expect(screen.getByLabelText('Due date')).toHaveValue('2030-02-01');
+    expect(screen.getByLabelText('Due time')).toHaveValue('08:00');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(onEditingChange).toHaveBeenCalledWith(false));
+    const dueAt = new Date('2030-02-01T08:00').toISOString();
+    expect(update).toHaveBeenNthCalledWith(2, v1.id, 2, { dueAt });
+  });
+
   it('lets the form show other save errors', async () => {
     const update = vi.fn(async () => Promise.reject(problem(500, 'Server exploded')));
     setup({ get: vi.fn(async () => makeView()), update }, true);
-    await userEvent.click(await screen.findByRole('button', { name: 'Save' }));
+    await userEvent.type(await screen.findByLabelText('Title'), '!');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Server exploded');
   });
 

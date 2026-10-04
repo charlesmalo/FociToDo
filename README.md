@@ -221,15 +221,16 @@ Tests mirror source paths (`src/a/B.ts` → `tests/a/B.test.ts`). See [docs/test
 
 1. Single user; no authentication.
 2. "Overdue" means incomplete with a deadline moment already in the past — the same for every viewer, whatever their timezone. "Due soon" means incomplete with a deadline within the next 24 hours.
-3. Past deadlines are allowed (e.g. logging a late task).
-4. Updates are partial (`PATCH`); `null` clears the description or deadline; the title cannot be cleared.
-5. Complete/incomplete are idempotent and do not require `If-Match`.
-6. Delete is permanent.
-7. No pagination; lists are expected to stay small.
-8. Idempotency keys apply to creates only and expire after 24 hours; a replay returns the original response.
-9. Timestamps and deadlines are stored as UTC instants (`timestamptz`) and shown in the viewer's locale and timezone.
-10. Deadlines can be written as the brief's `dueDate` (`YYYY-MM-DD`, due at 23:59:59 UTC that day) or as an exact `dueAt` instant. Responses return both; `dueDate` is the UTC calendar date of `dueAt`, so a late-evening deadline west of UTC shows the next day's date there.
-11. Titles sort case-insensitively; todos without a deadline sort last.
+3. The server decides "Overdue" and "Due soon"; open views refresh every 60 s (and on focus and after any change), so a badge can lag a passing deadline by up to a minute.
+4. Past deadlines are allowed (e.g. logging a late task).
+5. Updates are partial (`PATCH`); `null` clears the description or deadline; the title cannot be cleared.
+6. Complete/incomplete are idempotent and do not require `If-Match`.
+7. Delete is permanent.
+8. No pagination; lists are expected to stay small.
+9. Idempotency keys apply to creates only and expire after 24 hours; a replay returns the original response.
+10. Timestamps and deadlines are stored as UTC instants (`timestamptz`) and shown in the viewer's locale and timezone.
+11. Deadlines can be written as the brief's `dueDate` (`YYYY-MM-DD`, due at 23:59:59 UTC that day) or as an exact `dueAt` instant. Responses return both; `dueDate` is the UTC calendar date of `dueAt`, so a late-evening deadline west of UTC shows the next day's date there.
+12. Titles sort case-insensitively; todos without a deadline sort last.
 
 ## Trade-offs
 
