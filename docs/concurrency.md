@@ -35,7 +35,7 @@ sequenceDiagram
 
 </details>
 
-The web app sends the version the user started from — the one the edit form opened on, or the one on screen when Delete was clicked — so a background refetch can never turn a stale edit into a silent overwrite. It reacts to a 412 by showing a notice, reloading the todo and keeping the user's edits; saving again then targets the reloaded version.
+The web app sends the version the user started from — the one the edit form opened on, or the one on screen when Delete was clicked — so a background refetch can never turn a stale edit into a silent overwrite. It reacts to a 412 by showing a notice, reloading the todo and keeping the user's edits; the reloaded values fill the fields the user did not touch, and saving again targets the reloaded version. The retry sends only the fields the user edited, so another writer's change to a field the user left alone is never overwritten.
 
 ## Double submit, absorbed
 
@@ -87,3 +87,4 @@ sequenceDiagram
 - A replayed create returns the **original** response snapshot, even if the todo was edited or deleted since (standard idempotency-key semantics).
 - Complete/incomplete do not take `If-Match`: setting a target state cannot lose an update, but it does change the version, so a pending edit based on the old version gets a 412.
 - `isOverdue` and `isDueSoon` are derived from the server clock when a response is built, so a replayed create or a list fetched earlier shows them as of that moment.
+- Conditional GET: `If-None-Match` is ignored and responses are `no-store`, because `isOverdue`/`isDueSoon` change with the clock without a version bump; the ETag only guards writes.

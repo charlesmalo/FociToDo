@@ -3,6 +3,8 @@ import {
   CreateTodoSchema,
   DESCRIPTION_MAX_LENGTH,
   DUE_AT_ERROR,
+  DUE_BOTH_ERROR,
+  DUE_DATE_ERROR,
   TITLE_MAX_LENGTH,
   TodoIdSchema,
   TodoViewListSchema,
@@ -160,21 +162,15 @@ describe('CreateTodoSchema', () => {
     ]);
   });
 
-  it.each([
-    'id',
-    'isCompleted',
-    'createdAt',
-    'version',
-    'isOverdue',
-    'isDueSoon',
-    'dueDate',
-    'dueDat',
-  ])('rejects the client-supplied or unknown field %s', (field) => {
-    const result = CreateTodoSchema.safeParse({ title: 'x', [field]: 'y' });
-    expect(issues(result)).toEqual([
-      expect.objectContaining({ code: 'unrecognized_keys', keys: [field] }),
-    ]);
-  });
+  it.each(['id', 'isCompleted', 'createdAt', 'version', 'isOverdue', 'isDueSoon', 'dueDat'])(
+    'rejects the client-supplied or unknown field %s',
+    (field) => {
+      const result = CreateTodoSchema.safeParse({ title: 'x', [field]: 'y' });
+      expect(issues(result)).toEqual([
+        expect.objectContaining({ code: 'unrecognized_keys', keys: [field] }),
+      ]);
+    },
+  );
 
   it.each([undefined, null, [], 'text', 42])('rejects the non-object body %j', (body) => {
     const result = CreateTodoSchema.safeParse(body);
@@ -205,7 +201,7 @@ describe('UpdateTodoSchema', () => {
     expect(issues(result)).toEqual([
       expect.objectContaining({
         path: [],
-        message: 'At least one of title, description or dueAt is required',
+        message: 'At least one of title, description, dueDate or dueAt is required',
       }),
     ]);
   });
@@ -225,19 +221,83 @@ describe('UpdateTodoSchema', () => {
   });
 });
 
-describe('TodoViewSchema', () => {
-  const view = {
-    id: '7f3a2c1e-9b4d-4e8a-a1b2-c3d4e5f60718',
-    title: 'Buy milk',
-    description: null,
-    dueAt: '2026-10-01T12:00:00.000Z',
-    isCompleted: false,
-    createdAt: '2026-09-30T12:00:00.000Z',
-    version: 1,
-    isOverdue: false,
-    isDueSoon: false,
-  };
+const view = {
+  id: '7f3a2c1e-9b4d-4e8a-a1b2-c3d4e5f60718',
+  title: 'Buy milk',
+  description: null,
+  dueAt: '2026-10-01T12:00:00.000Z',
+  dueDate: '2026-10-01',
+  isCompleted: false,
+  createdAt: '2026-09-30T12:00:00.000Z',
+  version: 1,
+  isOverdue: false,
+  isDueSoon: false,
+};
 
+describe("dueDate (the brief's date-only deadline)", () => {
+  it.each([
+    ['2026-10-10', '2026-10-10T23:59:59.000Z'],
+    ['0001-01-01', '0001-01-01T23:59:59.000Z'],
+    ['9999-12-31', '9999-12-31T23:59:59.000Z'],
+    ['2028-02-29', '2028-02-29T23:59:59.000Z'],
+  ])('normalises dueDate %s to the end of that UTC day', (dueDate, dueAt) => {
+    expect(CreateTodoSchema.parse({ title: 'x', dueDate })).toEqual({ title: 'x', dueAt });
+    expect(UpdateTodoSchema.parse({ dueDate })).toEqual({ dueAt });
+  });
+
+  it.each([
+    '2026-02-30',
+    '2027-02-29',
+    '0000-01-01',
+    '10000-01-01',
+    '2026-10-10T10:00:00Z',
+    '20261010',
+    'x',
+  ])('rejects the date %j with one dueDate error', (dueDate) => {
+    const result = CreateTodoSchema.safeParse({ title: 'x', dueDate });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual([
+      expect.objectContaining({ path: ['dueDate'], message: DUE_DATE_ERROR }),
+    ]);
+  });
+
+  it('clears the deadline with dueDate: null', () => {
+    expect(CreateTodoSchema.parse({ title: 'x', dueDate: null })).toEqual({
+      title: 'x',
+      dueAt: null,
+    });
+    expect(UpdateTodoSchema.parse({ dueDate: null })).toEqual({ dueAt: null });
+  });
+
+  it.each([
+    [{ dueDate: '2026-10-10', dueAt: '2026-10-10T23:59:59Z' }],
+    [{ dueDate: null, dueAt: '2026-10-10T23:59:59Z' }],
+    [{ dueDate: '2026-10-10', dueAt: null }],
+  ])('rejects both deadline fields together: %j', (deadline) => {
+    for (const schema of [CreateTodoSchema, UpdateTodoSchema]) {
+      const result = schema.safeParse({ title: 'x', ...deadline });
+      expect(result.error?.issues).toContainEqual(
+        expect.objectContaining({ path: ['dueDate'], message: DUE_BOTH_ERROR }),
+      );
+    }
+  });
+
+  it('names dueDate in the empty-patch message', () => {
+    expect(UpdateTodoSchema.safeParse({}).error?.issues[0]?.message).toBe(
+      'At least one of title, description, dueDate or dueAt is required',
+    );
+  });
+
+  it('returns dueDate on views and accepts null', () => {
+    expect(TodoViewSchema.parse({ ...view, dueDate: '2026-10-01' }).dueDate).toBe('2026-10-01');
+    expect(TodoViewSchema.parse({ ...view, dueAt: null, dueDate: null }).dueDate).toBeNull();
+    expect(TodoViewSchema.safeParse({ ...view, dueDate: '2026-10-01T00:00:00Z' }).success).toBe(
+      false,
+    );
+  });
+});
+
+describe('TodoViewSchema', () => {
   it('accepts a valid view', () => {
     expect(TodoViewSchema.parse(view)).toEqual(view);
     expect(TodoViewListSchema.parse([view])).toEqual([view]);
@@ -257,5 +317,25 @@ describe('TodoViewSchema', () => {
 
   it('rejects a non-positive version', () => {
     expect(TodoViewSchema.safeParse({ ...view, version: 0 }).success).toBe(false);
+  });
+});
+
+describe('unpaired surrogates', () => {
+  it.each([
+    ['a lone high surrogate', 'a\ud800'],
+    ['a lone low surrogate', '\udc00b'],
+  ])('rejects %s in title and description', (_label, text) => {
+    expect(CreateTodoSchema.safeParse({ title: text }).error?.issues[0]?.message).toBe(
+      'Title must not contain an unpaired surrogate character',
+    );
+    expect(
+      CreateTodoSchema.safeParse({ title: 'x', description: text }).error?.issues[0]?.message,
+    ).toBe('Description must not contain an unpaired surrogate character');
+  });
+
+  it('accepts a valid surrogate pair (emoji)', () => {
+    expect(CreateTodoSchema.parse({ title: 'Ship 🚀', description: '✅ 🎉' }).title).toBe(
+      'Ship 🚀',
+    );
   });
 });

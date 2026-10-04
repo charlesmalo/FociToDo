@@ -4,8 +4,6 @@ FociToDo is a single page: a header, the filter and sort controls, and the task 
 
 **Notation:** each box is one element of the screen; `[ ]` an input (with its value, if any); `▾` a select showing its current value; `☐` / `☑` a row's checkbox (unticked / ticked); `×` closes the dialog.
 
-The companion review repository's storyboard, [FociToDo-review](https://github.com/charlesmalo/FociToDo-review), shows the running app beside each wireframe.
-
 ## Task list — loading
 
 While the first list request is in flight.
@@ -200,6 +198,10 @@ block-beta
 
 </details>
 
+The same dialog in the app, generated from the built web app by the screenshots command:
+
+![Editing a task: due date and time](images/edit-dialog.png)
+
 ## Dialog — delete confirmation
 
 After Delete is clicked in task details, before the deletion is confirmed.
@@ -220,7 +222,7 @@ block-beta
 
 ## Dialog — changed elsewhere
 
-After Save is rejected because someone else changed the task (HTTP 412).
+After Save is rejected because someone else changed the task (HTTP 412): the task is reloaded, the fields the user edited keep their edits, and the others show the reloaded values.
 
 ![Dialog — changed elsewhere (wireframe)](diagrams/ui/dialog-changed-elsewhere.svg)
 
@@ -232,8 +234,8 @@ block-beta
   heading["Edit task"] close["×"]
   notice["This task was changed elsewhere and has been reloaded.<br/>Your edits are kept — review and save again."]:2
   titlefield["Title [my edited title]"]:2
-  description["Description [ ]"]:2
-  due["Due date [yyyy-mm-dd] · Due time [--:--]"]:2
+  description["Description [other writer's description]"]:2
+  due["Due date [2026-04-30] · Due time [17:00]"]:2
   cancel["Cancel"] save["Save"]
 ```
 

@@ -1,4 +1,4 @@
-import type { CreateTodoInput } from '@foci/shared';
+import type { CreateTodoInput, UpdateTodoInput } from '@foci/shared';
 import { useState } from 'react';
 import { ApiError } from '../../api/ApiError';
 import { describeError } from '../../api/describeError';
@@ -6,7 +6,7 @@ import { formatDeadline, formatTimestamp } from '../format';
 import { useDeleteTodo, useTodo, useUpdateTodo } from '../useTodos';
 import { ErrorBanner } from './ErrorBanner';
 import styles from './TodoDetailsPanel.module.css';
-import { TodoForm, toFormValues } from './TodoForm';
+import { TodoForm, toFormValues, type ChangedField } from './TodoForm';
 
 const isStatus = (error: unknown, status: number) =>
   error instanceof ApiError && error.status === status;
@@ -48,8 +48,9 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
   /**
    * Save and Delete send the version the user started from, never one a background refetch
    * (e.g. on window focus) slipped in underneath them — otherwise another tab's change would be
-   * overwritten without a 412. After a 412 the reloaded version becomes the new base, so saving
-   * again (having seen the notice) is a deliberate overwrite of the fresh version.
+   * overwritten without a 412. After a 412 the reloaded version becomes the new base: the form
+   * merges the reloaded values into the fields the user did not touch, and saving again (having
+   * seen the notice) sends only the fields the user edited, against the fresh version.
    */
   if (editing && (editBase === null || (rebasePending && !todo.isFetching))) {
     setEditBase(current.version);
@@ -61,10 +62,21 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
    * Both mutations invalidate every todo query (incl. this detail query) once they settle,
    * success or failure — see `useInvalidateTodos` in `useTodos.ts` — so a 404/412 here always
    * ends with a fresh refetch of `current`, with no separate reload call needed.
+   *
+   * Only the edited fields are sent, so a save never overwrites a field the user did not touch.
    */
-  const save = async (input: CreateTodoInput) => {
+  const save = async (input: CreateTodoInput, changed: readonly ChangedField[]) => {
+    if (changed.length === 0) {
+      setNotice(null);
+      onEditingChange(false);
+      return;
+    }
+    const patch: UpdateTodoInput = {};
+    if (changed.includes('title')) patch.title = input.title;
+    if (changed.includes('description')) patch.description = input.description;
+    if (changed.includes('dueAt')) patch.dueAt = input.dueAt;
     try {
-      await update.mutateAsync({ id: current.id, version: baseVersion, patch: input });
+      await update.mutateAsync({ id: current.id, version: baseVersion, patch });
       setNotice(null);
       onEditingChange(false);
     } catch (error) {
@@ -101,6 +113,7 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
         <TodoForm
           initialValues={toFormValues(current)}
           initialDueAt={current.dueAt}
+          baseVersion={baseVersion}
           submitLabel="Save"
           onSubmit={save}
           onCancel={() => {

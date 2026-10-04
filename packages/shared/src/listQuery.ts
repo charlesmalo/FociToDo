@@ -15,7 +15,11 @@ export const ListTodosQuerySchema = z.strictObject({
       'Which todos to list: all; completed; incomplete; overdue (incomplete, deadline in the past); due-soon (incomplete, deadline within the next 24 hours).',
     )
     .default('all'),
-  sort: z.enum(TODO_SORT_FIELDS).default('createdAt'),
+  sort: z
+    .enum([...TODO_SORT_FIELDS, 'dueDate'])
+    .default('createdAt')
+    .describe("createdAt, dueAt or title; dueDate is accepted as the brief's name for dueAt.")
+    .transform((sort): TodoSortField => (sort === 'dueDate' ? 'dueAt' : sort)),
   order: z.enum(SORT_ORDERS).default('desc'),
 });
 

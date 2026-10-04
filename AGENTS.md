@@ -21,6 +21,9 @@ docker compose --profile dev run --rm dev npx vitest run <file>
 # Regenerate docs/diagrams after editing a Mermaid block
 docker compose --profile docs run --rm --build diagrams
 
+# Regenerate docs/images (README screenshots) after any UI change
+docker compose --profile docs run --rm --build screenshots
+
 # Regenerate docs/api/index.html after regenerating apps/api/openapi.json (UPDATE_OPENAPI=1, a separate run)
 docker compose --profile dev run --rm -e UPDATE_API_DOCS=1 dev npx vitest run packages/diagrams/tests/apiDocs.test.ts
 

@@ -1,6 +1,6 @@
 # 0017 Deadlines are UTC instants
 
-Status: Accepted · 2026-10-03 · Supersedes [0008](./0008-server-side-utc-overdue.md)
+Status: Accepted · 2026-10-03 · Supersedes [0008](./0008-server-side-utc-overdue.md) · Amended by [0018](0018-deadlines-accept-the-briefs-duedate.md).
 
 ## Context
 
@@ -17,7 +17,7 @@ A deadline is an instant: `dueAt`, stored as `timestamptz` and exchanged as an R
 - **Migrated data:** each migrated deadline shows at 23:59:59 UTC, which is a different local time and possibly a different local date for each viewer.
 - **Daylight saving:** a local time inside a spring-forward gap does not exist; it shifts forward by the skipped hour (02:30 becomes 03:30).
 - **Down migration is lossy:** it keeps only the UTC calendar date, so the time of day is lost.
-- **Idempotency keys:** keys created before the migration hashed `dueDate`, so a retry that spans the deploy gets 422 instead of a replay.
+- **Idempotency keys:** a retry that spans the deploy replays if it sends no deadline; one still sending `dueDate` got a 400 at validation, before hashing.
 
 ## Alternatives considered
 

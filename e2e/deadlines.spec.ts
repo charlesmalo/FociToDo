@@ -30,51 +30,44 @@ test('the same deadline reads the same in New York and Tokyo', async ({ browser,
   }
 });
 
-test('a deadline entered in New York reads as the same instant in Tokyo', async ({ browser }) => {
-  const zone = 'America/New_York';
-  // About 3 hours ahead (to the minute): Due soon, far from both the 0 h and 24 h boundaries.
-  const instant = new Date(Math.floor((Date.now() + 3 * 60 * 60 * 1000) / 60_000) * 60_000);
-  const wall = Object.fromEntries(
-    new Intl.DateTimeFormat('en-CA', {
-      timeZone: zone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23',
-    })
-      .formatToParts(instant)
-      .map((part) => [part.type, part.value]),
-  );
-  const date = `${wall.year}-${wall.month}-${wall.day}`;
-  const time = `${wall.hour}:${wall.minute}`;
+test('a deadline entered in New York is stored as that instant and read in Tokyo', async ({
+  browser,
+  request,
+}) => {
+  // January 2030: New York is on EST (UTC−5), so 09:30 there is exactly 14:30 UTC. No clock, no DST edge.
+  const instant = '2030-01-15T14:30:00.000Z';
   const title = uniqueTitle('tz form');
   const local = (timeZone: string): string =>
     new Intl.DateTimeFormat('en-US', { timeZone, dateStyle: 'medium', timeStyle: 'short' }).format(
-      instant,
+      new Date(instant),
     );
 
-  const newYork = await browser.newContext({ timezoneId: zone, locale: 'en-US' });
+  const newYork = await browser.newContext({ timezoneId: 'America/New_York', locale: 'en-US' });
   const creator = await newYork.newPage();
   await creator.goto('/');
   await creator.getByRole('button', { name: '+ New task' }).click();
   const dialog = creator.getByRole('dialog', { name: 'New task' });
   await dialog.getByLabel('Title').fill(title);
-  await dialog.getByLabel('Due date').fill(date);
-  await dialog.getByLabel('Due time').fill(time);
+  await dialog.getByLabel('Due date').fill('2030-01-15');
+  await dialog.getByLabel('Due time').fill('09:30');
   await dialog.getByRole('button', { name: 'Add task' }).click();
   await expect(dialog).toBeHidden();
-  const nyRow = creator.getByRole('listitem').filter({ hasText: title });
-  await expect(nyRow).toContainText(`Due ${local(zone)}`);
-  await expect(nyRow.getByText('Due soon', { exact: true })).toBeVisible();
+  await expect(creator.getByRole('listitem').filter({ hasText: title })).toContainText(
+    `Due ${local('America/New_York')}`,
+  );
   await newYork.close();
+
+  const stored = (await (await request.get('/api/todos')).json()) as {
+    title: string;
+    dueAt: string;
+  }[];
+  expect(stored.find((todo) => todo.title === title)?.dueAt).toBe(instant);
 
   const tokyo = await browser.newContext({ timezoneId: 'Asia/Tokyo', locale: 'en-US' });
   const viewer = await tokyo.newPage();
   await viewer.goto('/');
-  const tokyoRow = viewer.getByRole('listitem').filter({ hasText: title });
-  await expect(tokyoRow).toContainText(`Due ${local('Asia/Tokyo')}`);
-  await expect(tokyoRow.getByText('Due soon', { exact: true })).toBeVisible();
+  await expect(viewer.getByRole('listitem').filter({ hasText: title })).toContainText(
+    `Due ${local('Asia/Tokyo')}`,
+  );
   await tokyo.close();
 });

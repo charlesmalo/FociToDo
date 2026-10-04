@@ -91,6 +91,7 @@ describe('toView', () => {
       title: 'File taxes',
       description: 'Receipts in the blue folder',
       dueAt: '2026-10-03T11:00:00.000Z',
+      dueDate: '2026-10-03',
       isCompleted: false,
       createdAt: '2026-08-15T09:30:00.000Z',
       version: 4,
@@ -99,9 +100,16 @@ describe('toView', () => {
     });
   });
 
+  it('derives dueDate as the UTC calendar date of dueAt', () => {
+    // 22:00 on 10 Oct in New York is already 11 Oct in UTC.
+    const todo = makeTodo({ dueAt: new Date('2026-10-11T02:00:00.000Z') });
+    expect(toView(todo, NOW).dueDate).toBe('2026-10-11');
+  });
+
   it('serialises a missing deadline as null and a due-soon todo', () => {
     expect(toView(makeTodo({ dueAt: null }), NOW)).toMatchObject({
       dueAt: null,
+      dueDate: null,
       isOverdue: false,
       isDueSoon: false,
     });

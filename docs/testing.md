@@ -37,7 +37,7 @@ flowchart LR
 
 ## Conventions
 
-- **Mirrored paths:** `src/service/TodoService.ts` → `tests/service/TodoService.test.ts` in the same package.
+- **Mirrored paths:** `src/service/TodoService.ts` → `tests/service/TodoService.test.ts` in the same package. Exception: `apps/api/src/http/createHttpApp.ts`, the in-memory adapters (`InMemoryDatabase`, `InMemoryIdempotencyStore`, `InMemoryTodoRepository`, `InMemoryUnitOfWork`), the Postgres adapters (`PgIdempotencyStore`, `PgTodoRepository`) and `repository/postgres/rows.ts` are tested through the shared repository contract suite (`tests/repository/repository.contract.ts`) and the route tests rather than a mirrored file.
 - **Suffixes:** `.test.ts(x)` needs nothing; `.int.test.ts` and `.concurrency.test.ts` need Postgres and run in the `api-db` project, one file at a time, with tables truncated before each test. The harness refuses any database whose name does not end in `_test`.
 - **Contract suite:** `tests/repository/repository.contract.ts` runs against the in-memory and Postgres adapters, so the fast unit tests rely on an in-memory adapter that provably behaves like Postgres.
 - **Determinism:** clock, id generator and pool are injected; concurrency tests assert invariants, never timings.
@@ -45,7 +45,7 @@ flowchart LR
 ## Coverage policy
 
 - 100% lines, branches, functions and statements, merged across all Vitest projects, enforced by the test gate and CI.
-- Excluded (no logic): `apps/api/src/server.ts` (process bootstrap), `apps/web/src/main.tsx` (React mount), `*.d.ts`.
+- Excluded (no logic): `apps/api/src/server.ts` (process bootstrap), `apps/web/src/main.tsx` (React mount), `packages/diagrams/src/bin.ts` (command-line entry point), `*.d.ts`.
 - No `v8 ignore` comments. Hard-to-reach branches are made reachable by injecting the dependency instead.
 - Coverage is a floor, not the goal: concurrency tests were checked by temporarily removing the version condition from the SQL (they fail), and e2e journeys by changing a UI message (they fail).
 

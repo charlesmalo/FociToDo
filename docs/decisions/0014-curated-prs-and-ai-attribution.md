@@ -8,7 +8,7 @@ The history should show how the work was done; AI assistance is used and should 
 
 ## Decision
 
-One branch and PR per work package, merged with a merge commit after curating the branch into a few meaningful, green commits (fixups autosquashed). Conventional Commits. Every AI-assisted commit carries a `Co-Authored-By: Claude` trailer; decisions are recorded in these ADRs and the spec; milestone reviews live in a separate review repository.
+One branch and PR per work package, merged with a merge commit after curating the branch into a few meaningful, green commits (fixups autosquashed). Conventional Commits. Every AI-assisted commit carries a `Co-Authored-By: Claude` trailer; decisions are recorded in these ADRs and the spec.
 
 ## Consequences
 

@@ -27,6 +27,12 @@ describe('hashCreateRequest', () => {
     );
   });
 
+  it('hashes dueDate and the equivalent dueAt as the same request', () => {
+    expect(hashCreateRequest(CreateTodoSchema.parse({ title: 'x', dueDate: '2030-01-02' }))).toBe(
+      hashCreateRequest(CreateTodoSchema.parse({ title: 'x', dueAt: '2030-01-02T23:59:59Z' })),
+    );
+  });
+
   it('hashes different instants differently', () => {
     const parse = (dueAt: string) => CreateTodoSchema.parse({ title: 'x', dueAt });
     expect(hashCreateRequest(parse('2026-10-03T22:00:00Z'))).not.toBe(

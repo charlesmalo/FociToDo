@@ -32,6 +32,10 @@ Expected: `curl` prints something like `{"status":"ok","db":"up","schemaVersion"
 | --------------------- | ------- |
 | http://localhost:8080 | The app |
 
+Click a task, then **Edit**, to change its title, description, due date or due time:
+
+![Editing a task: due date and time](docs/images/edit-dialog.png)
+
 **API reference:** open [`docs/api/index.html`](docs/api/index.html) in a browser (generated from `apps/api/openapi.json`; works offline).
 
 Port 8080 busy? Copy `.env.example` to `.env` and set `WEB_PORT`.
@@ -100,7 +104,7 @@ Exit code `0` means every journey passed. Report: `reports/e2e/index.html`.
 
 - **Port 8080 already in use:** copy `.env.example` to `.env` and set `WEB_PORT`.
 - **Can the stack and the tests run at the same time?** Yes — the test profile uses its own throwaway `db-test` Postgres, isolated from the stack's `db`.
-- **Linux: `reports/` or `docs/diagrams/` owned by root:** files under `reports/` are created by the container user, and the `diagrams` generator runs as root to write into the bind-mounted checkout; remove either with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` (swap in `/w/docs/diagrams` for the images) or `sudo`.
+- **Linux: `reports/`, `docs/diagrams/` or `docs/images/` owned by root:** files under `reports/` are created by the container user, and the `diagrams` and `screenshots` generators run as root to write into the bind-mounted checkout; remove any of them with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` (swap in `/w/docs/diagrams` or `/w/docs/images` for the images) or `sudo`.
 
 ### For AI agents
 
@@ -138,6 +142,8 @@ flowchart LR
 ## Documentation and diagrams
 
 Every diagram is a Mermaid block in the document that explains it, shown as a generated image with its source collapsed underneath. Changed a diagram? Run `docker compose --profile docs run --rm --build diagrams` — the test gate fails until images match their source.
+
+Each diagram also declares the source files it depicts in [`docs/diagram-depicts.json`](docs/diagram-depicts.json), and the regenerate command stamps their hash into the diagram manifest: when a depicted file changes, the gate flags the diagram until it has been reviewed against the code and re-stamped. The screenshots in `docs/images/` are generated the same way, from the built web app with the API answered from fixtures: after a UI change, run `docker compose --profile docs run --rm --build screenshots` — the gate fails until they are regenerated from the current UI sources.
 
 **This README**
 
@@ -215,28 +221,36 @@ Every diagram is a Mermaid block in the document that explains it, shown as a ge
 | Web components      | UI states, validation, conflict and retry handling                  |
 | End-to-end          | The deployed stack works in a real browser                          |
 
-Tests mirror source paths (`src/a/B.ts` → `tests/a/B.test.ts`). See [docs/testing.md](docs/testing.md).
+Tests mirror source paths (`src/a/B.ts` → `tests/a/B.test.ts`), except the adapters and app wiring covered by the shared contract and route suites — see [docs/testing.md](docs/testing.md).
 
 ## Assumptions
 
 1. Single user; no authentication.
 2. "Overdue" means incomplete with a deadline moment already in the past — the same for every viewer, whatever their timezone. "Due soon" means incomplete with a deadline within the next 24 hours.
-3. Past deadlines are allowed (e.g. logging a late task).
-4. Updates are partial (`PATCH`); `null` clears the description or deadline; the title cannot be cleared.
-5. Complete/incomplete are idempotent and do not require `If-Match`.
-6. Delete is permanent.
-7. No pagination; lists are expected to stay small.
-8. Idempotency keys apply to creates only and expire after 24 hours; a replay returns the original response.
-9. Timestamps and deadlines are stored as UTC instants (`timestamptz`) and shown in the viewer's locale and timezone.
-10. Titles sort case-insensitively; todos without a deadline sort last.
+3. The server decides "Overdue" and "Due soon"; open views refresh every 60 s (and on focus and after any change), so a badge can lag a passing deadline by up to a minute.
+4. Past deadlines are allowed (e.g. logging a late task).
+5. Updates are partial (`PATCH`); `PATCH` and `DELETE` require `If-Match`; `null` clears the description or deadline; the title cannot be cleared.
+6. Complete/incomplete are idempotent and do not require `If-Match`.
+7. Delete is permanent.
+8. No pagination (proof of concept); see [ADR 0019](docs/decisions/0019-pagination-deferred.md) for the designed, backward-compatible approach.
+9. Idempotency keys apply to creates only and expire after 24 hours; a replay returns the original response.
+10. Timestamps and deadlines are stored as UTC instants (`timestamptz`) and shown in the viewer's locale and timezone.
+11. Deadlines can be written as the brief's `dueDate` (`YYYY-MM-DD`, due at 23:59:59 UTC that day) or as an exact `dueAt` instant. Responses return both; `dueDate` is the UTC calendar date of `dueAt`, so a late-evening deadline west of UTC shows the next day's date there.
+12. Titles sort case-insensitively; todos without a deadline sort last.
 
 ## Trade-offs
 
 - **Postgres over a file store:** one more container, in exchange for transactions and constraints that make the concurrency guarantees simple and verifiable.
 - **Required `If-Match`:** clients must track ETags; in return lost updates are impossible.
-- **Deadlines as UTC instants:** status is exact and identical in every timezone, at the cost that a time must be chosen (the form prefills 17:00) and API requests must carry a timezone offset.
-- **No pagination, auth, soft delete or `completedAt`:** not required by the brief; each would add API surface and tests without improving correctness.
+- **Deadlines as UTC instants:** status is exact and identical in every timezone, at the cost that a time must be chosen (the form prefills 17:00) and that an exact time in an API request needs a timezone offset; the brief's `dueDate` (`YYYY-MM-DD`) means 23:59:59 UTC.
+- **No pagination, auth, soft delete or `completedAt`:** not required by the brief; each would add API surface and tests without improving correctness. Pagination is designed but deferred ([ADR 0019](docs/decisions/0019-pagination-deferred.md)).
 - **Single page with a modal:** covers every operation with the least UI code; the panels are independent of the dialog if a different layout is preferred.
+
+## Design changes
+
+- **Developer portal → docs in the repository:** the in-app `/dev` section became Markdown guides with generated diagram images, so documentation ships with the code, not inside the product ([ADR 0015](docs/decisions/0015-docs-and-diagrams-in-the-repository.md)).
+- **Served API explorer → static reference:** Swagger UI moved from a live endpoint to a generated, offline `docs/api/index.html` ([ADR 0016](docs/decisions/0016-api-docs-as-a-repository-artifact.md)).
+- **Date-only deadline → exact instant, with the brief's `dueDate` kept:** deadlines are UTC instants so "overdue" means the same in every timezone, and the brief's `YYYY-MM-DD` field is still accepted and returned ([ADR 0017](docs/decisions/0017-deadlines-are-utc-instants.md), [ADR 0018](docs/decisions/0018-deadlines-accept-the-briefs-duedate.md)).
 
 ## How this was built
 
@@ -252,7 +266,7 @@ flowchart LR
 
 </details>
 
-Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUDE.md). Requirements, decisions and the plan are in [docs/superpowers](docs/superpowers); every architectural choice has an [ADR](docs/decisions/README.md). Each work package was reviewed before merging; review reports, the requirements traceability matrix and verification evidence live in the companion repository **[FociToDo-review](https://github.com/charlesmalo/FociToDo-review)**. AI-assisted commits carry a `Co-Authored-By` trailer.
+Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUDE.md). Requirements, decisions and the plan are in [docs/superpowers](docs/superpowers); every architectural choice has an [ADR](docs/decisions/README.md). Every work package was reviewed before merging; findings were fixed in the PR that raised them. AI-assisted commits carry a `Co-Authored-By` trailer.
 
 ## Project layout
 
@@ -262,8 +276,10 @@ packages/diagrams/ Diagram extraction, checks and generator
 apps/api/          Express API: domain · service · repository (postgres, in-memory) · http
 apps/web/          React app: api client · todo feature · styles
 e2e/               Playwright journeys
+screenshots/       Playwright scenes and fixtures that generate the README screenshots
 docs/              Guides, ADRs, spec and plan
 docs/diagrams/     Generated diagram images (do not edit)
-Dockerfile         One multi-stage build: test · api · migrate · diagrams · web · e2e
+docs/images/       Generated screenshots and their manifest (do not edit)
+Dockerfile         One multi-stage build: test · api · migrate · diagrams · screenshots · web · e2e
 compose.yaml       Default stack + test/dev/docs profiles; compose.e2e.yaml overlay
 ```

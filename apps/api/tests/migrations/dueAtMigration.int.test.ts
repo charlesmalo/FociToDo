@@ -1,22 +1,9 @@
-import { fileURLToPath } from 'node:url';
-import { runner } from 'node-pg-migrate';
 import { afterAll, describe, expect, it } from 'vitest';
-import { createTestPool, resetDatabase, testDatabaseUrl } from '../support/testDatabase.js';
+import { createTestPool, resetDatabase } from '../support/testDatabase.js';
 import { todoId } from '../support/fakes.js';
+import { migrate, migrateDownThrough } from '../support/migrations.js';
 
 const pool = createTestPool();
-const migrationsDir = fileURLToPath(new URL('../../migrations', import.meta.url));
-const silentLogger = { info: () => undefined, warn: () => undefined, error: () => undefined };
-
-const migrate = (direction: 'up' | 'down', count: number) =>
-  runner({
-    databaseUrl: testDatabaseUrl(),
-    dir: migrationsDir,
-    direction,
-    migrationsTable: 'pgmigrations',
-    count,
-    logger: silentLogger,
-  });
 
 const cacheBody = (dueDate: string | null) => ({
   id: todoId(1),
@@ -42,7 +29,7 @@ describe('due-at-instants migration', () => {
 
   it('backfills deadlines and cached responses forwards and restores them backwards', async () => {
     await resetDatabase(pool);
-    await migrate('down', 1);
+    await migrateDownThrough(pool, '1759190400002_due-at-instants');
     await pool.query(
       `INSERT INTO todos (id, title, due_date, created_at) VALUES
          ($1, 'dated', '2026-10-01', now()), ($2, 'undated', NULL, now())`,
@@ -78,7 +65,7 @@ describe('due-at-instants migration', () => {
     });
     expect(await bodyOf('other')).toEqual({ error: 'x' });
 
-    await migrate('down', 1);
+    await migrateDownThrough(pool, '1759190400002_due-at-instants');
     const restored = await pool.query(
       `SELECT title, to_char(due_date, 'YYYY-MM-DD') AS due_date FROM todos ORDER BY title`,
     );
@@ -103,7 +90,7 @@ describe('due-at-instants migration', () => {
       [todoId(1), todoId(2)],
     );
 
-    await migrate('down', 1);
+    await migrateDownThrough(pool, '1759190400002_due-at-instants');
     const restored = await pool.query(
       `SELECT title, to_char(due_date, 'YYYY-MM-DD') AS due_date FROM todos ORDER BY title`,
     );

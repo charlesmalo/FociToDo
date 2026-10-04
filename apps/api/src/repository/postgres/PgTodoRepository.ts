@@ -52,6 +52,7 @@ export class PgTodoRepository implements TodoRepository {
     return firstTodo(rows);
   }
 
+  // Returns the whole filtered list by design; pagination is deferred (ADR 0019).
   async list(query: ListTodosQuery, now: Date): Promise<Todo[]> {
     const values = query.status === 'overdue' || query.status === 'due-soon' ? [now] : [];
     const { rows } = await this.db.query<TodoRow>(

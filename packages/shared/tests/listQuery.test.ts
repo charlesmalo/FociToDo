@@ -11,6 +11,10 @@ describe('ListTodosQuerySchema', () => {
     expect(DEFAULT_LIST_QUERY).toEqual({ status: 'all', sort: 'createdAt', order: 'desc' });
   });
 
+  it("accepts sort=dueDate as the brief's name for sort=dueAt", () => {
+    expect(ListTodosQuerySchema.parse({ sort: 'dueDate' }).sort).toBe('dueAt');
+  });
+
   it('accepts every documented combination', () => {
     expect(ListTodosQuerySchema.parse({ status: 'overdue', sort: 'dueAt', order: 'asc' })).toEqual({
       status: 'overdue',
@@ -26,7 +30,6 @@ describe('ListTodosQuerySchema', () => {
   it.each([
     [{ status: 'done' }, 'status'],
     [{ sort: 'priority' }, 'sort'],
-    [{ sort: 'dueDate' }, 'sort'],
     [{ order: 'up' }, 'order'],
   ])('rejects unknown values %j', (query, field) => {
     const result = ListTodosQuerySchema.safeParse(query);

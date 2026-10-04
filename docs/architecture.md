@@ -124,7 +124,7 @@ erDiagram
 
 </details>
 
-`CHECK` constraints repeat the key validation rules, so bad data cannot enter even if application code is bypassed.
+Column types and `CHECK` constraints are a backstop for core invariants (varchar lengths, non-blank title, positive version); full validation lives in the shared schema.
 
 ## Frontend
 
@@ -145,7 +145,8 @@ flowchart TB
 
 </details>
 
-- Server state lives in TanStack Query; every mutation invalidates the todo queries when it settles.
+- Server state lives in TanStack Query; every mutation invalidates the todo queries when it settles, and open lists and details refetch every 60 s (`TODO_REFETCH_INTERVAL_MS`) and on focus.
+- The edit form sends only the fields the user changed (a changed time with the same date counts as a deadline change), so a save never overwrites a field it did not touch.
 - The panels know nothing about the dialog, so the dialog could be replaced by an inline panel without changing them.
 - See [UI wireframes](ui.md) for every screen state these components render.
 - Deadlines are UTC instants formatted with `Intl.DateTimeFormat` in the viewer's locale and timezone; the form combines the **Due date** and **Due time** inputs in the viewer's timezone into an instant, so the status flags (computed by the server) are the same everywhere.

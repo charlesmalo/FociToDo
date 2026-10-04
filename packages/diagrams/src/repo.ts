@@ -1,9 +1,20 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, posix } from 'node:path';
 
 /** The few file operations the checker and generator need, with repository-relative paths. */
 export interface Repo {
   read(path: string): string;
+  /** The raw bytes, for hashing binary files such as screenshots. */
+  readBytes(path: string): Uint8Array;
+  /** Whether a file (not a folder) is at `path`. */
   exists(path: string): boolean;
   /** Every file under `dir`, recursively, as sorted repository-relative paths ([] if absent). */
   list(dir: string): string[];
@@ -15,7 +26,8 @@ export function fsRepo(root: string): Repo {
   const at = (path: string): string => join(root, path);
   return {
     read: (path) => readFileSync(at(path), 'utf8'),
-    exists: (path) => existsSync(at(path)),
+    readBytes: (path) => new Uint8Array(readFileSync(at(path))),
+    exists: (path) => statSync(at(path), { throwIfNoEntry: false })?.isFile() === true,
     list: (dir) =>
       existsSync(at(dir))
         ? readdirSync(at(dir), { recursive: true, withFileTypes: true })

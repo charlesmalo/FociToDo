@@ -43,6 +43,18 @@ COPY --from=build-diagrams /repo/packages/diagrams/dist /tool/dist
 WORKDIR /repo
 ENTRYPOINT ["node", "/tool/dist/bin.js"]
 
+# Renders the README screenshots from the built web app with /api mocked from fixtures (spec 2026-10-03 brief-duedate §5.1).
+FROM mcr.microsoft.com/playwright:v1.63.0-noble AS screenshots
+WORKDIR /tool
+RUN npm init -y >/dev/null \
+  && npm install --no-audit --no-fund --save-exact @playwright/test@1.63.0
+COPY screenshots/ ./
+COPY --from=build-web /repo/apps/web/dist ./web
+COPY packages/diagrams/package.json ./diagrams/
+COPY --from=build-diagrams /repo/packages/diagrams/dist ./diagrams/dist
+WORKDIR /repo
+CMD ["sh", "-c", "npx --prefix /tool playwright test -c /tool/playwright.config.ts && node /tool/diagrams/dist/bin.js screenshots"]
+
 # Production dependencies of the API (and the shared package it links to) only.
 FROM manifests AS api-prod-deps
 RUN --mount=type=cache,target=/root/.npm \
@@ -50,6 +62,8 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Runtime: non-root, compiled JavaScript + production dependencies + migrations.
 FROM node:24.21-alpine AS api
+# This stage starts from node again, so it does not inherit the base stage's TZ (`migrate` builds FROM api).
+ENV TZ=UTC
 ENV NODE_ENV=production
 WORKDIR /repo
 COPY --from=api-prod-deps --chown=node:node /repo/node_modules ./node_modules

@@ -1,0 +1,133 @@
+{
+  "readme/design-overview": ["apps/web/nginx.conf", "compose.yaml"],
+  "readme/how-this-was-built": [],
+  "api/create-post-api-todos": [
+    "apps/api/src/http/problems.ts",
+    "apps/api/src/http/todoRoutes.ts",
+    "apps/api/src/repository/postgres/PgIdempotencyStore.ts",
+    "apps/api/src/service/TodoService.ts",
+    "packages/shared/src/headers.ts",
+    "packages/shared/src/todo.ts"
+  ],
+  "api/list-get-api-todos": [
+    "apps/api/src/http/apiCacheHeaders.ts",
+    "apps/api/src/http/todoRoutes.ts",
+    "apps/api/src/repository/postgres/PgTodoRepository.ts",
+    "apps/api/src/service/TodoService.ts",
+    "packages/shared/src/listQuery.ts"
+  ],
+  "api/view-get-api-todos-id": [
+    "apps/api/src/http/apiCacheHeaders.ts",
+    "apps/api/src/http/todoRoutes.ts",
+    "apps/api/src/service/TodoService.ts",
+    "packages/shared/src/todo.ts"
+  ],
+  "api/update-patch-api-todos-id": [
+    "apps/api/src/http/problems.ts",
+    "apps/api/src/http/todoRoutes.ts",
+    "apps/api/src/repository/postgres/PgTodoRepository.ts",
+    "apps/api/src/service/TodoService.ts",
+    "packages/shared/src/headers.ts",
+    "packages/shared/src/todo.ts"
+  ],
+  "api/complete-post-api-todos-id-complete": [
+    "apps/api/src/http/todoRoutes.ts",
+    "apps/api/src/repository/postgres/PgTodoRepository.ts",
+    "apps/api/src/service/TodoService.ts"
+  ],
+  "api/incomplete-post-api-todos-id-incomplete": [
+    "apps/api/src/http/todoRoutes.ts",
+    "apps/api/src/repository/postgres/PgTodoRepository.ts",
+    "apps/api/src/service/TodoService.ts"
+  ],
+  "api/delete-delete-api-todos-id": [
+    "apps/api/src/http/problems.ts",
+    "apps/api/src/http/todoRoutes.ts",
+    "apps/api/src/repository/postgres/PgTodoRepository.ts",
+    "apps/api/src/service/TodoService.ts",
+    "packages/shared/src/headers.ts"
+  ],
+  "architecture/system-context": ["apps/web/nginx.conf", "compose.yaml"],
+  "architecture/deployment-and-startup-order": ["Dockerfile", "compose.yaml"],
+  "architecture/backend-layers": ["apps/api/src/app.ts", "apps/api/src/repository/ports.ts"],
+  "architecture/domain-model": ["apps/api/src/domain/todo.ts"],
+  "architecture/data-model": [
+    "apps/api/migrations/1759190400000_create-todos.sql",
+    "apps/api/migrations/1759190400001_create-idempotency-keys.sql",
+    "apps/api/migrations/1759190400002_due-at-instants.sql",
+    "apps/api/migrations/1759190400003_due-date-in-cached-responses.sql"
+  ],
+  "architecture/frontend": [
+    "apps/web/src/api/todoClient.ts",
+    "apps/web/src/todos/components/CreateTodoPanel.tsx",
+    "apps/web/src/todos/components/TodoDetailsPanel.tsx",
+    "apps/web/src/todos/components/TodoDialog.tsx",
+    "apps/web/src/todos/components/TodoItem.tsx",
+    "apps/web/src/todos/components/TodoList.tsx",
+    "apps/web/src/todos/components/TodoPage.tsx",
+    "apps/web/src/todos/useTodos.ts"
+  ],
+  "concurrency/lost-update-prevented": [
+    "apps/api/src/repository/postgres/PgTodoRepository.ts",
+    "apps/api/src/service/TodoService.ts"
+  ],
+  "concurrency/double-submit-absorbed": [
+    "apps/api/src/repository/postgres/PgIdempotencyStore.ts",
+    "apps/api/src/repository/postgres/PgUnitOfWork.ts",
+    "apps/api/src/service/TodoService.ts"
+  ],
+  "concurrency/parallel-completes-one-change": [
+    "apps/api/src/repository/postgres/PgTodoRepository.ts",
+    "apps/api/src/service/TodoService.ts"
+  ],
+  "testing/layers": ["compose.e2e.yaml", "compose.yaml"],
+  "ui/task-list-loading": [
+    "apps/web/src/todos/components/TodoFilters.tsx",
+    "apps/web/src/todos/components/TodoList.tsx",
+    "apps/web/src/todos/components/TodoPage.tsx"
+  ],
+  "ui/task-list-empty": [
+    "apps/web/src/todos/components/TodoFilters.tsx",
+    "apps/web/src/todos/components/TodoList.tsx",
+    "apps/web/src/todos/components/TodoPage.tsx"
+  ],
+  "ui/task-list-with-tasks": [
+    "apps/web/src/todos/components/TodoItem.tsx",
+    "apps/web/src/todos/components/TodoList.tsx",
+    "apps/web/src/todos/format.ts"
+  ],
+  "ui/task-list-no-match": [
+    "apps/web/src/todos/components/TodoFilters.tsx",
+    "apps/web/src/todos/components/TodoList.tsx"
+  ],
+  "ui/task-list-load-error": [
+    "apps/web/src/api/describeError.ts",
+    "apps/web/src/todos/components/ErrorBanner.tsx",
+    "apps/web/src/todos/components/TodoList.tsx"
+  ],
+  "ui/filters-and-sorting": ["apps/web/src/todos/components/TodoFilters.tsx"],
+  "ui/dialog-new-task": [
+    "apps/web/src/todos/components/CreateTodoPanel.tsx",
+    "apps/web/src/todos/components/TodoDialog.tsx",
+    "apps/web/src/todos/components/TodoForm.tsx"
+  ],
+  "ui/dialog-new-task-with-errors": [
+    "apps/web/src/todos/components/TodoForm.tsx",
+    "packages/shared/src/todo.ts"
+  ],
+  "ui/dialog-task-details": [
+    "apps/web/src/todos/components/TodoDetailsPanel.tsx",
+    "apps/web/src/todos/components/TodoDialog.tsx",
+    "apps/web/src/todos/format.ts"
+  ],
+  "ui/dialog-edit-task": [
+    "apps/web/src/todos/components/TodoDetailsPanel.tsx",
+    "apps/web/src/todos/components/TodoForm.tsx"
+  ],
+  "ui/dialog-delete-confirmation": ["apps/web/src/todos/components/TodoDetailsPanel.tsx"],
+  "ui/dialog-changed-elsewhere": [
+    "apps/web/src/todos/components/TodoDetailsPanel.tsx",
+    "apps/web/src/todos/components/TodoForm.tsx"
+  ],
+  "ui/dialog-task-no-longer-exists": ["apps/web/src/todos/components/TodoDetailsPanel.tsx"]
+}
