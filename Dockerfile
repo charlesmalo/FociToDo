@@ -50,6 +50,8 @@ RUN --mount=type=cache,target=/root/.npm \
 
 # Runtime: non-root, compiled JavaScript + production dependencies + migrations.
 FROM node:24.21-alpine AS api
+# This stage starts from node again, so it does not inherit the base stage's TZ (`migrate` builds FROM api).
+ENV TZ=UTC
 ENV NODE_ENV=production
 WORKDIR /repo
 COPY --from=api-prod-deps --chown=node:node /repo/node_modules ./node_modules

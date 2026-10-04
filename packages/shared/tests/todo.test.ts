@@ -319,3 +319,23 @@ describe('TodoViewSchema', () => {
     expect(TodoViewSchema.safeParse({ ...view, version: 0 }).success).toBe(false);
   });
 });
+
+describe('unpaired surrogates', () => {
+  it.each([
+    ['a lone high surrogate', 'a\ud800'],
+    ['a lone low surrogate', '\udc00b'],
+  ])('rejects %s in title and description', (_label, text) => {
+    expect(CreateTodoSchema.safeParse({ title: text }).error?.issues[0]?.message).toBe(
+      'Title must not contain an unpaired surrogate character',
+    );
+    expect(
+      CreateTodoSchema.safeParse({ title: 'x', description: text }).error?.issues[0]?.message,
+    ).toBe('Description must not contain an unpaired surrogate character');
+  });
+
+  it('accepts a valid surrogate pair (emoji)', () => {
+    expect(CreateTodoSchema.parse({ title: 'Ship 🚀', description: '✅ 🎉' }).title).toBe(
+      'Ship 🚀',
+    );
+  });
+});

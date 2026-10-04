@@ -35,6 +35,18 @@ test.describe('API through the nginx proxy', () => {
     expect(stale.status()).toBe(412);
   });
 
+  test('never answers a conditional GET with 304, and marks responses no-store', async ({
+    request,
+  }) => {
+    const created = await request.post('/api/todos', { data: { title: uniqueTitle('No 304') } });
+    const location = created.headers().location as string;
+    const etag = created.headers().etag as string;
+    const response = await request.get(location, { headers: { 'If-None-Match': etag } });
+    expect(response.status()).toBe(200);
+    expect(response.headers()['cache-control']).toBe('no-store');
+    expect((await response.json()).title).toContain('No 304');
+  });
+
   test('passes the Idempotency-Key header (replay)', async ({ request }) => {
     const key = uniqueTitle('key').replace(/\s/g, '-');
     const body = { title: uniqueTitle('Once') };

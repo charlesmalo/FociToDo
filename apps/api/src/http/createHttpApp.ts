@@ -3,6 +3,7 @@ import type { Logger } from 'pino';
 import { pinoHttp } from 'pino-http';
 import type { HealthService } from '../service/HealthService.js';
 import type { TodoService } from '../service/TodoService.js';
+import { apiCacheHeaders } from './apiCacheHeaders.js';
 import { errorHandler, notFoundHandler } from './errorHandler.js';
 import { createHealthRouter } from './healthRoutes.js';
 import { createTodoRouter } from './todoRoutes.js';
@@ -21,6 +22,8 @@ export function createHttpApp({ todoService, healthService, logger }: HttpDepend
   // ETags are version-based and set explicitly; Express's automatic body-hash ETags would conflict.
   app.set('etag', false);
   app.use(pinoHttp({ logger }));
+  // Before the body parser, so its 400 and 413 problem responses are `no-store` too.
+  app.use('/api', apiCacheHeaders);
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use('/api', createHealthRouter(healthService));
   app.use('/api', createTodoRouter(todoService));

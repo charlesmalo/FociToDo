@@ -439,3 +439,69 @@ describe('unknown routes', () => {
     expect(response.headers['content-type']).toMatch(PROBLEM_JSON);
   });
 });
+
+describe('caching', () => {
+  it('ignores If-None-Match: a matching ETag still returns 200, no-store', async () => {
+    const created = await createTodo();
+    const response = await api()
+      .get(`/api/todos/${created.body.id}`)
+      .set('If-None-Match', String(created.headers.etag));
+    expect(response.status).toBe(200);
+    expect(response.body.id).toBe(created.body.id);
+    expect(response.headers['cache-control']).toBe('no-store');
+  });
+
+  it('marks problem responses no-store, including body-parser failures', async () => {
+    const notFound = await api().get(`/api/todos/${todoId(999)}`);
+    const malformed = await api()
+      .post('/api/todos')
+      .set('Content-Type', 'application/json')
+      .send('{');
+    const tooLarge = await api()
+      .post('/api/todos')
+      .send({ title: 'x', description: 'y'.repeat(17 * 1024) });
+    expect([notFound.status, malformed.status, tooLarge.status]).toEqual([404, 400, 413]);
+    for (const response of [notFound, malformed, tooLarge]) {
+      expect(response.headers['cache-control']).toBe('no-store');
+    }
+  });
+});
+
+describe('lone surrogates', () => {
+  const titleMessage = 'Title must not contain an unpaired surrogate character';
+  const descriptionMessage = 'Description must not contain an unpaired surrogate character';
+  const raw = (method: 'post' | 'patch', url: string, body: string) =>
+    api()[method](url).set('Content-Type', 'application/json').send(body);
+
+  it.each([
+    ['with an Idempotency-Key', true],
+    ['without one', false],
+  ])('rejects a lone surrogate in a created title %s', async (_label, keyed) => {
+    const req = api().post('/api/todos').set('Content-Type', 'application/json');
+    const response = await (keyed ? req.set('Idempotency-Key', 'surrogate-1') : req).send(
+      '{"title":"a\\ud800"}',
+    );
+    expect(response.status).toBe(400);
+    expect(response.headers['content-type']).toMatch(PROBLEM_JSON);
+    expect(response.body.errors).toEqual([{ field: 'title', message: titleMessage }]);
+  });
+
+  it('rejects a lone surrogate in a created description', async () => {
+    const response = await raw('post', '/api/todos', '{"title":"x","description":"\\udc00"}');
+    expect(response.status).toBe(400);
+    expect(response.headers['content-type']).toMatch(PROBLEM_JSON);
+    expect(response.body.errors).toEqual([{ field: 'description', message: descriptionMessage }]);
+  });
+
+  it('rejects a lone surrogate in an updated title', async () => {
+    const created = await createTodo();
+    const response = await api()
+      .patch(`/api/todos/${created.body.id}`)
+      .set('Content-Type', 'application/json')
+      .set('If-Match', String(created.headers.etag))
+      .send('{"title":"\\ud800"}');
+    expect(response.status).toBe(400);
+    expect(response.headers['content-type']).toMatch(PROBLEM_JSON);
+    expect(response.body.errors).toEqual([{ field: 'title', message: titleMessage }]);
+  });
+});
