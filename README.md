@@ -32,6 +32,10 @@ Expected: `curl` prints something like `{"status":"ok","db":"up","schemaVersion"
 | --------------------- | ------- |
 | http://localhost:8080 | The app |
 
+Click a task, then **Edit**, to change its title, description, due date or due time:
+
+![Editing a task: due date and time](docs/images/edit-dialog.png)
+
 **API reference:** open [`docs/api/index.html`](docs/api/index.html) in a browser (generated from `apps/api/openapi.json`; works offline).
 
 Port 8080 busy? Copy `.env.example` to `.env` and set `WEB_PORT`.
@@ -100,7 +104,7 @@ Exit code `0` means every journey passed. Report: `reports/e2e/index.html`.
 
 - **Port 8080 already in use:** copy `.env.example` to `.env` and set `WEB_PORT`.
 - **Can the stack and the tests run at the same time?** Yes — the test profile uses its own throwaway `db-test` Postgres, isolated from the stack's `db`.
-- **Linux: `reports/` or `docs/diagrams/` owned by root:** files under `reports/` are created by the container user, and the `diagrams` generator runs as root to write into the bind-mounted checkout; remove either with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` (swap in `/w/docs/diagrams` for the images) or `sudo`.
+- **Linux: `reports/`, `docs/diagrams/` or `docs/images/` owned by root:** files under `reports/` are created by the container user, and the `diagrams` and `screenshots` generators run as root to write into the bind-mounted checkout; remove any of them with `docker run --rm -v "$PWD":/w alpine rm -rf /w/reports` (swap in `/w/docs/diagrams` or `/w/docs/images` for the images) or `sudo`.
 
 ### For AI agents
 
@@ -138,6 +142,8 @@ flowchart LR
 ## Documentation and diagrams
 
 Every diagram is a Mermaid block in the document that explains it, shown as a generated image with its source collapsed underneath. Changed a diagram? Run `docker compose --profile docs run --rm --build diagrams` — the test gate fails until images match their source.
+
+Each diagram also declares the source files it depicts in [`docs/diagram-depicts.json`](docs/diagram-depicts.json), and the regenerate command stamps their hash into the diagram manifest: when a depicted file changes, the gate flags the diagram until it has been reviewed against the code and re-stamped. The screenshots in `docs/images/` are generated the same way, from the built web app with the API answered from fixtures: after a UI change, run `docker compose --profile docs run --rm --build screenshots` — the gate fails until they are regenerated from the current UI sources.
 
 **This README**
 
@@ -264,8 +270,10 @@ packages/diagrams/ Diagram extraction, checks and generator
 apps/api/          Express API: domain · service · repository (postgres, in-memory) · http
 apps/web/          React app: api client · todo feature · styles
 e2e/               Playwright journeys
+screenshots/       Playwright scenes and fixtures that generate the README screenshots
 docs/              Guides, ADRs, spec and plan
 docs/diagrams/     Generated diagram images (do not edit)
-Dockerfile         One multi-stage build: test · api · migrate · diagrams · web · e2e
+docs/images/       Generated screenshots and their manifest (do not edit)
+Dockerfile         One multi-stage build: test · api · migrate · diagrams · screenshots · web · e2e
 compose.yaml       Default stack + test/dev/docs profiles; compose.e2e.yaml overlay
 ```

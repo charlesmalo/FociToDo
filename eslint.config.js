@@ -28,7 +28,12 @@ export default defineConfig(
     settings: {
       'import-x/resolver-next': [
         createTypeScriptImportResolver({
-          project: ['packages/*/tsconfig.json', 'apps/*/tsconfig.json', 'e2e/tsconfig.json'],
+          project: [
+            'packages/*/tsconfig.json',
+            'apps/*/tsconfig.json',
+            'e2e/tsconfig.json',
+            'screenshots/tsconfig.json',
+          ],
           conditionNames: ['@foci/source', 'types', 'import', 'default'],
         }),
       ],

@@ -12,6 +12,11 @@ export function memoryRepo(initial: Record<string, string> = {}): Repo & {
       if (content === undefined) throw new Error(`ENOENT: ${path}`);
       return content;
     },
+    readBytes: (path) => {
+      const content = files.get(path);
+      if (content === undefined) throw new Error(`ENOENT: ${path}`);
+      return new TextEncoder().encode(content);
+    },
     exists: (path) => files.has(path),
     list: (dir) => [...files.keys()].filter((path) => path.startsWith(`${dir}/`)).sort(),
     write: (path, content) => {

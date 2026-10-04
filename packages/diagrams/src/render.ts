@@ -1,4 +1,5 @@
 import { collectDiagrams, duplicateIds } from './check.js';
+import { depictsStamps } from './depicts.js';
 import { buildManifest, serialiseManifest, type Manifest } from './manifest.js';
 import { DIAGRAMS_DIR, imagePath, MANIFEST_PATH } from './paths.js';
 import type { Repo } from './repo.js';
@@ -6,11 +7,15 @@ import type { Repo } from './repo.js';
 /** Turns one diagram's Mermaid text into SVG markup. */
 export type Renderer = (source: string) => Promise<string>;
 
-/** Renders every diagram, deletes orphan images, then writes the manifest (last, so a failure leaves none). */
+/**
+ * Stamps what each diagram depicts, renders every diagram, deletes orphan images, then writes the
+ * manifest (last, so a failure leaves none). A missing declaration stops it before anything changes.
+ */
 export async function renderRepository(repo: Repo, render: Renderer): Promise<Manifest> {
   const diagrams = collectDiagrams(repo);
   const duplicates = duplicateIds(diagrams);
   if (duplicates.length > 0) throw new Error(duplicates.join('\n'));
+  const stamps = depictsStamps(repo, diagrams);
 
   repo.remove(MANIFEST_PATH);
   for (const diagram of diagrams) {
@@ -34,7 +39,7 @@ export async function renderRepository(repo: Repo, render: Renderer): Promise<Ma
     if (path.endsWith('.svg') && !images.has(path)) repo.remove(path);
   }
 
-  const manifest = buildManifest(diagrams);
+  const manifest = buildManifest(diagrams, stamps);
   repo.write(MANIFEST_PATH, serialiseManifest(manifest));
   return manifest;
 }

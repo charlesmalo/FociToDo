@@ -200,6 +200,10 @@ block-beta
 
 </details>
 
+The same dialog in the app, generated from the built web app by the screenshots command:
+
+![Editing a task: due date and time](images/edit-dialog.png)
+
 ## Dialog — delete confirmation
 
 After Delete is clicked in task details, before the deletion is confirmed.

@@ -116,6 +116,17 @@ services:
     volumes:
       - .:/repo
 
+  # Regenerates docs/images/ (README screenshots) from the built web app with /api mocked from fixtures.
+  screenshots:
+    build:
+      context: .
+      target: screenshots
+    profiles: [docs]
+    # Root for the same reason as diagrams: it writes into the bind-mounted checkout.
+    user: root
+    volumes:
+      - .:/repo
+
 volumes:
   dev_node_modules:
   pgdata:

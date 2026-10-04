@@ -7,6 +7,7 @@ import {
   duplicateIds,
   sourceFiles,
 } from '../src/check.js';
+import { DEPICTS_PATH, depictsStamps } from '../src/depicts.js';
 import { extractDiagrams } from '../src/extract.js';
 import { buildManifest, serialiseManifest } from '../src/manifest.js';
 import { fsRepo } from '../src/repo.js';
@@ -33,13 +34,17 @@ const readme =
 /** A repository whose single diagram is fully up to date. */
 function currentRepo() {
   const diagrams = extractDiagrams('docs/api.md', apiDoc);
-  return memoryRepo({
+  const repo = memoryRepo({
     'README.md': readme,
     'docs/api.md': apiDoc,
     'docs/decisions/0001-x.md': '```mermaid\nflowchart LR\n```',
     'docs/diagrams/api/list-get-api-todos.svg': '<svg/>',
-    'docs/diagrams/manifest.json': serialiseManifest(buildManifest(diagrams)),
+    [DEPICTS_PATH]: JSON.stringify({ 'api/list-get-api-todos': ['src/routes.ts'] }),
+    'src/routes.ts': 'routes',
   });
+  const manifest = buildManifest(diagrams, depictsStamps(repo, diagrams));
+  repo.write('docs/diagrams/manifest.json', serialiseManifest(manifest));
+  return repo;
 }
 
 describe('sourceFiles and collectDiagrams', () => {
@@ -131,8 +136,35 @@ describe('checkRepository', () => {
   });
 });
 
+describe('checkRepository and depicted sources', () => {
+  it('reports a diagram whose depicted sources changed', () => {
+    const repo = currentRepo();
+    repo.write('src/routes.ts', 'routes, changed');
+    expect(checkRepository(repo)).toEqual([
+      `api/list-get-api-todos: its depicted sources changed — review the diagram against the code, update it if needed, then ${FIX}`,
+    ]);
+  });
+
+  it('reports a deleted depicted file by name', () => {
+    const repo = currentRepo();
+    repo.remove('src/routes.ts');
+    expect(checkRepository(repo)).toEqual([
+      'api/list-get-api-todos: depicts missing file src/routes.ts',
+    ]);
+  });
+
+  it('leaves depicted sources unchecked while the manifest is unreadable', () => {
+    const repo = currentRepo();
+    repo.write('docs/diagrams/manifest.json', 'not json');
+    repo.remove('src/routes.ts');
+    expect(checkRepository(repo)).toEqual([
+      `docs/diagrams/manifest.json is unreadable (docs/diagrams/manifest.json is not JSON) — ${FIX}`,
+    ]);
+  });
+});
+
 describe('this repository', () => {
-  it('has a current image, image-first layout and README map row for every diagram', () => {
+  it('has a current image, image-first layout, README map row and depicts stamp for every diagram', () => {
     const root = fileURLToPath(new URL('../../../', import.meta.url));
     expect(checkRepository(fsRepo(root))).toEqual([]);
   });

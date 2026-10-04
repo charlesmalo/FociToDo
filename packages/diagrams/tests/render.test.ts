@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { checkImages, collectDiagrams } from '../src/check.js';
+import { DEPICTS_PATH } from '../src/depicts.js';
+import { hashFiles } from '../src/hash.js';
 import { parseManifest } from '../src/manifest.js';
 import { renderRepository } from '../src/render.js';
 import { memoryRepo } from './support/memoryRepo.js';
@@ -7,6 +9,11 @@ import { memoryRepo } from './support/memoryRepo.js';
 const docs = {
   'README.md': '## Design overview\n```mermaid\nflowchart LR\n  A-->B\n```\n',
   'docs/api.md': '### List — `GET /api/todos`\n```mermaid\nsequenceDiagram\n```\n',
+  [DEPICTS_PATH]: JSON.stringify({
+    'readme/design-overview': [],
+    'api/list-get-api-todos': ['src/routes.ts'],
+  }),
+  'src/routes.ts': 'routes',
 };
 
 describe('renderRepository', () => {
@@ -22,6 +29,28 @@ describe('renderRepository', () => {
     expect(repo.exists('docs/diagrams/api/list-get-api-todos.svg')).toBe(true);
     expect(parseManifest(repo.read('docs/diagrams/manifest.json'))).toEqual(manifest);
     expect(checkImages(repo, collectDiagrams(repo))).toEqual([]);
+  });
+
+  it('stamps each diagram with the hash of the files it depicts', async () => {
+    const repo = memoryRepo(docs);
+    const manifest = await renderRepository(repo, async () => '<svg/>');
+    expect(manifest.diagrams.map(({ id, depictsHash }) => [id, depictsHash])).toEqual([
+      ['readme/design-overview', hashFiles(repo, [])],
+      ['api/list-get-api-todos', hashFiles(repo, ['src/routes.ts'])],
+    ]);
+  });
+
+  it('refuses to render or write a manifest while a diagram has no declaration', async () => {
+    const repo = memoryRepo({
+      ...docs,
+      [DEPICTS_PATH]: JSON.stringify({ 'readme/design-overview': [] }),
+    });
+    const render = vi.fn(async () => '<svg/>');
+    await expect(renderRepository(repo, render)).rejects.toThrow(
+      `api/list-get-api-todos: no entry in ${DEPICTS_PATH}`,
+    );
+    expect(render).not.toHaveBeenCalled();
+    expect(repo.exists('docs/diagrams/manifest.json')).toBe(false);
   });
 
   it('deletes orphan images but keeps other files', async () => {

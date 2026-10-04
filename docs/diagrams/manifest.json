@@ -5,224 +5,256 @@
       "file": "README.md",
       "heading": "Design overview",
       "image": "docs/diagrams/readme/design-overview.svg",
-      "hash": "28adcc1a4d4e3532344eb80177571efd5cf194a4c76a0d6e0cdbbd2ac6672d81"
+      "hash": "28adcc1a4d4e3532344eb80177571efd5cf194a4c76a0d6e0cdbbd2ac6672d81",
+      "depictsHash": "8be49367955fbbf1b99aa2c19fc205bd9e40e4c6cf816ade2304414b918bdf5a"
     },
     {
       "id": "readme/how-this-was-built",
       "file": "README.md",
       "heading": "How this was built",
       "image": "docs/diagrams/readme/how-this-was-built.svg",
-      "hash": "c9a7e1a2f9545f0af62769af812db49810eef06d1392032f39202683f4162d0d"
+      "hash": "c9a7e1a2f9545f0af62769af812db49810eef06d1392032f39202683f4162d0d",
+      "depictsHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "id": "api/create-post-api-todos",
       "file": "docs/api.md",
       "heading": "Create — POST /api/todos",
       "image": "docs/diagrams/api/create-post-api-todos.svg",
-      "hash": "555eea39622c72856772b0d93ec8b97d659015f822c60eb9644abe8d57239c6e"
+      "hash": "555eea39622c72856772b0d93ec8b97d659015f822c60eb9644abe8d57239c6e",
+      "depictsHash": "66b854702c54623cb50db02a9d2befed4b74c7c20912e7cc433d7dff3ac4fb0f"
     },
     {
       "id": "api/list-get-api-todos",
       "file": "docs/api.md",
       "heading": "List — GET /api/todos",
       "image": "docs/diagrams/api/list-get-api-todos.svg",
-      "hash": "2347c03dbbd3de3c46b91c64dac26efe2a9c1145e62e7124767a4e018d8aab69"
+      "hash": "2347c03dbbd3de3c46b91c64dac26efe2a9c1145e62e7124767a4e018d8aab69",
+      "depictsHash": "2e8ee66d045984da5ed72cde93f758f409526d3c03c3f085eb1c81a13f2140a5"
     },
     {
       "id": "api/view-get-api-todos-id",
       "file": "docs/api.md",
       "heading": "View — GET /api/todos/{id}",
       "image": "docs/diagrams/api/view-get-api-todos-id.svg",
-      "hash": "3328b710485dd974a2ad0630686640bef334dc2fd59c4ef10568fbfb895a86dd"
+      "hash": "3328b710485dd974a2ad0630686640bef334dc2fd59c4ef10568fbfb895a86dd",
+      "depictsHash": "620af7f86396b019d9fcf7456109fb2ddf379de5c74092ae18ed1ad4c05ac23c"
     },
     {
       "id": "api/update-patch-api-todos-id",
       "file": "docs/api.md",
       "heading": "Update — PATCH /api/todos/{id}",
       "image": "docs/diagrams/api/update-patch-api-todos-id.svg",
-      "hash": "2380e90343335dfbecbe5a8b650e128e9c988f538e6464b4ef4eb25c7a4dd35c"
+      "hash": "2380e90343335dfbecbe5a8b650e128e9c988f538e6464b4ef4eb25c7a4dd35c",
+      "depictsHash": "2c800532f2572a430f29bb1394f4b36a0cc87189ab10bfa0a6d62ec0acf81b12"
     },
     {
       "id": "api/complete-post-api-todos-id-complete",
       "file": "docs/api.md",
       "heading": "Complete — POST /api/todos/{id}/complete",
       "image": "docs/diagrams/api/complete-post-api-todos-id-complete.svg",
-      "hash": "d770c1bbf39a009abda4e58b6c762b0fa3999a656a18a6db62035ac6411406aa"
+      "hash": "d770c1bbf39a009abda4e58b6c762b0fa3999a656a18a6db62035ac6411406aa",
+      "depictsHash": "5668199e1e545cc5e539a36f6097b333fed6143a5f138ab4dde23838bb71685b"
     },
     {
       "id": "api/incomplete-post-api-todos-id-incomplete",
       "file": "docs/api.md",
       "heading": "Incomplete — POST /api/todos/{id}/incomplete",
       "image": "docs/diagrams/api/incomplete-post-api-todos-id-incomplete.svg",
-      "hash": "ac384a82d5aa11ad35517626cba7dcae850660d921e034707641899162ab2350"
+      "hash": "ac384a82d5aa11ad35517626cba7dcae850660d921e034707641899162ab2350",
+      "depictsHash": "5668199e1e545cc5e539a36f6097b333fed6143a5f138ab4dde23838bb71685b"
     },
     {
       "id": "api/delete-delete-api-todos-id",
       "file": "docs/api.md",
       "heading": "Delete — DELETE /api/todos/{id}",
       "image": "docs/diagrams/api/delete-delete-api-todos-id.svg",
-      "hash": "f2f5f45155416cc95572cc63141b451a6d1c05a2f80efc4464e20f9a4db827ea"
+      "hash": "f2f5f45155416cc95572cc63141b451a6d1c05a2f80efc4464e20f9a4db827ea",
+      "depictsHash": "ed8981cd2d3b14236906fa4fa005cfe34bcf943733ee8eefcbc9a515a1730c51"
     },
     {
       "id": "architecture/system-context",
       "file": "docs/architecture.md",
       "heading": "System context",
       "image": "docs/diagrams/architecture/system-context.svg",
-      "hash": "071f3c75d174297b8dbe550692d7d11027bb7682645ba0a876f0e4fdbbccaea7"
+      "hash": "071f3c75d174297b8dbe550692d7d11027bb7682645ba0a876f0e4fdbbccaea7",
+      "depictsHash": "8be49367955fbbf1b99aa2c19fc205bd9e40e4c6cf816ade2304414b918bdf5a"
     },
     {
       "id": "architecture/deployment-and-startup-order",
       "file": "docs/architecture.md",
       "heading": "Deployment and startup order",
       "image": "docs/diagrams/architecture/deployment-and-startup-order.svg",
-      "hash": "5a50a9a0373b580b6aa81e65d5ce21e534e3b1946e3a27c2785a281a65da4b31"
+      "hash": "5a50a9a0373b580b6aa81e65d5ce21e534e3b1946e3a27c2785a281a65da4b31",
+      "depictsHash": "5e48e305e888fa5364e0d785e916996485cfd96cec875f9130116d4931a8edae"
     },
     {
       "id": "architecture/backend-layers",
       "file": "docs/architecture.md",
       "heading": "Backend layers",
       "image": "docs/diagrams/architecture/backend-layers.svg",
-      "hash": "9239ff223a6d6f13dc690af0ae85f5b1e18cf7dd357bf5583bade9e37576838d"
+      "hash": "9239ff223a6d6f13dc690af0ae85f5b1e18cf7dd357bf5583bade9e37576838d",
+      "depictsHash": "a61730f515e79d56e96b7b5c168cc8ee407e687f4c67fddfaa1ec9542daa9944"
     },
     {
       "id": "architecture/domain-model",
       "file": "docs/architecture.md",
       "heading": "Domain model",
       "image": "docs/diagrams/architecture/domain-model.svg",
-      "hash": "ed062534132fe094cdd1525a1bba5a68fc74719d0dbaa28e88b0121366c5bddf"
+      "hash": "ed062534132fe094cdd1525a1bba5a68fc74719d0dbaa28e88b0121366c5bddf",
+      "depictsHash": "e80edf430809558e184743dd588d97a7ba13f741c7dbcf80ce4d8223534799c5"
     },
     {
       "id": "architecture/data-model",
       "file": "docs/architecture.md",
       "heading": "Data model",
       "image": "docs/diagrams/architecture/data-model.svg",
-      "hash": "d98b08c8834b5919ae969389e7576016a4b5e40e261c0f29b4bc9115e0218298"
+      "hash": "d98b08c8834b5919ae969389e7576016a4b5e40e261c0f29b4bc9115e0218298",
+      "depictsHash": "7f2d37da3d36cf11de72fcceb45291ed8c975038e11e160d6a808591a7bf138e"
     },
     {
       "id": "architecture/frontend",
       "file": "docs/architecture.md",
       "heading": "Frontend",
       "image": "docs/diagrams/architecture/frontend.svg",
-      "hash": "af44151d4c88fcaaacea4022f8e76b16f33a40cedbdf2356fe116ebf6ff15f4c"
+      "hash": "af44151d4c88fcaaacea4022f8e76b16f33a40cedbdf2356fe116ebf6ff15f4c",
+      "depictsHash": "08b5f58f8878dbf3f66523f4a4b90080d0caf9ba1bccaf489922804960794aa6"
     },
     {
       "id": "concurrency/lost-update-prevented",
       "file": "docs/concurrency.md",
       "heading": "Lost update, prevented",
       "image": "docs/diagrams/concurrency/lost-update-prevented.svg",
-      "hash": "03a27ecc7920b8e0622314156a45b873fde99a7b5df90db25a040c88bbbda4e1"
+      "hash": "03a27ecc7920b8e0622314156a45b873fde99a7b5df90db25a040c88bbbda4e1",
+      "depictsHash": "a056330483f57b9b7b40eb1af712cc700f23bc40292a05f5a488f6f865449bb4"
     },
     {
       "id": "concurrency/double-submit-absorbed",
       "file": "docs/concurrency.md",
       "heading": "Double submit, absorbed",
       "image": "docs/diagrams/concurrency/double-submit-absorbed.svg",
-      "hash": "5d96293c85d46e1459730df2e6466a3b1718770f569df3900b90785edc433326"
+      "hash": "5d96293c85d46e1459730df2e6466a3b1718770f569df3900b90785edc433326",
+      "depictsHash": "68d151cc79b432992f04cf4f0973c3a0c6a53ab71ed1161e1358d09179c17122"
     },
     {
       "id": "concurrency/parallel-completes-one-change",
       "file": "docs/concurrency.md",
       "heading": "Parallel completes, one change",
       "image": "docs/diagrams/concurrency/parallel-completes-one-change.svg",
-      "hash": "bc8a6c52d4aad178a7f44d84e4a7ce2a8c8623eff16f2e73c249507e0bf9b175"
+      "hash": "bc8a6c52d4aad178a7f44d84e4a7ce2a8c8623eff16f2e73c249507e0bf9b175",
+      "depictsHash": "a056330483f57b9b7b40eb1af712cc700f23bc40292a05f5a488f6f865449bb4"
     },
     {
       "id": "testing/layers",
       "file": "docs/testing.md",
       "heading": "Layers",
       "image": "docs/diagrams/testing/layers.svg",
-      "hash": "adc8189706314a628029db41c9a8fcd72d2b257ad930d5b0b4a43ef1c07d10f5"
+      "hash": "adc8189706314a628029db41c9a8fcd72d2b257ad930d5b0b4a43ef1c07d10f5",
+      "depictsHash": "294546d63fbd47181e19ffa7615f8c4e1e8b4a1acedb26d1f99a1caf976f4d95"
     },
     {
       "id": "ui/task-list-loading",
       "file": "docs/ui.md",
       "heading": "Task list — loading",
       "image": "docs/diagrams/ui/task-list-loading.svg",
-      "hash": "fdebfabacded804425b670ebd1b1aef63ac6685b46cddc2959b55dade1040a60"
+      "hash": "fdebfabacded804425b670ebd1b1aef63ac6685b46cddc2959b55dade1040a60",
+      "depictsHash": "fc2da0c1a8d3d1e1ab3c9feb9b0f39456e77ed8d2d561c2fd1a3cebc1d3f926f"
     },
     {
       "id": "ui/task-list-empty",
       "file": "docs/ui.md",
       "heading": "Task list — empty",
       "image": "docs/diagrams/ui/task-list-empty.svg",
-      "hash": "46842d79ea34b5f2ef06c0c90718cbe2026f39bb02efb55c190a6b38a6892966"
+      "hash": "46842d79ea34b5f2ef06c0c90718cbe2026f39bb02efb55c190a6b38a6892966",
+      "depictsHash": "fc2da0c1a8d3d1e1ab3c9feb9b0f39456e77ed8d2d561c2fd1a3cebc1d3f926f"
     },
     {
       "id": "ui/task-list-with-tasks",
       "file": "docs/ui.md",
       "heading": "Task list — with tasks",
       "image": "docs/diagrams/ui/task-list-with-tasks.svg",
-      "hash": "f1f4b7f236832fe008c8157aa1fb2f162f7fb58f3f145ce2e9523a07153c7785"
+      "hash": "f1f4b7f236832fe008c8157aa1fb2f162f7fb58f3f145ce2e9523a07153c7785",
+      "depictsHash": "c832731080def26ac0bfbf3d79777ddec2dac32dc14684099b0c3f8eb1db0535"
     },
     {
       "id": "ui/task-list-no-match",
       "file": "docs/ui.md",
       "heading": "Task list — no match",
       "image": "docs/diagrams/ui/task-list-no-match.svg",
-      "hash": "71a234f05c6f284daa67cfe640da6df0e3f5dcd72cb46ac0eea26af3354c94fd"
+      "hash": "71a234f05c6f284daa67cfe640da6df0e3f5dcd72cb46ac0eea26af3354c94fd",
+      "depictsHash": "b5982976a814f04441b756b94377685f5027ba46b1d83b05d2b89ce351feedf1"
     },
     {
       "id": "ui/task-list-load-error",
       "file": "docs/ui.md",
       "heading": "Task list — load error",
       "image": "docs/diagrams/ui/task-list-load-error.svg",
-      "hash": "dd1fd3ef16cd45fd7f0358d60660de1c72084b51315eb5a6ab6196256e007116"
+      "hash": "dd1fd3ef16cd45fd7f0358d60660de1c72084b51315eb5a6ab6196256e007116",
+      "depictsHash": "5c79ee5631a85af595ec82e9eb967af0e7823f5932de0664d0f94d40ebb9634d"
     },
     {
       "id": "ui/filters-and-sorting",
       "file": "docs/ui.md",
       "heading": "Filters and sorting",
       "image": "docs/diagrams/ui/filters-and-sorting.svg",
-      "hash": "3fad5591b2ff099632bdad7ce939be7ef840c4633131f97a18f3630800b77b66"
+      "hash": "3fad5591b2ff099632bdad7ce939be7ef840c4633131f97a18f3630800b77b66",
+      "depictsHash": "db743bcbfbbc925b63b9c5204877ae35cbd5ea448e838cfd4b47b2f424e6ccb6"
     },
     {
       "id": "ui/dialog-new-task",
       "file": "docs/ui.md",
       "heading": "Dialog — new task",
       "image": "docs/diagrams/ui/dialog-new-task.svg",
-      "hash": "ba599e1ce4ca8174a4badd4677b02e0167ed836e7c6747c7d61af88d72d79e30"
+      "hash": "ba599e1ce4ca8174a4badd4677b02e0167ed836e7c6747c7d61af88d72d79e30",
+      "depictsHash": "ed7023e46b565caa865351241596ebb1745d67a8b0a773d7214325f69dd414df"
     },
     {
       "id": "ui/dialog-new-task-with-errors",
       "file": "docs/ui.md",
       "heading": "Dialog — new task with errors",
       "image": "docs/diagrams/ui/dialog-new-task-with-errors.svg",
-      "hash": "f2cea914dc3b9dd613e62fb091718277c0dea0ccd9e24f1f0f20618c7be56486"
+      "hash": "f2cea914dc3b9dd613e62fb091718277c0dea0ccd9e24f1f0f20618c7be56486",
+      "depictsHash": "f72c32d87b0e0e844ccb9d7f09add8096f6d69984f9228020903a8c592e1de4c"
     },
     {
       "id": "ui/dialog-task-details",
       "file": "docs/ui.md",
       "heading": "Dialog — task details",
       "image": "docs/diagrams/ui/dialog-task-details.svg",
-      "hash": "3d4d182803f4f0a71cf1ef14f7faf50e251a2a47428ce44ad01b7c8ec4180721"
+      "hash": "3d4d182803f4f0a71cf1ef14f7faf50e251a2a47428ce44ad01b7c8ec4180721",
+      "depictsHash": "0d58b08deae9c9ea890e379fac39a3d3529c6197df40d9666cb1a002f61b7909"
     },
     {
       "id": "ui/dialog-edit-task",
       "file": "docs/ui.md",
       "heading": "Dialog — edit task",
       "image": "docs/diagrams/ui/dialog-edit-task.svg",
-      "hash": "4cb4a9faa748c73ba82d908cb3152db56f55d7c8db54391b89f5a6180a436e8c"
+      "hash": "4cb4a9faa748c73ba82d908cb3152db56f55d7c8db54391b89f5a6180a436e8c",
+      "depictsHash": "7d8335c41f1a08c69c9e7d410ea382298c799ada74de88d8bb81f081b1d7f1b4"
     },
     {
       "id": "ui/dialog-delete-confirmation",
       "file": "docs/ui.md",
       "heading": "Dialog — delete confirmation",
       "image": "docs/diagrams/ui/dialog-delete-confirmation.svg",
-      "hash": "3e636213a4113b97b998c22c8d00816a61e5a798bf7c0611cbac3abfbbfee236"
+      "hash": "3e636213a4113b97b998c22c8d00816a61e5a798bf7c0611cbac3abfbbfee236",
+      "depictsHash": "a2ba2147d15347ce5c0a2450a287dfc61cbfbcb048eeb3b1001c6665b30ce9f7"
     },
     {
       "id": "ui/dialog-changed-elsewhere",
       "file": "docs/ui.md",
       "heading": "Dialog — changed elsewhere",
       "image": "docs/diagrams/ui/dialog-changed-elsewhere.svg",
-      "hash": "af63954bc78aa6bbbc11075cb0aea12e8c9725a56afa1ae10582a54d0fc90c8b"
+      "hash": "af63954bc78aa6bbbc11075cb0aea12e8c9725a56afa1ae10582a54d0fc90c8b",
+      "depictsHash": "7d8335c41f1a08c69c9e7d410ea382298c799ada74de88d8bb81f081b1d7f1b4"
     },
     {
       "id": "ui/dialog-task-no-longer-exists",
       "file": "docs/ui.md",
       "heading": "Dialog — task no longer exists",
       "image": "docs/diagrams/ui/dialog-task-no-longer-exists.svg",
-      "hash": "a6459f53e1c4fb4b61572c67541130b5407df28905596f6c2ddc21df4dba1706"
+      "hash": "a6459f53e1c4fb4b61572c67541130b5407df28905596f6c2ddc21df4dba1706",
+      "depictsHash": "a2ba2147d15347ce5c0a2450a287dfc61cbfbcb048eeb3b1001c6665b30ce9f7"
     }
   ]
 }

@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 describe('fsRepo', () => {
-  it('writes (creating folders), reads, lists recursively in order, and removes files', () => {
+  it('writes (creating folders), reads text and bytes, tells files from folders, lists recursively in order, and removes files', () => {
     const root = mkdtempSync(join(tmpdir(), 'diagrams-repo-'));
     roots.push(root);
     const repo = fsRepo(root);
@@ -18,7 +18,9 @@ describe('fsRepo', () => {
     repo.write('docs/diagrams/a/one.svg', '<svg/>');
     repo.write('docs/api.md', '# API');
     expect(repo.read('docs/api.md')).toBe('# API');
+    expect(repo.readBytes('docs/api.md')).toEqual(new Uint8Array(Buffer.from('# API')));
     expect(repo.exists('docs/api.md')).toBe(true);
+    expect(repo.exists('docs/diagrams')).toBe(false);
     expect(repo.list('docs')).toEqual([
       'docs/api.md',
       'docs/diagrams/a/one.svg',

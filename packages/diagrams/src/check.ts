@@ -1,3 +1,4 @@
+import { checkDepicts } from './depicts.js';
 import { extractDiagrams, type Diagram } from './extract.js';
 import { checkLayout } from './layout.js';
 import { parseManifest, type Manifest } from './manifest.js';
@@ -30,15 +31,21 @@ export function duplicateIds(diagrams: readonly Diagram[]): string[] {
   });
 }
 
-export function checkImages(repo: Repo, diagrams: readonly Diagram[]): string[] {
-  if (!repo.exists(MANIFEST_PATH)) return [`${MANIFEST_PATH} is missing — ${FIX}`];
-  let manifest: Manifest;
+/** The diagram manifest, or the one problem that prevents reading it. */
+function loadManifest(repo: Repo): { manifest: Manifest } | { problem: string } {
+  if (!repo.exists(MANIFEST_PATH)) return { problem: `${MANIFEST_PATH} is missing — ${FIX}` };
   try {
-    manifest = parseManifest(repo.read(MANIFEST_PATH));
+    return { manifest: parseManifest(repo.read(MANIFEST_PATH)) };
   } catch (error) {
     const reason = (error as Error).message;
-    return [`${MANIFEST_PATH} is unreadable (${reason}) — ${FIX}`];
+    return { problem: `${MANIFEST_PATH} is unreadable (${reason}) — ${FIX}` };
   }
+}
+
+export function checkImages(repo: Repo, diagrams: readonly Diagram[]): string[] {
+  const loaded = loadManifest(repo);
+  if ('problem' in loaded) return [loaded.problem];
+  const { manifest } = loaded;
   const entries = new Map(manifest.diagrams.map((entry) => [entry.id, entry] as const));
   const ids = new Set(diagrams.map((diagram) => diagram.id));
   const images = new Set(diagrams.map((diagram) => imagePath(diagram.id)));
@@ -63,9 +70,13 @@ export function checkImages(repo: Repo, diagrams: readonly Diagram[]): string[] 
   return problems;
 }
 
-/** Every rule of spec §2.5; an empty list means the repository's diagrams are current. */
+/**
+ * Every rule of spec §2.5, plus depicted-source freshness (spec 2026-10-03 brief-duedate §5.2);
+ * an empty list means the repository's diagrams are current.
+ */
 export function checkRepository(repo: Repo): string[] {
   const diagrams = collectDiagrams(repo);
+  const loaded = loadManifest(repo);
   const layout = sourceFiles(repo).flatMap((file) =>
     checkLayout(
       repo.read(file),
@@ -75,6 +86,8 @@ export function checkRepository(repo: Repo): string[] {
   return [
     ...duplicateIds(diagrams),
     ...checkImages(repo, diagrams),
+    // An unreadable manifest is reported by checkImages; stamps are checked once it is readable.
+    ...('manifest' in loaded ? checkDepicts(repo, diagrams, loaded.manifest) : []),
     ...layout,
     ...checkReadmeMap(repo.read('README.md'), diagrams),
   ];

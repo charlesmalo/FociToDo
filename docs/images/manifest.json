@@ -1,0 +1,8 @@
+{
+  "inputsHash": "6bca3b5891a7149087cc44786afb66bae0fa6d93dc9cebb5de82f672f67b7c3f",
+  "playwright": "1.63.0",
+  "images": {
+    "docs/images/edit-dialog.png": "aa63ce0f122e754a19d8fac6d37f952e2e5ee3c9cfa726d9add2895868a3be4b",
+    "docs/images/screenshot.png": "e7583f6759782fef3acde7cb96b39e002ab55e4ba07ef6fca38b0ba2e2fcbd08"
+  }
+}

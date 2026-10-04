@@ -7,21 +7,25 @@ export interface ManifestEntry {
   heading: string;
   image: string;
   hash: string;
+  /** sha256 of the source files the diagram depicts, as declared in docs/diagram-depicts.json. */
+  depictsHash: string;
 }
 
 export interface Manifest {
   diagrams: ManifestEntry[];
 }
 
-export function buildManifest(diagrams: readonly Diagram[]): Manifest {
+/** `stamps` maps each diagram id to its depictsHash (see depicts.ts). */
+export function buildManifest(
+  diagrams: readonly Diagram[],
+  stamps: ReadonlyMap<string, string>,
+): Manifest {
   return {
-    diagrams: diagrams.map(({ id, file, heading, hash }) => ({
-      id,
-      file,
-      heading,
-      image: imagePath(id),
-      hash,
-    })),
+    diagrams: diagrams.map(({ id, file, heading, hash }) => {
+      const depictsHash = stamps.get(id);
+      if (depictsHash === undefined) throw new Error(`${id}: no depicts stamp`);
+      return { id, file, heading, image: imagePath(id), hash, depictsHash };
+    }),
   };
 }
 
@@ -29,7 +33,7 @@ export function serialiseManifest(manifest: Manifest): string {
   return `${JSON.stringify(manifest, null, 2)}\n`;
 }
 
-const FIELDS = ['id', 'file', 'heading', 'image', 'hash'] as const;
+const FIELDS = ['id', 'file', 'heading', 'image', 'hash', 'depictsHash'] as const;
 
 function isEntry(value: unknown): value is ManifestEntry {
   return (
