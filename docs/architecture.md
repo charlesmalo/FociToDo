@@ -2,12 +2,12 @@
 
 FociToDo is an npm-workspaces monorepo with four packages and one rule: **dependencies point inward**.
 
-| Package             | Role                                                                                                                   |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `packages/shared`   | The contract: Zod schemas and types used by the API (validation, OpenAPI) and the web app (forms, response validation) |
-| `packages/diagrams` | Dev-only tool: extracts Mermaid diagrams from Markdown and generates `docs/diagrams/`                                  |
-| `apps/api`          | Express API: `http → service → domain`, storage behind ports                                                           |
-| `apps/web`          | React single-page app; only `src/api/todoClient.ts` talks HTTP                                                         |
+| Package             | Role                                                                                                                                                                                                                                                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared`   | The contract: Zod schemas and types used by the API (validation, OpenAPI) and the web app (forms, response validation)                                                                                                                                                                                                    |
+| `packages/diagrams` | Dev-only tool: extracts Mermaid diagrams from Markdown and generates `docs/diagrams/`, stamps each diagram with the sources it depicts (`docs/diagram-depicts.json`) and records the screenshot manifest (`docs/images/manifest.json`); the gate uses it to flag stale diagrams, stale screenshots and hand-edited images |
+| `apps/api`          | Express API: `http → service → domain`, storage behind ports                                                                                                                                                                                                                                                              |
+| `apps/web`          | React single-page app; only `src/api/todoClient.ts` talks HTTP                                                                                                                                                                                                                                                            |
 
 ## System context
 

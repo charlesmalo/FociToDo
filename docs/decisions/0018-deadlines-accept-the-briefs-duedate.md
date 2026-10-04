@@ -18,6 +18,14 @@ Responses return both `dueAt` and `dueDate`, where `dueDate` is the UTC calendar
 - **Negative:** the UTC date can differ from the viewer's local date, so a late-evening deadline west of UTC shows the next day's `dueDate`.
 - **Two spellings:** the request schema documents both fields; the OpenAPI document shows the input shape.
 
+## Migration path
+
+The two fields are the middle step of an expand/contract (parallel change) migration, the way a live API moves to a richer field without breaking the clients it already has:
+
+1. **Model 1 — the brief's contract:** `dueDate` only, a calendar date.
+2. **Model 1 + 2 — expand (current):** both fields are accepted and returned. `dueDate` keeps every client written to the brief working; `dueAt` adds exact time for clients that need it. Sending both is rejected, and the returned `dueDate` is always derived from `dueAt`, so the two can never disagree.
+3. **Model 2 — contract (future goal, not implemented):** once clients have moved to `dueAt`, `dueDate` is first marked deprecated in the API reference and responses, then removed in a breaking version.
+
 ## Alternatives considered
 
 - **Keep rejecting `dueDate`:** simplest, but brief-conformant clients fail.

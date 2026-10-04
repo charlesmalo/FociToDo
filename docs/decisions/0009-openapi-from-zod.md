@@ -12,7 +12,7 @@ Build an OpenAPI 3.1 document from the shared Zod schemas with Zod's built-in `z
 
 ## Consequences
 
-- **Positive:** One source of truth; tests prove every route is documented and every response status matches the document; reviewers can try the API in a browser.
+- **Positive:** One source of truth; tests prove every route is documented and every response status matches the document; the same document renders a static, offline API reference ([ADR 0016](0016-api-docs-as-a-repository-artifact.md)), with no Try-it-out against the running stack.
 - **Negative:** Route metadata (summaries, status lists) is still written by hand next to the routes.
 
 ## Alternatives considered

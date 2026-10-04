@@ -118,7 +118,7 @@
       "heading": "Frontend",
       "image": "docs/diagrams/architecture/frontend.svg",
       "hash": "af44151d4c88fcaaacea4022f8e76b16f33a40cedbdf2356fe116ebf6ff15f4c",
-      "depictsHash": "08b5f58f8878dbf3f66523f4a4b90080d0caf9ba1bccaf489922804960794aa6"
+      "depictsHash": "1d5e4f195e043c928bb118ce29514f335bef4e3e0bdb7eea291f9150692533c8"
     },
     {
       "id": "concurrency/lost-update-prevented",
@@ -158,7 +158,7 @@
       "heading": "Task list — loading",
       "image": "docs/diagrams/ui/task-list-loading.svg",
       "hash": "fdebfabacded804425b670ebd1b1aef63ac6685b46cddc2959b55dade1040a60",
-      "depictsHash": "fc2da0c1a8d3d1e1ab3c9feb9b0f39456e77ed8d2d561c2fd1a3cebc1d3f926f"
+      "depictsHash": "7576569159c6f6844d7ff9a6f998be9707a2a107a29dbac00472828193f37492"
     },
     {
       "id": "ui/task-list-empty",
@@ -166,7 +166,7 @@
       "heading": "Task list — empty",
       "image": "docs/diagrams/ui/task-list-empty.svg",
       "hash": "46842d79ea34b5f2ef06c0c90718cbe2026f39bb02efb55c190a6b38a6892966",
-      "depictsHash": "fc2da0c1a8d3d1e1ab3c9feb9b0f39456e77ed8d2d561c2fd1a3cebc1d3f926f"
+      "depictsHash": "7576569159c6f6844d7ff9a6f998be9707a2a107a29dbac00472828193f37492"
     },
     {
       "id": "ui/task-list-with-tasks",
@@ -174,7 +174,7 @@
       "heading": "Task list — with tasks",
       "image": "docs/diagrams/ui/task-list-with-tasks.svg",
       "hash": "f1f4b7f236832fe008c8157aa1fb2f162f7fb58f3f145ce2e9523a07153c7785",
-      "depictsHash": "c832731080def26ac0bfbf3d79777ddec2dac32dc14684099b0c3f8eb1db0535"
+      "depictsHash": "26c7aa2ebbf9d485e06fc388db2216238cbe5290b2637391b8c8346ca13192cc"
     },
     {
       "id": "ui/task-list-no-match",
@@ -182,7 +182,7 @@
       "heading": "Task list — no match",
       "image": "docs/diagrams/ui/task-list-no-match.svg",
       "hash": "71a234f05c6f284daa67cfe640da6df0e3f5dcd72cb46ac0eea26af3354c94fd",
-      "depictsHash": "b5982976a814f04441b756b94377685f5027ba46b1d83b05d2b89ce351feedf1"
+      "depictsHash": "60f632caff5918167f8d28105b78b5654fd433adb1458d7c68b22195e6f263cc"
     },
     {
       "id": "ui/task-list-load-error",
@@ -190,7 +190,7 @@
       "heading": "Task list — load error",
       "image": "docs/diagrams/ui/task-list-load-error.svg",
       "hash": "dd1fd3ef16cd45fd7f0358d60660de1c72084b51315eb5a6ab6196256e007116",
-      "depictsHash": "5c79ee5631a85af595ec82e9eb967af0e7823f5932de0664d0f94d40ebb9634d"
+      "depictsHash": "903d8efc410948da98bf359af938bde3a6318b8191be371c9a9a5d5aac2f5228"
     },
     {
       "id": "ui/filters-and-sorting",
@@ -206,7 +206,7 @@
       "heading": "Dialog — new task",
       "image": "docs/diagrams/ui/dialog-new-task.svg",
       "hash": "ba599e1ce4ca8174a4badd4677b02e0167ed836e7c6747c7d61af88d72d79e30",
-      "depictsHash": "ed7023e46b565caa865351241596ebb1745d67a8b0a773d7214325f69dd414df"
+      "depictsHash": "317a8914fd4d6bc3a4ad319670cac621f18f974c7d7d456ee93a6c528c0bc31f"
     },
     {
       "id": "ui/dialog-new-task-with-errors",
@@ -214,7 +214,7 @@
       "heading": "Dialog — new task with errors",
       "image": "docs/diagrams/ui/dialog-new-task-with-errors.svg",
       "hash": "f2cea914dc3b9dd613e62fb091718277c0dea0ccd9e24f1f0f20618c7be56486",
-      "depictsHash": "f72c32d87b0e0e844ccb9d7f09add8096f6d69984f9228020903a8c592e1de4c"
+      "depictsHash": "7b445313faf13530783aa06447ffed3b78c18276f18f21a9c29bd9fbae0d278c"
     },
     {
       "id": "ui/dialog-task-details",
@@ -222,7 +222,7 @@
       "heading": "Dialog — task details",
       "image": "docs/diagrams/ui/dialog-task-details.svg",
       "hash": "3d4d182803f4f0a71cf1ef14f7faf50e251a2a47428ce44ad01b7c8ec4180721",
-      "depictsHash": "0d58b08deae9c9ea890e379fac39a3d3529c6197df40d9666cb1a002f61b7909"
+      "depictsHash": "d892a3210baf3f7d6f4f64e058a9da0483e789f78203c70a16f1599ca7e8d3c1"
     },
     {
       "id": "ui/dialog-edit-task",
@@ -230,7 +230,7 @@
       "heading": "Dialog — edit task",
       "image": "docs/diagrams/ui/dialog-edit-task.svg",
       "hash": "4cb4a9faa748c73ba82d908cb3152db56f55d7c8db54391b89f5a6180a436e8c",
-      "depictsHash": "7d8335c41f1a08c69c9e7d410ea382298c799ada74de88d8bb81f081b1d7f1b4"
+      "depictsHash": "0a1742b160acafdabef0a9117c76a506f74b1ee05c5c10f553b17b5e224e21f1"
     },
     {
       "id": "ui/dialog-delete-confirmation",
@@ -238,7 +238,7 @@
       "heading": "Dialog — delete confirmation",
       "image": "docs/diagrams/ui/dialog-delete-confirmation.svg",
       "hash": "3e636213a4113b97b998c22c8d00816a61e5a798bf7c0611cbac3abfbbfee236",
-      "depictsHash": "a2ba2147d15347ce5c0a2450a287dfc61cbfbcb048eeb3b1001c6665b30ce9f7"
+      "depictsHash": "98bfafda06a6fe71ab3180fbd81667a1950490ca7ef9cd89be81147b342d0fe5"
     },
     {
       "id": "ui/dialog-changed-elsewhere",
@@ -246,7 +246,7 @@
       "heading": "Dialog — changed elsewhere",
       "image": "docs/diagrams/ui/dialog-changed-elsewhere.svg",
       "hash": "b554cf69bf8adcae3db42f638a203f0d306d35e0265e0208a802c04742b80c8c",
-      "depictsHash": "7d8335c41f1a08c69c9e7d410ea382298c799ada74de88d8bb81f081b1d7f1b4"
+      "depictsHash": "0a1742b160acafdabef0a9117c76a506f74b1ee05c5c10f553b17b5e224e21f1"
     },
     {
       "id": "ui/dialog-task-no-longer-exists",
@@ -254,7 +254,7 @@
       "heading": "Dialog — task no longer exists",
       "image": "docs/diagrams/ui/dialog-task-no-longer-exists.svg",
       "hash": "a6459f53e1c4fb4b61572c67541130b5407df28905596f6c2ddc21df4dba1706",
-      "depictsHash": "a2ba2147d15347ce5c0a2450a287dfc61cbfbcb048eeb3b1001c6665b30ce9f7"
+      "depictsHash": "98bfafda06a6fe71ab3180fbd81667a1950490ca7ef9cd89be81147b342d0fe5"
     }
   ]
 }

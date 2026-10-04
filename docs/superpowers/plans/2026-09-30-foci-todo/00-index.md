@@ -30,7 +30,7 @@
 - Sorting: `createdAt | dueDate | title`, `asc | desc`; title sorts by `lower(title) COLLATE "C"`; null due dates last in both directions; tie-breakers `created_at DESC, id ASC`. Postgres initialised with `--locale-provider=builtin --builtin-locale=C.UTF-8`.
 - Commits: Conventional Commits with scope; failing test + implementation in the same commit; every commit green; every commit ends with the trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Git author is repo-local `Charles Malo <8965788+charlesmalo@users.noreply.github.com>` (already configured).
 - Branches: one branch per PR file below, merged into `main` with a merge commit after curation (fixups autosquashed non-interactively). Never rewrite `main`.
-- Never mention hours, time spent, or "core vs extension" tiers in any committed file.
+- Committed text covers only the code, its behaviour and the decisions behind it.
 
 ## Review Focus
 

@@ -1,4 +1,4 @@
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../../../src/api/ApiError';
@@ -76,6 +76,54 @@ describe('TodoDetailsPanel — viewing', () => {
     const { onEditingChange } = setup({ get: vi.fn(async () => makeView()) });
     await userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
     expect(onEditingChange).toHaveBeenCalledWith(true);
+  });
+});
+
+describe('TodoDetailsPanel — a background refresh fails', () => {
+  const offline = () => Promise.reject(new TypeError('Failed to fetch'));
+
+  it('keeps the details on screen with a notice', async () => {
+    const get = vi
+      .fn()
+      .mockResolvedValueOnce(makeView({ title: 'File taxes' }))
+      .mockImplementationOnce(offline);
+    const { queryClient } = setup({ get });
+    expect(await screen.findByText('File taxes')).toBeInTheDocument();
+    await act(() => queryClient.refetchQueries());
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not reach the server');
+    expect(screen.getByText('File taxes')).toBeInTheDocument();
+  });
+
+  it('keeps typed edits in the form and clears the notice once a refresh succeeds', async () => {
+    const todo = makeView({ title: 'File taxes', description: 'Blue folder' });
+    const get = vi
+      .fn()
+      .mockResolvedValueOnce(todo)
+      .mockImplementationOnce(offline)
+      .mockResolvedValueOnce(todo);
+    const { queryClient } = setup({ get }, true);
+    const description = await screen.findByLabelText('Description');
+    fireEvent.change(description, { target: { value: 'Red folder' } });
+
+    await act(() => queryClient.refetchQueries());
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not reach the server');
+    expect(screen.getByLabelText('Description')).toHaveValue('Red folder');
+
+    await act(() => queryClient.refetchQueries());
+    await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
+    expect(screen.getByLabelText('Description')).toHaveValue('Red folder');
+  });
+
+  it('still explains a todo that was deleted elsewhere', async () => {
+    const get = vi
+      .fn()
+      .mockResolvedValueOnce(makeView({ title: 'File taxes' }))
+      .mockImplementationOnce(() => Promise.reject(problem(404)));
+    const { queryClient } = setup({ get }, true);
+    await screen.findByLabelText('Description');
+    await act(() => queryClient.refetchQueries());
+    expect(await screen.findByRole('alert')).toHaveTextContent('This task no longer exists.');
+    expect(screen.queryByLabelText('Description')).not.toBeInTheDocument();
   });
 });
 

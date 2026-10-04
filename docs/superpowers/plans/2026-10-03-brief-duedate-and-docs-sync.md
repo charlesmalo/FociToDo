@@ -50,9 +50,7 @@
   - Every commit ends with `Co-Authored-By: Claude <model that wrote it> <noreply@anthropic.com>`.
   - Review fixes go in as `git commit --fixup <task commit>` and are autosquashed before the PR (`GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <base>`).
   - Never rewrite `main`. Force-push only this branch, with `--force-with-lease`.
-- **Committed text** covers only the code, its behaviour and the decisions behind it.
-  - It never mentions people, hiring, submitting, deadlines for finishing or time spent.
-  - It never names tooling outside this repository.
+- Committed text covers only the code, its behaviour and the decisions behind it.
 - **Exact strings (verbatim):**
   - `Due date must be a real date in YYYY-MM-DD format`
   - `Send either dueDate or dueAt, not both`

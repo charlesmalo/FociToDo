@@ -12,4 +12,4 @@
 
 - Docker is the only prerequisite. Never run host `node`/`npm`. App: `docker compose --profile dev run --rm dev <cmd>`, gate `docker compose --profile test run --rm --build test`, e2e `docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml run --rm --build e2e` + `down -v`. Colima only mounts `$HOME`: scratch dirs under `~/workspace`, never `/tmp`, for anything a container mounts.
 - App: coverage 100%, no `v8 ignore`, no non-null assertions (lint), tests mirror source paths, `.js` imports in packages, Conventional Commits with scope, every commit green, `Co-Authored-By: Claude <model that wrote it> <noreply@anthropic.com>`, never edit `apps/api/openapi.json` or `docs/diagrams/**` by hand.
-- No mention of hours or time spent, deadlines, or "core vs extension" tiers in any committed file.
+- Committed text covers only the code, its behaviour and the decisions behind it.
