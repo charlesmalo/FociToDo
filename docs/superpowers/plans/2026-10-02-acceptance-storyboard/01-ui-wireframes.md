@@ -8,13 +8,13 @@
 
 **Tech Stack:** Mermaid 12 `block-beta` (rendered by `minlag/mermaid-cli:12.0.0`, pinned by digest), TypeScript, Vitest.
 
-**Spec:** [2026-10-02-acceptance-storyboard-design.md](../../specs/2026-10-02-acceptance-storyboard-design.md) §2, §3 — with [00-index.md](00-index.md) (global constraints).
+**Spec:** [2026-10-02-acceptance-storyboard-design.md](../../specs/2026-10-02-acceptance-storyboard-design.md) §2 — with [00-index.md](00-index.md) (global constraints).
 
 Branch: `docs/ui-wireframes` (exists; carries the spec and these plans).
 
 ## Global Constraints
 
-See [00-index.md](00-index.md#global-constraints-both-plans). In addition:
+See [00-index.md](00-index.md#global-constraints). In addition:
 
 - Wireframe ids are `ui/<slug>` of these exact headings (one wireframe each, in this order): `Task list — loading`, `Task list — empty`, `Task list — with tasks`, `Task list — no match`, `Task list — load error`, `Filters and sorting`, `Dialog — new task`, `Dialog — new task with errors`, `Dialog — task details`, `Dialog — edit task`, `Dialog — delete confirmation`, `Dialog — changed elsewhere`, `Dialog — task no longer exists`.
 - Visible strings in wireframes are the UI's real strings (verified below against `apps/web/src/todos/components/*.tsx` at plan time).
@@ -23,7 +23,7 @@ See [00-index.md](00-index.md#global-constraints-both-plans). In addition:
 ## Review Focus
 
 1. A `block-beta` label containing `<br/>` must render as a line break, not literal text (the earlier flowchart check does not cover block diagrams). Pinned in Task 2 Step 3 (grep for `&lt;br` and visual check).
-2. Every wireframe string must match the running UI, or the storyboard's side-by-side comparison will look wrong. Pinned in Task 2 Step 1 (strings copied from the components listed).
+2. Every wireframe string must match the running UI, or the wireframes will misdescribe the UI. Pinned in Task 2 Step 1 (strings copied from the components listed).
 3. Adding `block` to `mermaid.config.json` must not change any existing SVG (no other diagram uses block). Pinned in Task 1 Step 5 (`git status` shows only new files after regeneration).
 
 ---
@@ -113,7 +113,7 @@ Write the file with this introduction and, under each heading, the wireframe in 
 ````markdown
 # UI
 
-FociToDo is a single page: a header, the filter and sort controls, and the task list. Every task operation happens in one dialog that switches between creating, viewing and editing. These wireframes show each screen state; the companion review repository's storyboard shows the running app beside them.
+FociToDo is a single page: a header, the filter and sort controls, and the task list. Every task operation happens in one dialog that switches between creating, viewing and editing. These wireframes show each screen state.
 
 ## Task list — loading
 

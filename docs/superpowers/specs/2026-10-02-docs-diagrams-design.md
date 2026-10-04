@@ -112,8 +112,6 @@ Two pull requests, in this order, each curated and green at every commit:
 
 PR A lands first: if the documents were restructured while the portal still existed, the portal would show broken image links and raw `<details>` markup until the portal was removed. Between the two merges no diagram changes, and PR B's own CI renders every diagram, so no diagram error can slip through the gap.
 
-After both merge, the companion review repository is refreshed: verify and scans re-run on the new `main`; traceability matrix (FR-10 removed, NFR-9 re-pointed, DOC-1 added); a review note per PR; the sign-off updated to the new commit.
-
 ## 6. Out of scope
 
 - Rendering diagrams for any file other than `README.md` and `docs/*.md`.

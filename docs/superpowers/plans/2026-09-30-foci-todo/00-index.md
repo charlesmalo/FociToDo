@@ -96,7 +96,6 @@ The `dev` service needs a lockfile to exist; PR 1 Task 1 bootstraps it with a on
 | 9 | `test/e2e-ci` | `09-e2e-ci.md` | Playwright e2e target/profile, CI e2e + images jobs |
 | 10 | `docs/documentation` | `10-docs.md` | README, architecture/api/concurrency/testing docs, ADRs |
 | 11 | `feat/web-dev-portal` | `11-web-dev-portal.md` | `/dev` portal rendering the docs |
-| — | review repo `main` | `12-review-repo.md` | Separate subsystem: Task 1 alongside PR 1, Task 2 after every PR, Tasks 3–6 after PR 11 |
 
 ## Per-PR procedure (applies to every PR file)
 
@@ -104,7 +103,7 @@ The `dev` service needs a lockfile to exist; PR 1 Task 1 bootstraps it with a on
 2. Execute the tasks in order; each task ends with its own commit.
 3. Run the full gate: `docker compose --profile test run --rm --build test` → must pass with 100% coverage.
 4. Curate: fold fixups into their target commits with `git commit --fixup=<sha>` then `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash main` (non-interactive). Verify each commit still builds: `git rebase main --exec "docker compose --profile test run --rm --build test"` (skip for single-commit PRs).
-5. Milestone review (review-repo plan): run the code review on `main...HEAD`, triage, fold fixes in as fixups, re-run the gate.
+5. Milestone review: run the code review on `main...HEAD`, triage, fold fixes in as fixups, re-run the gate.
 6. Push and open the PR (`gh pr create`) with a What/Why description linking the spec section; after CI is green, merge with `gh pr merge --merge --delete-branch`.
 
-The GitHub remote and review repo are created in PR 1 Task 6.
+The GitHub remote is created in PR 1 Task 6.

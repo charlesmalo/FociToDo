@@ -2,6 +2,7 @@
   "readme/design-overview": ["apps/web/nginx.conf", "compose.yaml"],
   "readme/how-this-was-built": [],
   "api/create-post-api-todos": [
+    "apps/api/src/http/problems.ts",
     "apps/api/src/http/todoRoutes.ts",
     "apps/api/src/repository/postgres/PgIdempotencyStore.ts",
     "apps/api/src/service/TodoService.ts",
@@ -9,17 +10,20 @@
     "packages/shared/src/todo.ts"
   ],
   "api/list-get-api-todos": [
+    "apps/api/src/http/apiCacheHeaders.ts",
     "apps/api/src/http/todoRoutes.ts",
     "apps/api/src/repository/postgres/PgTodoRepository.ts",
     "apps/api/src/service/TodoService.ts",
     "packages/shared/src/listQuery.ts"
   ],
   "api/view-get-api-todos-id": [
+    "apps/api/src/http/apiCacheHeaders.ts",
     "apps/api/src/http/todoRoutes.ts",
     "apps/api/src/service/TodoService.ts",
     "packages/shared/src/todo.ts"
   ],
   "api/update-patch-api-todos-id": [
+    "apps/api/src/http/problems.ts",
     "apps/api/src/http/todoRoutes.ts",
     "apps/api/src/repository/postgres/PgTodoRepository.ts",
     "apps/api/src/service/TodoService.ts",
@@ -37,6 +41,7 @@
     "apps/api/src/service/TodoService.ts"
   ],
   "api/delete-delete-api-todos-id": [
+    "apps/api/src/http/problems.ts",
     "apps/api/src/http/todoRoutes.ts",
     "apps/api/src/repository/postgres/PgTodoRepository.ts",
     "apps/api/src/service/TodoService.ts",
@@ -44,11 +49,7 @@
   ],
   "architecture/system-context": ["apps/web/nginx.conf", "compose.yaml"],
   "architecture/deployment-and-startup-order": ["Dockerfile", "compose.yaml"],
-  "architecture/backend-layers": [
-    "apps/api/src/app.ts",
-    "apps/api/src/repository/ports.ts",
-    "eslint.config.js"
-  ],
+  "architecture/backend-layers": ["apps/api/src/app.ts", "apps/api/src/repository/ports.ts"],
   "architecture/domain-model": ["apps/api/src/domain/todo.ts"],
   "architecture/data-model": [
     "apps/api/migrations/1759190400000_create-todos.sql",
@@ -79,7 +80,7 @@
     "apps/api/src/repository/postgres/PgTodoRepository.ts",
     "apps/api/src/service/TodoService.ts"
   ],
-  "testing/layers": ["compose.e2e.yaml", "compose.yaml", "vitest.config.ts"],
+  "testing/layers": ["compose.e2e.yaml", "compose.yaml"],
   "ui/task-list-loading": [
     "apps/web/src/todos/components/TodoFilters.tsx",
     "apps/web/src/todos/components/TodoList.tsx",

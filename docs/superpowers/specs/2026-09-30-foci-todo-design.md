@@ -12,12 +12,12 @@
 
 Build a to-do application that demonstrates **clean architecture, correctness, concurrency safety, thorough automated testing and clear documentation**, runnable by a reviewer who has **only Docker installed**.
 
-The submission succeeds when:
+The work succeeds when:
 
 1. Every requirement in §2 is implemented and traceable to automated tests.
 2. `docker compose up --build` starts the full stack on any machine with Docker (amd64 or arm64), with no other installs.
 3. The full test suite runs in Docker, passes, and enforces **100% coverage** (lines, branches, functions, statements).
-4. Concurrency guarantees (§6) are proven by deterministic invariant tests and by stress runs in the review repo.
+4. Concurrency guarantees (§6) are proven by deterministic invariant tests and by stress runs against a real server and Postgres.
 5. Documentation lets a human understand and run the system in minutes, and lets an AI agent work within its rules.
 6. The commit history is curated, green at every commit, and reflects the development process.
 
@@ -47,13 +47,15 @@ The submission succeeds when:
 | DR-1 | `id` | UUID, server-generated |
 | DR-2 | `title` | Required; trimmed; 1–200 characters |
 | DR-3 | `description` | Optional; ≤ 2000 characters; empty string stored as `null` |
-| DR-4 | ~~`dueDate`~~ | ~~Optional; strict `YYYY-MM-DD`; must be a real calendar date; past dates allowed~~ Superseded by `dueAt`, a UTC instant: see [the 2026-10-03 spec](./2026-10-03-api-docs-and-deadlines-design.md) and [ADR 0017](../../decisions/0017-deadlines-are-utc-instants.md) |
+| DR-4 | ~~`dueDate`~~ | ~~Optional; strict `YYYY-MM-DD`; must be a real calendar date; past dates allowed~~ Superseded by `dueAt`, a UTC instant: see [the 2026-10-03 spec](./2026-10-03-api-docs-and-deadlines-design.md) and [ADR 0017](../../decisions/0017-deadlines-are-utc-instants.md); the brief's `dueDate` is still accepted alongside `dueAt` ([ADR 0018](../../decisions/0018-deadlines-accept-the-briefs-duedate.md)) |
 | DR-5 | `isCompleted` | Boolean; defaults to `false` |
 | DR-6 | `createdAt` | ISO-8601 UTC timestamp, server-generated |
 | DR-7 | `version` | Positive integer, starts at 1, read-only; exposed in body and as `ETag` |
 | DR-8 | `isOverdue` | ~~Derived, read-only: `!isCompleted && dueDate < today (UTC)`; never stored~~ Superseded: derived from the `dueAt` instant, with a new `isDueSoon`; see [the 2026-10-03 spec](./2026-10-03-api-docs-and-deadlines-design.md) and [ADR 0017](../../decisions/0017-deadlines-are-utc-instants.md) |
 
 ### 2.3 Non-functional
+
+_NFR-10's served `/api/docs` is superseded by ADR 0016._
 
 | ID | Requirement |
 |---|---|
@@ -80,12 +82,14 @@ The submission succeeds when:
 | D-5 | README: assumptions |
 | D-6 | README: trade-offs |
 | D-7 | Curated commit history via PRs |
-| D-8 | Public GitHub review repository `FociToDo-review`, linked from the README |
+| D-8 | (withdrawn) |
 | D-9 | GitHub Actions CI running the same Docker commands as the README |
 
 ---
 
 ## 3. Assumptions
+
+_The date-only deadline and UTC-"today" overdue items are superseded by ADR 0017 and ADR 0018._
 
 1. Single user, no authentication or authorization.
 2. "Today" for overdue computation is the server's current date in **UTC**. Near midnight this can differ from the user's local date.
@@ -102,6 +106,8 @@ The submission succeeds when:
 ## 4. Architecture
 
 ### 4.1 System context
+
+_The `/dev` portal in the diagram is superseded by ADR 0015._
 
 ```mermaid
 flowchart LR
@@ -133,6 +139,8 @@ Startup order is enforced by Compose: `db` healthy → `migrate` completed succe
 Code style: plain classes and interfaces, constructor injection wired by hand in a composition root, no DI container, no advanced type-level programming.
 
 ### 4.3 Repository layout
+
+_The `dev/` portal folder in the layout is superseded by ADR 0015._
 
 ```
 FociToDo/
@@ -185,6 +193,8 @@ Playwright journeys live in root `e2e/`, organised by user journey.
 
 ### 4.4 Layer dependency rules
 
+_The web/dev row is superseded by ADR 0015._
+
 ```mermaid
 flowchart TB
   http --> service
@@ -216,6 +226,8 @@ Enforced with ESLint `import/no-restricted-paths`; a violation fails `test:ci`.
 ## 5. Backend design
 
 ### 5.1 Schema
+
+_The `due_date date` column is superseded by `due_at` (ADR 0017); ADR 0018 accepts the brief's `dueDate` on input._
 
 ```sql
 -- todos
@@ -264,6 +276,8 @@ erDiagram
 
 ### 5.2 Domain
 
+_`toView(todo, today)` and the `Clock`-derived UTC "today" are superseded by the `dueAt` instant (ADR 0017)._
+
 - `Todo` (type inferred from the shared schema) and `toView(todo, today)` which adds `isOverdue`.
 - Errors: `TodoNotFoundError`, `VersionConflictError`, `PreconditionRequiredError`, `IdempotencyKeyReuseError`. The domain knows nothing about HTTP.
 - Ports: `Clock { now(): Date }`, `IdGenerator { next(): string }`.
@@ -279,6 +293,8 @@ stateDiagram-v2
 ```
 
 ### 5.3 Repository ports
+
+_The `today` parameter of `list` is superseded by ADR 0017._
 
 ```ts
 interface TodoRepository {
@@ -322,6 +338,8 @@ interface UnitOfWork {
 **Idempotent-create race:** claiming the key is the first write in the transaction, and the key's primary key makes concurrent claims serialise. The first transaction claims the key and inserts the todo; the others block on the claim, see a live record once the first commits, roll back without inserting anything, and replay the stored response. Result: exactly one row, every caller receives the same 201 body. A replay returns the original response snapshot even if the todo has since been modified or deleted (standard idempotency-key semantics).
 
 ### 5.5 HTTP API
+
+_The served `/api/docs` route is superseded by ADR 0016; the date-only `dueDate` field by ADR 0017 and ADR 0018._
 
 All routes are mounted under `/api` in Express itself, and nginx proxies `/api/*` unchanged, so `Location` headers and OpenAPI paths are identical inside and outside the container network.
 
@@ -404,6 +422,8 @@ sequenceDiagram
 
 ### 7.1 Structure
 
+_The lazy `DevPortal` route and **Developer** link are superseded by ADR 0015._
+
 - `App.tsx` renders the lazy `DevPortal` when `location.pathname` starts with `/dev`, otherwise `TodoPage`. No router library; nginx falls back to `index.html` for non-file paths.
 - **TodoPage:** `Header` (title, **+ New task**, **Developer** link) · `TodoFilters` (status, sort, order) · `TodoList` (loading / error / empty states) → `TodoItem` (checkbox, title, due date, OVERDUE badge; click opens the dialog) · `TodoDialog` (Radix; modes create / view / edit) containing `TodoDetails` and `TodoForm`.
 - `TodoForm` and `TodoDetails` are independent of the dialog, so the dialog wrapper can be replaced by an inline panel without touching them.
@@ -419,6 +439,8 @@ sequenceDiagram
 | Delete | `DELETE` + `If-Match` after inline confirmation | Invalidate, close dialog | 412 → conflict banner; 404 → "already deleted", close, refetch |
 
 ### 7.3 Rules
+
+_The `dueDate` display rule is superseded by ADR 0017 and ADR 0018._
 
 - **Validation:** shared Zod schema on submit; server `errors[]` from 400 responses mapped onto the same fields.
 - **Dates:** `dueDate` displayed as the plain `YYYY-MM-DD` string, never parsed into a `Date`; `createdAt` formatted with `Intl.DateTimeFormat`; overdue badge uses the server's `isOverdue`.
@@ -471,6 +493,8 @@ Development credentials are defaults in `compose.yaml`, overridable through `.en
 
 ### 8.3 Reviewer commands
 
+_The `/dev` portal in the commands is superseded by ADR 0015; the `/api/docs` explorer by ADR 0016._
+
 ```bash
 docker compose up --build -d                   # app: http://localhost:8080 · portal: /dev · API explorer: /api/docs
 docker compose --profile test run --rm --build test   # lint, typecheck, all tests, 100% coverage → reports/coverage/index.html
@@ -516,7 +540,7 @@ Vitest projects in the root config: `shared`, `api-unit`, `api-db`, `web`. The `
 - Thresholds: **100%** lines, branches, functions and statements, merged across projects; enforced in `test:ci` and CI.
 - Exclusions (listed explicitly in config and in `docs/testing.md`): `apps/api/src/server.ts`, `apps/web/src/main.tsx`, `*.d.ts`, migrations. Playwright is not counted.
 - Testability by design: pool, clock, id generator and config are injected.
-- No `v8 ignore` comments without an adjacent written justification; the target is zero, and any occurrence is listed in the review repo.
+- No `v8 ignore` comments without an adjacent written justification; the target is zero, and any occurrence is justified in place.
 
 ---
 
@@ -524,7 +548,7 @@ Vitest projects in the root config: `shared`, `api-unit`, `api-db`, `web`. The `
 
 | File | Audience | Contents |
 |---|---|---|
-| `README.md` | Reviewers | Overview + screenshot; quick start; running tests; design overview with links; assumptions; trade-offs (design only); how this was built (AI-assisted workflow, link to review repo); one-line OpenAPI justification |
+| `README.md` | Reviewers | Overview + screenshot; quick start; running tests; design overview with links; assumptions; trade-offs (design only); how this was built (AI-assisted workflow); one-line OpenAPI justification |
 | `CLAUDE.md` | AI agents | Docker commands; layer rules; test mirroring and suffix rules; TDD; Conventional Commits and curated PRs; generated files not edited by hand |
 | `AGENTS.md` | Other AI tools | Pointer to `CLAUDE.md` |
 | `docs/architecture.md` | Engineers | Layers, composition root, ports, data model, frontend structure — context, layer, state, ER, frontend-flow and deployment diagrams |
@@ -539,22 +563,9 @@ Each Mermaid diagram stays small (about 15 lines) and sits next to the text it e
 
 ---
 
-## 11. Review repository (`FociToDo-review`)
+## 11. Verification
 
-A separate public repository, linked from the app README, containing independent assurance work. Everything runs through its own `compose.yaml`.
-
-| Path | Contents |
-|---|---|
-| `compose.yaml` | Services: `verify` (clean clone of `APP_REPO@APP_REF`, runs the app's test and e2e commands via the mounted Docker socket, collects evidence, times cold start on amd64 and arm64), `k6` (grafana/k6 stress scenarios), `invariants` (post-stress API checks), `trivy` (image scan), `hadolint` (Dockerfile lint), `audit` (`npm audit --omit=dev`) |
-| `k6/` | race-patch, parallel-complete, delete-storm, idempotent-replay, mixed-load scenarios |
-| `checklists/` | Milestone review checklist (correctness, concurrency, tests, docs drift, security); release-readiness checklist |
-| `traceability/matrix.md` | Every FR/NFR/DR/D → implementing code → verifying tests → status |
-| `reviews/` | One file per PR: Claude review output plus solution-lead triage |
-| `findings/log.md` | Findings with severity, category, decision (fix / accept / reject with reason), PR and merged commit |
-| `evidence/<date>/` | Test and coverage summaries, e2e report, k6 results, scan outputs, cold-start timings |
-| `signoff.md` | One-page executive sign-off |
-
-Cadence: a milestone review after each app PR (summary posted as a PR comment); a full verification, stress and scan run before sign-off. Mounting the Docker socket is confined to the review tooling and documented there.
+The app's own test gate, end-to-end suite and concurrency tests.
 
 ---
 

@@ -20,3 +20,4 @@
 | [0016](./0016-api-docs-as-a-repository-artifact.md)   | API docs as a generated repository artifact, not an endpoint              |
 | [0017](./0017-deadlines-are-utc-instants.md)          | Deadlines are UTC instants with a derived due-soon flag (amended by 0018) |
 | [0018](./0018-deadlines-accept-the-briefs-duedate.md) | Deadlines accept the brief's `dueDate` alongside `dueAt`                  |
+| [0019](./0019-pagination-deferred.md)                 | Pagination deferred; keyset design recorded                               |

@@ -67,16 +67,11 @@ README (URL table loses `/api/docs`; "API reference: open `docs/api/index.html`"
 
 README assumptions (2: overdue = past the deadline moment, no midnight caveat; 3: past deadlines allowed; 9: deadlines are instants shown in the viewer's timezone; new: "Due soon" = within 24 hours) and trade-offs; `docs/api.md`; the data-model and state diagrams (regenerated); `docs/ui.md` wireframes ("Due" date-time, "Due soon" badge, Show options); **ADR 0017 — Deadlines are UTC instants** (supersedes 0008).
 
-## 4. Part C — review repository
-
-New and changed independent expectations, written from this spec and the README: `dueAt` format and validation (with offsets, rejected forms), normalisation to UTC, overdue/due-soon boundaries observable over HTTP (deadlines set seconds and hours from now), `status=due-soon`, `sort=dueAt`, `/api/docs` and `/api/openapi.json` → 404, the migration's semantics where observable; the storyboard gains a two-timezone journey and "Due soon" frames. Then acceptance, storyboard, verify, stress and scans re-run on the new app commit, and findings, matrix and sign-off are refreshed.
-
-## 5. Delivery
+## 4. Delivery
 
 1. **PR A — API docs local-only** (`refactor/api-docs-local`): this spec and its plans, Part A.
 2. **PR B — deadlines as UTC instants** (`feat/deadline-instants`): Part B (regenerates `apps/api/openapi.json` and `docs/api/index.html`).
-3. **Review repository** (direct to `main`): Part C.
 
-## 6. Out of scope
+## 5. Out of scope
 
 Recurring deadlines, reminders or notifications, per-task timezones, changing `createdAt`.

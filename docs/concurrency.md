@@ -35,7 +35,7 @@ sequenceDiagram
 
 </details>
 
-The web app sends the version the user started from — the one the edit form opened on, or the one on screen when Delete was clicked — so a background refetch can never turn a stale edit into a silent overwrite. It reacts to a 412 by showing a notice, reloading the todo and keeping the user's edits; saving again then targets the reloaded version.
+The web app sends the version the user started from — the one the edit form opened on, or the one on screen when Delete was clicked — so a background refetch can never turn a stale edit into a silent overwrite. It reacts to a 412 by showing a notice, reloading the todo and keeping the user's edits; the reloaded values fill the fields the user did not touch, and saving again targets the reloaded version. The retry sends only the fields the user edited, so another writer's change to a field the user left alone is never overwritten.
 
 ## Double submit, absorbed
 

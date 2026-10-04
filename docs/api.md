@@ -98,7 +98,7 @@ sequenceDiagram
     A-->>C: 400 validation-error
   else valid
     A->>DB: SELECT … WHERE filter ORDER BY sort, created_at DESC, id
-    A-->>C: 200 [todos with isOverdue / isDueSoon]
+    A-->>C: 200 no-store [todos with isOverdue / isDueSoon]
   end
 ```
 

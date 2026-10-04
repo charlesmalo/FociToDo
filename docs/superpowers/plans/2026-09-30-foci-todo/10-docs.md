@@ -806,7 +806,7 @@ Status: Accepted · 2026-09-30
 The history should show how the work was done; AI assistance is used and should be transparent.
 
 ## Decision
-One branch and PR per work package, merged with a merge commit after curating the branch into a few meaningful, green commits (fixups autosquashed). Conventional Commits. Every AI-assisted commit carries a `Co-Authored-By: Claude` trailer; decisions are recorded in these ADRs and the spec; milestone reviews live in a separate review repository.
+One branch and PR per work package, merged with a merge commit after curating the branch into a few meaningful, green commits (fixups autosquashed). Conventional Commits. Every AI-assisted commit carries a `Co-Authored-By: Claude` trailer; decisions are recorded in these ADRs and the spec.
 
 ## Consequences
 + A readable, bisectable history with visible review points; clear accountability.
@@ -960,7 +960,7 @@ flowchart LR
   C --> D[TDD per task<br/>Claude Code] --> E[Milestone review<br/>and triage] --> F[Curated PR<br/>CI green] --> G[Merge]
 ```
 
-Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUDE.md). Requirements, decisions and the plan are in [docs/superpowers](docs/superpowers); every architectural choice has an [ADR](docs/decisions/README.md). Each work package was reviewed before merging; review reports, the requirements traceability matrix and verification evidence live in the companion repository **[FociToDo-review](https://github.com/charlesmalo/FociToDo-review)**. AI-assisted commits carry a `Co-Authored-By` trailer.
+Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUDE.md). Requirements, decisions and the plan are in [docs/superpowers](docs/superpowers); every architectural choice has an [ADR](docs/decisions/README.md). Every work package was reviewed before merging; findings were fixed in the PR that raised them. AI-assisted commits carry a `Co-Authored-By` trailer.
 
 ## Project layout
 

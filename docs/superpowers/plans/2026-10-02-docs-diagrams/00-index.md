@@ -10,9 +10,8 @@ One branch and one pull request per plan file, in this order:
 | --- | ---------------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------- |
 | 1   | [01-remove-dev-portal.md](01-remove-dev-portal.md)   | `refactor/remove-dev-portal` | Spec §3, ADR 0015, this spec and these plans                                |
 | 2   | [02-diagram-images.md](02-diagram-images.md)         | `docs/diagram-images`        | Spec §2: diagram tool, generator, gate check, CI step, images, README map   |
-| 3   | [03-review-repo.md](03-review-repo.md)               | `main` of FociToDo-review    | Spec §5 follow-up: evidence, matrix, review notes and sign-off on new `main` |
 
-Plan 2 starts from `main` after PR 1 merges; plan 3 starts after PR 2 merges.
+Plan 2 starts from `main` after PR 1 merges.
 
 ## Global constraints (all plans)
 
