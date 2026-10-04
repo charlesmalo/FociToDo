@@ -54,7 +54,7 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-  http[http<br/>routes · validation · problem details] --> service[service<br/>TodoService · HealthService]
+  http[http<br/>routes · validation · no-store cache headers · problem details] --> service[service<br/>TodoService · HealthService]
   service --> domain[domain<br/>Todo · errors · Clock · IdGenerator]
   service --> ports[repository ports<br/>TodoRepository · IdempotencyStore · UnitOfWork]
   pg[repository/postgres] -. implements .-> ports

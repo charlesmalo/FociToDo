@@ -21,7 +21,7 @@
       "file": "docs/api.md",
       "heading": "Create — POST /api/todos",
       "image": "docs/diagrams/api/create-post-api-todos.svg",
-      "hash": "555eea39622c72856772b0d93ec8b97d659015f822c60eb9644abe8d57239c6e",
+      "hash": "8f89337edf40432beb62011e0ddebdbecf7b9c792a17dbaed1fa5c7463ad76a9",
       "depictsHash": "48c7b4e0305613ef98c266f78d8f4b959a75d30e22f416efcf4b76be1bdefa4c"
     },
     {
@@ -37,7 +37,7 @@
       "file": "docs/api.md",
       "heading": "View — GET /api/todos/{id}",
       "image": "docs/diagrams/api/view-get-api-todos-id.svg",
-      "hash": "3328b710485dd974a2ad0630686640bef334dc2fd59c4ef10568fbfb895a86dd",
+      "hash": "d7251b1e66b6f52fd8ed36053a3efaf0587a510c41116da7dc268c55f0576ade",
       "depictsHash": "31b7ff7190e2e6dae498ce903eae7d0ed38fdcf9bc73512086146a6e878015d6"
     },
     {
@@ -61,7 +61,7 @@
       "file": "docs/api.md",
       "heading": "Incomplete — POST /api/todos/{id}/incomplete",
       "image": "docs/diagrams/api/incomplete-post-api-todos-id-incomplete.svg",
-      "hash": "ac384a82d5aa11ad35517626cba7dcae850660d921e034707641899162ab2350",
+      "hash": "8c4d7f64e39b562fe388afbe6322e51d85e7032cc92050d5aaf5b0e97a044a3d",
       "depictsHash": "7583316bd1d82762b53eb106a2408655f7c2e8f2057caef4042bc3fce2ebe26e"
     },
     {
@@ -93,7 +93,7 @@
       "file": "docs/architecture.md",
       "heading": "Backend layers",
       "image": "docs/diagrams/architecture/backend-layers.svg",
-      "hash": "9239ff223a6d6f13dc690af0ae85f5b1e18cf7dd357bf5583bade9e37576838d",
+      "hash": "3727d894149a2ad4a340acdbc30bcfff8751fd3ec0ec2f5fed0c9455b98d4aed",
       "depictsHash": "2bb71534bb7fdc6ed2805b21cb069180a9e56a6751dc4d21c54b5e7efa3013ef"
     },
     {
@@ -149,7 +149,7 @@
       "file": "docs/testing.md",
       "heading": "Layers",
       "image": "docs/diagrams/testing/layers.svg",
-      "hash": "adc8189706314a628029db41c9a8fcd72d2b257ad930d5b0b4a43ef1c07d10f5",
+      "hash": "59fc174178490bec8d4d920003367929c072e51963ae5ae148710857bdfc3190",
       "depictsHash": "cd6ee603b3b786b672540ea9d72a3325f09bd86fb0a398c012f59f9e26320a3b"
     },
     {
@@ -157,7 +157,7 @@
       "file": "docs/ui.md",
       "heading": "Task list — loading",
       "image": "docs/diagrams/ui/task-list-loading.svg",
-      "hash": "fdebfabacded804425b670ebd1b1aef63ac6685b46cddc2959b55dade1040a60",
+      "hash": "98eb8741ef70b3d4f43d7d8c490502b9dee4bd169fb140b94503f8e9688ef620",
       "depictsHash": "7576569159c6f6844d7ff9a6f998be9707a2a107a29dbac00472828193f37492"
     },
     {
@@ -165,7 +165,7 @@
       "file": "docs/ui.md",
       "heading": "Task list — empty",
       "image": "docs/diagrams/ui/task-list-empty.svg",
-      "hash": "46842d79ea34b5f2ef06c0c90718cbe2026f39bb02efb55c190a6b38a6892966",
+      "hash": "32b10c15c67cd05912a1694080373761ec2fcc152cc1855aa5b14fb0d8e3fc7c",
       "depictsHash": "7576569159c6f6844d7ff9a6f998be9707a2a107a29dbac00472828193f37492"
     },
     {
@@ -173,7 +173,7 @@
       "file": "docs/ui.md",
       "heading": "Task list — with tasks",
       "image": "docs/diagrams/ui/task-list-with-tasks.svg",
-      "hash": "f1f4b7f236832fe008c8157aa1fb2f162f7fb58f3f145ce2e9523a07153c7785",
+      "hash": "d14453a6a52c8673859f9d97b13bb7fe2ec47b6b55c960b9038219c1049265a0",
       "depictsHash": "26c7aa2ebbf9d485e06fc388db2216238cbe5290b2637391b8c8346ca13192cc"
     },
     {
@@ -181,7 +181,7 @@
       "file": "docs/ui.md",
       "heading": "Task list — no match",
       "image": "docs/diagrams/ui/task-list-no-match.svg",
-      "hash": "71a234f05c6f284daa67cfe640da6df0e3f5dcd72cb46ac0eea26af3354c94fd",
+      "hash": "91c9d107030c66d15b434c2ede13a9a65a3a7b0f6faaaf954e23c0e6d529a16f",
       "depictsHash": "60f632caff5918167f8d28105b78b5654fd433adb1458d7c68b22195e6f263cc"
     },
     {
@@ -189,8 +189,16 @@
       "file": "docs/ui.md",
       "heading": "Task list — load error",
       "image": "docs/diagrams/ui/task-list-load-error.svg",
-      "hash": "dd1fd3ef16cd45fd7f0358d60660de1c72084b51315eb5a6ab6196256e007116",
+      "hash": "732b97dd2c4cd0e68f263d4943b9827446dda4300c633d2dab133339fcd82768",
       "depictsHash": "903d8efc410948da98bf359af938bde3a6318b8191be371c9a9a5d5aac2f5228"
+    },
+    {
+      "id": "ui/task-list-refresh-failed",
+      "file": "docs/ui.md",
+      "heading": "Task list — refresh failed",
+      "image": "docs/diagrams/ui/task-list-refresh-failed.svg",
+      "hash": "1efa6e0a88ddc9060bfd928e3794a7516a37acca6d7ccf1bba6fd5389c0f88e0",
+      "depictsHash": "1f50b1e7f19a4cf0d1f66e5de84c0e2ea0203a82be7300043296b8e7f77bd4ef"
     },
     {
       "id": "ui/filters-and-sorting",
@@ -205,7 +213,7 @@
       "file": "docs/ui.md",
       "heading": "Dialog — new task",
       "image": "docs/diagrams/ui/dialog-new-task.svg",
-      "hash": "ba599e1ce4ca8174a4badd4677b02e0167ed836e7c6747c7d61af88d72d79e30",
+      "hash": "3bd448456960cb49b824f5aa36421e1b9fe3ed0c79cec2d0020df2704a6e58dc",
       "depictsHash": "317a8914fd4d6bc3a4ad319670cac621f18f974c7d7d456ee93a6c528c0bc31f"
     },
     {
@@ -213,7 +221,7 @@
       "file": "docs/ui.md",
       "heading": "Dialog — new task with errors",
       "image": "docs/diagrams/ui/dialog-new-task-with-errors.svg",
-      "hash": "f2cea914dc3b9dd613e62fb091718277c0dea0ccd9e24f1f0f20618c7be56486",
+      "hash": "24f3c66d68d9e11f880e8d5a1f3c9b829cc7b7926352e5ff32a991b8f481804c",
       "depictsHash": "7b445313faf13530783aa06447ffed3b78c18276f18f21a9c29bd9fbae0d278c"
     },
     {
@@ -221,7 +229,7 @@
       "file": "docs/ui.md",
       "heading": "Dialog — task details",
       "image": "docs/diagrams/ui/dialog-task-details.svg",
-      "hash": "3d4d182803f4f0a71cf1ef14f7faf50e251a2a47428ce44ad01b7c8ec4180721",
+      "hash": "0e039c00ea8e2c1ce1dfc6a65c4cd7d0171d8a9686c160a4d6299082bb857ef9",
       "depictsHash": "d892a3210baf3f7d6f4f64e058a9da0483e789f78203c70a16f1599ca7e8d3c1"
     },
     {
@@ -229,7 +237,7 @@
       "file": "docs/ui.md",
       "heading": "Dialog — edit task",
       "image": "docs/diagrams/ui/dialog-edit-task.svg",
-      "hash": "4cb4a9faa748c73ba82d908cb3152db56f55d7c8db54391b89f5a6180a436e8c",
+      "hash": "529592464f0d6af90b91445585a88c3d35eca5aa9456c21be0914b8b88f6b261",
       "depictsHash": "0a1742b160acafdabef0a9117c76a506f74b1ee05c5c10f553b17b5e224e21f1"
     },
     {
@@ -237,7 +245,7 @@
       "file": "docs/ui.md",
       "heading": "Dialog — delete confirmation",
       "image": "docs/diagrams/ui/dialog-delete-confirmation.svg",
-      "hash": "3e636213a4113b97b998c22c8d00816a61e5a798bf7c0611cbac3abfbbfee236",
+      "hash": "756cabd3baff3a9de3e8aa6b9d84a4dc9f548f6a6fa4ecdc19a559bbb708845c",
       "depictsHash": "98bfafda06a6fe71ab3180fbd81667a1950490ca7ef9cd89be81147b342d0fe5"
     },
     {
@@ -245,15 +253,23 @@
       "file": "docs/ui.md",
       "heading": "Dialog — changed elsewhere",
       "image": "docs/diagrams/ui/dialog-changed-elsewhere.svg",
-      "hash": "b554cf69bf8adcae3db42f638a203f0d306d35e0265e0208a802c04742b80c8c",
+      "hash": "25098148cd480ca3cbd1b22e09a1e23ee68d2d9f01e476ab8203516352ab97eb",
       "depictsHash": "0a1742b160acafdabef0a9117c76a506f74b1ee05c5c10f553b17b5e224e21f1"
+    },
+    {
+      "id": "ui/dialog-refresh-failed",
+      "file": "docs/ui.md",
+      "heading": "Dialog — refresh failed",
+      "image": "docs/diagrams/ui/dialog-refresh-failed.svg",
+      "hash": "977b052274228e0dc7a1090b5de9b88dcfc40a1f14230112f45bbaa55010b97a",
+      "depictsHash": "a3ed548919d71bb0106d5c93de16818ce9cdd4b057d80414b31e50d1621176e2"
     },
     {
       "id": "ui/dialog-task-no-longer-exists",
       "file": "docs/ui.md",
       "heading": "Dialog — task no longer exists",
       "image": "docs/diagrams/ui/dialog-task-no-longer-exists.svg",
-      "hash": "a6459f53e1c4fb4b61572c67541130b5407df28905596f6c2ddc21df4dba1706",
+      "hash": "3edc8ef2d90cb6e49cb03e737253e7d36e96fcccd82f3c5bc1139467ebe6ebda",
       "depictsHash": "98bfafda06a6fe71ab3180fbd81667a1950490ca7ef9cd89be81147b342d0fe5"
     }
   ]
