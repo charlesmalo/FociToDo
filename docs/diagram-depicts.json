@@ -105,6 +105,13 @@
     "apps/web/src/todos/components/ErrorBanner.tsx",
     "apps/web/src/todos/components/TodoList.tsx"
   ],
+  "ui/task-list-refresh-failed": [
+    "apps/web/src/api/describeError.ts",
+    "apps/web/src/todos/components/ErrorBanner.tsx",
+    "apps/web/src/todos/components/TodoItem.tsx",
+    "apps/web/src/todos/components/TodoList.tsx",
+    "apps/web/src/todos/format.ts"
+  ],
   "ui/filters-and-sorting": ["apps/web/src/todos/components/TodoFilters.tsx"],
   "ui/dialog-new-task": [
     "apps/web/src/todos/components/CreateTodoPanel.tsx",
@@ -128,6 +135,12 @@
   "ui/dialog-changed-elsewhere": [
     "apps/web/src/todos/components/TodoDetailsPanel.tsx",
     "apps/web/src/todos/components/TodoForm.tsx"
+  ],
+  "ui/dialog-refresh-failed": [
+    "apps/web/src/todos/components/TodoDetailsPanel.tsx",
+    "apps/web/src/todos/components/TodoDialog.tsx",
+    "apps/web/src/todos/components/TodoForm.tsx",
+    "apps/web/src/todos/format.ts"
   ],
   "ui/dialog-task-no-longer-exists": ["apps/web/src/todos/components/TodoDetailsPanel.tsx"]
 }

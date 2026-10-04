@@ -205,6 +205,7 @@ Each diagram also declares the source files it depicts in [`docs/diagram-depicts
 | Task list — with tasks         | [SVG](docs/diagrams/ui/task-list-with-tasks.svg)         | [source](docs/ui.md#task-list--with-tasks)         |
 | Task list — no match           | [SVG](docs/diagrams/ui/task-list-no-match.svg)           | [source](docs/ui.md#task-list--no-match)           |
 | Task list — load error         | [SVG](docs/diagrams/ui/task-list-load-error.svg)         | [source](docs/ui.md#task-list--load-error)         |
+| Task list — refresh failed     | [SVG](docs/diagrams/ui/task-list-refresh-failed.svg)     | [source](docs/ui.md#task-list--refresh-failed)     |
 | Filters and sorting            | [SVG](docs/diagrams/ui/filters-and-sorting.svg)          | [source](docs/ui.md#filters-and-sorting)           |
 | Dialog — new task              | [SVG](docs/diagrams/ui/dialog-new-task.svg)              | [source](docs/ui.md#dialog--new-task)              |
 | Dialog — new task with errors  | [SVG](docs/diagrams/ui/dialog-new-task-with-errors.svg)  | [source](docs/ui.md#dialog--new-task-with-errors)  |
@@ -212,6 +213,7 @@ Each diagram also declares the source files it depicts in [`docs/diagram-depicts
 | Dialog — edit task             | [SVG](docs/diagrams/ui/dialog-edit-task.svg)             | [source](docs/ui.md#dialog--edit-task)             |
 | Dialog — delete confirmation   | [SVG](docs/diagrams/ui/dialog-delete-confirmation.svg)   | [source](docs/ui.md#dialog--delete-confirmation)   |
 | Dialog — changed elsewhere     | [SVG](docs/diagrams/ui/dialog-changed-elsewhere.svg)     | [source](docs/ui.md#dialog--changed-elsewhere)     |
+| Dialog — refresh failed        | [SVG](docs/diagrams/ui/dialog-refresh-failed.svg)        | [source](docs/ui.md#dialog--refresh-failed)        |
 | Dialog — task no longer exists | [SVG](docs/diagrams/ui/dialog-task-no-longer-exists.svg) | [source](docs/ui.md#dialog--task-no-longer-exists) |
 
 **[Decision records](docs/decisions/README.md)** — one ADR per architectural choice (no diagrams).

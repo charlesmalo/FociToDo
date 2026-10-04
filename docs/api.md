@@ -69,6 +69,7 @@ sequenceDiagram
   participant A as API
   participant DB as Postgres
   C->>A: POST /api/todos (Idempotency-Key?)
+  Note over A: validate · a dueDate (YYYY-MM-DD) becomes dueAt 23:59:59 UTC · both sent → 400
   alt invalid body or key
     A-->>C: 400 validation-error
   else no key
@@ -128,7 +129,7 @@ sequenceDiagram
   else
     A->>DB: SELECT … WHERE id
     alt found
-      A-->>C: 200 + ETag
+      A-->>C: 200 + ETag, no-store (If-None-Match ignored, never 304)
     else missing
       A-->>C: 404 not-found
     end
@@ -213,6 +214,7 @@ sequenceDiagram
   alt state changed
     A-->>C: 200 + new ETag
   else already incomplete
+    A->>DB: SELECT … WHERE id
     A-->>C: 200 + same ETag
   else missing
     A-->>C: 404

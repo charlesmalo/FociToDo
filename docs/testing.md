@@ -28,7 +28,7 @@ The gate also fails when a diagram image is stale, missing or orphaned, or a dia
 
 ```mermaid
 flowchart LR
-  U[unit + component<br/>shared · api-unit · web] --> M[(in-memory / fakes)]
+  U[unit + component<br/>shared · diagrams · api-unit · web] --> M[(in-memory / fakes)]
   I[integration + concurrency<br/>api-db] --> T[(db-test<br/>RAM-backed Postgres)]
   E[e2e<br/>Playwright] --> S[full stack<br/>project foci-e2e]
 ```
