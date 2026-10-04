@@ -21,4 +21,4 @@ Plan 2 starts from `main` after PR 1 merges.
 - API/shared/tool imports use `.js` extensions; web imports are extensionless.
 - Conventional Commits with scope; every commit green; each commit ends with `Co-Authored-By: Claude <model that wrote it> <noreply@anthropic.com>`; curate with `--fixup` + autosquash before the PR.
 - Never edit generated files by hand: `apps/api/openapi.json`, `docs/diagrams/**`.
-- Never mention hours or time spent, deadlines, or "core vs extension" tiers in any committed file.
+- Committed text covers only the code, its behaviour and the decisions behind it.

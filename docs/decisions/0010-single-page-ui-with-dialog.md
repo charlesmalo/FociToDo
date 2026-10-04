@@ -4,7 +4,7 @@ Status: Accepted · 2026-09-30
 
 ## Context
 
-The UI is not the focus of the evaluation but must cover every operation and handle the API's concurrency semantics correctly.
+The UI must cover every operation and handle the API's concurrency semantics correctly; visual polish is secondary.
 
 ## Decision
 

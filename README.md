@@ -48,7 +48,7 @@ BASE=http://localhost:8080/api
 
 # Create — the id comes from the Location header, the version from ETag.
 create=$(curl -sS -i -X POST "$BASE/todos" -H 'Content-Type: application/json' \
-  -d '{"title":"Buy milk","dueAt":"2026-10-01T17:00:00Z"}')
+  -d '{"title":"Buy milk","dueAt":"2030-01-15T17:00:00Z"}')
 echo "$create"
 id=$(printf '%s' "$create" | grep -i '^Location:' | sed 's#.*/todos/##' | tr -d '\r')
 etag=$(printf '%s' "$create" | grep -i '^ETag:' | sed 's/^ETag: *//' | tr -d '\r')
@@ -72,6 +72,13 @@ curl -sS -i -X DELETE "$BASE/todos/$id" -H "If-Match: $etag"
 ```
 
 Each command prints the full response; the last `DELETE` should print `HTTP/1.1 204 No Content`. If `grep`/`sed` aren't available, read `id` from the printed `Location` header and `etag` from the printed `ETag` header by hand and substitute them into the next command.
+
+The brief's date-only field works too; the response carries both `dueDate` and `dueAt` (23:59:59 UTC that day):
+
+```bash
+curl -sS -X POST http://localhost:8080/api/todos -H 'Content-Type: application/json' \
+  -d '{"title":"Pay rent","dueDate":"2030-01-02"}'
+```
 
 ## Running the tests
 
@@ -235,7 +242,7 @@ Tests mirror source paths (`src/a/B.ts` → `tests/a/B.test.ts`), except the ada
 8. No pagination (proof of concept); see [ADR 0019](docs/decisions/0019-pagination-deferred.md) for the designed, backward-compatible approach.
 9. Idempotency keys apply to creates only and expire after 24 hours; a replay returns the original response.
 10. Timestamps and deadlines are stored as UTC instants (`timestamptz`) and shown in the viewer's locale and timezone.
-11. Deadlines can be written as the brief's `dueDate` (`YYYY-MM-DD`, due at 23:59:59 UTC that day) or as an exact `dueAt` instant. Responses return both; `dueDate` is the UTC calendar date of `dueAt`, so a late-evening deadline west of UTC shows the next day's date there.
+11. Deadlines can be written as the brief's `dueDate` (`YYYY-MM-DD`, due at 23:59:59 UTC that day) or as an exact `dueAt` instant, but not both. Responses return both; `dueDate` is the UTC calendar date of `dueAt`, so a late-evening deadline west of UTC shows the next day's date there. Keeping both is the expand step of an expand/contract migration: the brief's field stays backward compatible while `dueAt` adds exact time, and retiring `dueDate` once clients have moved is a future goal ([ADR 0018](docs/decisions/0018-deadlines-accept-the-briefs-duedate.md#migration-path)).
 12. Titles sort case-insensitively; todos without a deadline sort last.
 
 ## Trade-offs
@@ -266,7 +273,7 @@ flowchart LR
 
 </details>
 
-Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUDE.md). Requirements, decisions and the plan are in [docs/superpowers](docs/superpowers); every architectural choice has an [ADR](docs/decisions/README.md). Every work package was reviewed before merging; findings were fixed in the PR that raised them. AI-assisted commits carry a `Co-Authored-By` trailer.
+Built with Claude Code as a pair programmer under the rules in [CLAUDE.md](CLAUDE.md). Requirements, decisions and the plan are in [docs/superpowers](docs/superpowers); every architectural choice has an [ADR](docs/decisions/README.md). Every work package was reviewed before merging. AI-assisted commits carry a `Co-Authored-By` trailer.
 
 ## Project layout
 

@@ -8,7 +8,7 @@ docker compose -p foci-e2e -f compose.yaml -f compose.e2e.yaml down -v
 
 Reports: `reports/coverage/index.html`, `reports/e2e/index.html`.
 
-The gate also fails when a diagram image is stale, missing or orphaned, or a diagram is missing from the README map (fix: `docker compose --profile docs run --rm --build diagrams`).
+The gate also fails when a diagram image is stale, missing or orphaned, or a diagram is missing from the README map (fix: `docker compose --profile docs run --rm --build diagrams`); when a source file a diagram depicts (`docs/diagram-depicts.json`) changed since the diagram was last stamped (review the diagram, then the same command); and when the screenshots are stale or a PNG was edited by hand (`docs/images/manifest.json`; fix: `docker compose --profile docs run --rm --build screenshots`).
 
 ## Layers
 

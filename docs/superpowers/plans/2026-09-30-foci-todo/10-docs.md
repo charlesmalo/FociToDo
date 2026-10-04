@@ -6,7 +6,7 @@
 
 **Spec sections:** §10, D-2 – D-6, NFR-9.
 
-**Writing rules for this PR:** short sentences; every diagram ≤ ~15 lines and next to the text it explains; no mention of hours, time spent, or scope tiers; commands copied exactly from the spec/index; links relative.
+**Writing rules for this PR:** short sentences; every diagram ≤ ~15 lines and next to the text it explains; text covers only the code, its behaviour and the decisions behind it; commands copied exactly from the spec/index; links relative.
 
 ---
 
@@ -723,7 +723,7 @@ Build an OpenAPI 3.1 document from the shared Zod schemas with Zod's built-in `z
 Status: Accepted · 2026-09-30
 
 ## Context
-The UI is not the focus of the evaluation but must cover every operation and handle the API's concurrency semantics correctly.
+The UI must cover every operation and handle the API's concurrency semantics correctly; visual polish is secondary.
 
 ## Decision
 One page (filters + list) with a Radix Dialog for create/view/edit/delete; server state in TanStack Query; plain CSS Modules. Panels are independent of the dialog so it can be swapped for an inline panel.

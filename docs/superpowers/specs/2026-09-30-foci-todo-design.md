@@ -2,7 +2,7 @@
 
 - **Date:** 2026-09-30
 - **Status:** Approved 2026-09-30 · amended during planning (see §14)
-- **Source:** Foci take-home brief ("Build a To-Do List Application") + interactive brainstorming session
+- **Source:** the brief ("Build a To-Do List Application") + interactive brainstorming session
 
 > **Amended 2026-10-02:** the in-app `/dev` portal (FR-10, §7.4) was removed — see [ADR 0015](../../decisions/0015-docs-and-diagrams-in-the-repository.md) and [the docs-diagrams spec](2026-10-02-docs-diagrams-design.md). Sections that still mention it describe the original design.
 
