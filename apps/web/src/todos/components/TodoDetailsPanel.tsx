@@ -33,7 +33,11 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
   if (!editing && editBase !== null) setEditBase(null);
 
   if (todo.isPending) return <p role="status">Loading…</p>;
-  if (todo.isError) {
+
+  const current = todo.data;
+  // A failed background refresh keeps the cached task (and any open form) on screen; only a
+  // first load that failed, or a task deleted elsewhere, replaces the panel.
+  if (current === undefined || isStatus(todo.error, 404)) {
     return (
       <ErrorBanner
         message={
@@ -42,8 +46,6 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
       />
     );
   }
-
-  const current = todo.data;
 
   /**
    * Save and Delete send the version the user started from, never one a background refetch
@@ -95,7 +97,7 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
     } catch (error) {
       setDeleteBase(null);
       if (isStatus(error, 404)) {
-        // The refetch triggered by the mutation's onSettled will surface the 404 via todo.isError.
+        // The refetch triggered by the mutation's onSettled will surface the 404 via todo.error.
       } else if (isStatus(error, 412)) {
         setNotice(
           'This task was changed elsewhere and has been reloaded. Check it before deleting.',
@@ -108,6 +110,7 @@ export function TodoDetailsPanel({ id, editing, onEditingChange, onClose }: Todo
 
   return (
     <div className={styles.details}>
+      {todo.isError && <ErrorBanner message={describeError(todo.error)} />}
       {notice !== null && <ErrorBanner message={notice} />}
       {editing ? (
         <TodoForm

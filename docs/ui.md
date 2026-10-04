@@ -81,7 +81,7 @@ block-beta
 
 ## Task list — load error
 
-After the list request fails; Retry sends it again.
+When the first list request fails there is nothing to show yet; Retry sends it again. If a later refresh fails, the tasks already shown stay on screen with this notice and Retry above them.
 
 ![Task list — load error (wireframe)](diagrams/ui/task-list-load-error.svg)
 
@@ -158,7 +158,7 @@ block-beta
 
 ## Dialog — task details
 
-After a task is opened from the list and its details load; this task is overdue.
+After a task is opened from the list and its details load; this task is overdue. If a background refresh fails, the details (or the edit form, with any typed changes) stay on screen with a notice above them.
 
 ![Dialog — task details (wireframe)](diagrams/ui/dialog-task-details.svg)
 

@@ -136,7 +136,8 @@ interface TodoFormProps {
   initialValues?: TodoFormValues;
   /**
    * The stored deadline behind `initialValues`. The date and time inputs only have minute
-   * precision, so while they are untouched this exact instant is sent back instead of a re-derived one.
+   * precision, so while they are untouched this exact instant stands in for a re-derived one during
+   * client-side validation; the deadline is then reported unchanged and left out of the PATCH.
    */
   initialDueAt?: string | null;
   /**
@@ -208,6 +209,7 @@ export function TodoForm({
     }
     const input = toInput(values);
     const changed = changedFields(values, start.values);
+    // An untouched deadline validates as the exact stored instant; `changed` omits it from the PATCH.
     if (!changed.includes('dueAt') && start.dueAt !== undefined) input.dueAt = start.dueAt;
     const parsed = CreateTodoSchema.safeParse(input);
     if (!parsed.success) {
