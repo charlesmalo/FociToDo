@@ -37,6 +37,7 @@ describe('TodoService', () => {
           title: 'Buy milk',
           description: null,
           dueAt: null,
+          dueDate: null,
           isCompleted: false,
           createdAt: '2026-09-30T12:00:00.000Z',
           version: 1,
@@ -170,6 +171,7 @@ describe('TodoService', () => {
         ...todo,
         title: 'New',
         dueAt: '2026-10-05T09:00:00.000Z',
+        dueDate: '2026-10-05',
         version: 2,
       });
       expect((await storage.todos.findById(todo.id))?.dueAt).toEqual(

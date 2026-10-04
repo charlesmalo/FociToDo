@@ -1,4 +1,4 @@
-import { DUE_AT_ERROR } from '@foci/shared';
+import { DUE_AT_ERROR, DUE_DATE_ERROR } from '@foci/shared';
 import request from 'supertest';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createRuntime, type Runtime } from '../../src/app.js';
@@ -41,12 +41,41 @@ describe('POST /api/todos', () => {
       title: 'Buy milk',
       description: null,
       dueAt: '2026-09-30T18:00:00.000Z',
+      dueDate: '2026-09-30',
       isCompleted: false,
       createdAt: '2026-09-30T12:00:00.000Z',
       version: 1,
       isOverdue: false,
       isDueSoon: true,
     });
+  });
+
+  it("accepts the brief's dueDate and returns both deadline fields", async () => {
+    const response = await createTodo({ title: 'Dated', dueDate: '2030-01-02' });
+    expect(response.status).toBe(201);
+    expect(response.body).toMatchObject({
+      dueAt: '2030-01-02T23:59:59.000Z',
+      dueDate: '2030-01-02',
+    });
+  });
+
+  it('rejects dueDate together with dueAt, even when one is null', async () => {
+    const response = await createTodo({
+      title: 'Both',
+      dueDate: null,
+      dueAt: '2030-01-02T23:59:59Z',
+    });
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toContainEqual({
+      field: 'dueDate',
+      message: 'Send either dueDate or dueAt, not both',
+    });
+  });
+
+  it('rejects a dueDate that is not a real date', async () => {
+    const response = await createTodo({ title: 'Bad', dueDate: '2026-02-30' });
+    expect(response.status).toBe(400);
+    expect(response.body.errors[0].field).toBe('dueDate');
   });
 
   it('derives isOverdue from the server clock for a deadline in the past', async () => {
@@ -78,7 +107,7 @@ describe('POST /api/todos', () => {
     [{ title: 'a\u0000b' }, 'title', 'Title must not contain control character U+0000'],
     [{ title: 'x', dueAt: '0000-01-01T00:00:00Z' }, 'dueAt', DUE_AT_ERROR],
     [{ title: 'x', dueAt: '2026-10-01' }, 'dueAt', DUE_AT_ERROR],
-    [{ title: 'x', dueDate: '2026-10-01' }, 'dueDate', 'Unknown field'],
+    [{ title: 'x', dueDate: '0000-01-01' }, 'dueDate', DUE_DATE_ERROR],
   ])('returns 400, not 500, for %j (Postgres would reject it)', async (body, field, message) => {
     const response = await createTodo(body);
     expect(response.status).toBe(400);
@@ -140,6 +169,15 @@ describe('POST /api/todos', () => {
       expect(second.status).toBe(201);
       expect(second.headers['idempotent-replayed']).toBe('true');
       expect(second.body).toEqual(first.body);
+    });
+
+    it('replays dueDate and the equivalent dueAt as the same request', async () => {
+      const first = await withKey('key-3', { title: 'Once', dueDate: '2030-01-02' });
+      const second = await withKey('key-3', { title: 'Once', dueAt: '2030-01-02T23:59:59Z' });
+      expect(first.status).toBe(201);
+      expect(second.status).toBe(201);
+      expect(second.headers['idempotent-replayed']).toBe('true');
+      expect(second.body.id).toBe(first.body.id);
     });
 
     it('rejects a key reused with a different instant', async () => {
@@ -218,9 +256,17 @@ describe('GET /api/todos', () => {
     ]);
   });
 
+  it('accepts sort=dueDate as an alias of sort=dueAt', async () => {
+    for (const order of ['asc', 'desc']) {
+      const byDate = await api().get(`/api/todos?sort=dueDate&order=${order}`);
+      const byInstant = await api().get(`/api/todos?sort=dueAt&order=${order}`);
+      expect(byDate.status).toBe(200);
+      expect(byDate.body).toEqual(byInstant.body);
+    }
+  });
+
   it.each([
     ['status=done', 'status'],
-    ['sort=dueDate', 'sort'],
     ['sort=priority', 'sort'],
     ['page=2', 'page'],
   ])('rejects ?%s', async (query, field) => {
@@ -282,6 +328,14 @@ describe('PATCH /api/todos/:id', () => {
     expect(cleared.body).toMatchObject({ dueAt: null, isOverdue: false, isDueSoon: false });
   });
 
+  it("updates the deadline with the brief's dueDate and clears both fields with null", async () => {
+    const set = await patch({ dueDate: '2030-03-04' }, '"1"');
+    expect(set.status).toBe(200);
+    expect(set.body).toMatchObject({ dueAt: '2030-03-04T23:59:59.000Z', dueDate: '2030-03-04' });
+    const cleared = await patch({ dueDate: null }, '"2"');
+    expect(cleared.body).toMatchObject({ dueAt: null, dueDate: null });
+  });
+
   it('returns 428 without If-Match', async () => {
     const response = await patch({ title: 'New' });
     expect(response.status).toBe(428);
@@ -328,7 +382,7 @@ describe('PATCH /api/todos/:id', () => {
     const response = await patch({}, '"1"');
     expect(response.status).toBe(400);
     expect(response.body.errors).toEqual([
-      { field: null, message: 'At least one of title, description or dueAt is required' },
+      { field: null, message: 'At least one of title, description, dueDate or dueAt is required' },
     ]);
   });
 });

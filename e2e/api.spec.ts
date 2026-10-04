@@ -12,6 +12,17 @@ test.describe('API through the nginx proxy', () => {
     });
   });
 
+  test("accepts the brief's dueDate and returns both deadline fields", async ({ request }) => {
+    const response = await request.post('/api/todos', {
+      data: { title: uniqueTitle('Brief date'), dueDate: '2030-01-02' },
+    });
+    expect(response.status()).toBe(201);
+    expect(await response.json()).toMatchObject({
+      dueAt: '2030-01-02T23:59:59.000Z',
+      dueDate: '2030-01-02',
+    });
+  });
+
   test('passes ETag, If-Match and Location headers', async ({ request }) => {
     const created = await request.post('/api/todos', { data: { title: uniqueTitle('Headers') } });
     expect(created.headers().etag).toBe('"1"');

@@ -1,6 +1,6 @@
 # 0017 Deadlines are UTC instants
 
-Status: Accepted · 2026-10-03 · Supersedes [0008](./0008-server-side-utc-overdue.md)
+Status: Accepted · 2026-10-03 · Supersedes [0008](./0008-server-side-utc-overdue.md) · Amended by [0018](0018-deadlines-accept-the-briefs-duedate.md).
 
 ## Context
 

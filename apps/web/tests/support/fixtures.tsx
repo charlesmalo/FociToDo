@@ -10,11 +10,13 @@ let sequence = 0;
 
 export function makeView(overrides: Partial<TodoView> = {}): TodoView {
   sequence += 1;
+  const dueAt = overrides.dueAt ?? null;
   return {
     id: `00000000-0000-4000-8000-${sequence.toString().padStart(12, '0')}`,
     title: `Task ${sequence}`,
     description: null,
-    dueAt: null,
+    dueAt,
+    dueDate: dueAt?.slice(0, 10) ?? null,
     isCompleted: false,
     createdAt: '2026-09-30T12:00:00.000Z',
     version: 1,

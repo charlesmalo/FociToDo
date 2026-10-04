@@ -8,7 +8,7 @@ afterAll(() => pool.end());
 describe('PgDatabaseProbe against Postgres', () => {
   it('reports the latest applied migration', async () => {
     await expect(new PgDatabaseProbe(pool).check()).resolves.toEqual({
-      schemaVersion: '1759190400002_due-at-instants',
+      schemaVersion: '1759190400003_due-date-in-cached-responses',
     });
   });
 });

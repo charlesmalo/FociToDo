@@ -228,13 +228,14 @@ Tests mirror source paths (`src/a/B.ts` → `tests/a/B.test.ts`). See [docs/test
 7. No pagination; lists are expected to stay small.
 8. Idempotency keys apply to creates only and expire after 24 hours; a replay returns the original response.
 9. Timestamps and deadlines are stored as UTC instants (`timestamptz`) and shown in the viewer's locale and timezone.
-10. Titles sort case-insensitively; todos without a deadline sort last.
+10. Deadlines can be written as the brief's `dueDate` (`YYYY-MM-DD`, due at 23:59:59 UTC that day) or as an exact `dueAt` instant. Responses return both; `dueDate` is the UTC calendar date of `dueAt`, so a late-evening deadline west of UTC shows the next day's date there.
+11. Titles sort case-insensitively; todos without a deadline sort last.
 
 ## Trade-offs
 
 - **Postgres over a file store:** one more container, in exchange for transactions and constraints that make the concurrency guarantees simple and verifiable.
 - **Required `If-Match`:** clients must track ETags; in return lost updates are impossible.
-- **Deadlines as UTC instants:** status is exact and identical in every timezone, at the cost that a time must be chosen (the form prefills 17:00) and API requests must carry a timezone offset.
+- **Deadlines as UTC instants:** status is exact and identical in every timezone, at the cost that a time must be chosen (the form prefills 17:00) and that an exact time in an API request needs a timezone offset; the brief's `dueDate` (`YYYY-MM-DD`) means 23:59:59 UTC.
 - **No pagination, auth, soft delete or `completedAt`:** not required by the brief; each would add API surface and tests without improving correctness.
 - **Single page with a modal:** covers every operation with the least UI code; the panels are independent of the dialog if a different layout is preferred.
 

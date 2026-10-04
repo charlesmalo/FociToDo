@@ -37,6 +37,7 @@ export function toView(todo: Todo, now: Date): TodoView {
     title: todo.title,
     description: todo.description,
     dueAt: todo.dueAt === null ? null : todo.dueAt.toISOString(),
+    dueDate: todo.dueAt === null ? null : todo.dueAt.toISOString().slice(0, 10),
     isCompleted: todo.isCompleted,
     createdAt: todo.createdAt.toISOString(),
     version: todo.version,
